@@ -1,0 +1,1 @@
+yarn react-native bundle --entry-file index.js --platform android --dev true --bundle-output android/bundle.js --assets-dest android

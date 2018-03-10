@@ -3,14 +3,15 @@ import logo from '../static/logo.png';
 import 
   {Image,
   StyleSheet,
-  Text,
   View
 } from 'react-native';
 class Header extends Component {
     render() {
       return (
           <View style={style.header}>
-              <Image style={style.logo} source={logo} />
+              <View style={style.spacer}></View>
+                <Image style={style.logo} source={logo}  resizeMode="contain"/>
+              <View style={style.spacer}></View>
           </View>
       );
     }
@@ -20,13 +21,19 @@ class Header extends Component {
   export default Header;
   
   const style = StyleSheet.create({
-    logo: {
-      width: '100%',
-      height: '50%',
-      maxWidth: 600,
-    },
     header: {
-      width: '100%',
-      height: 600,
+      flexDirection: 'row',
+      flex: 0.25,
+      minHeight: 100,
+      backgroundColor: '#001a00',
+    },
+    logo:{
+      flex :1,
+      height: undefined,
+      width: undefined
+     
+    },
+    spacer: {
+      flex: 0.1,
     }
   })
