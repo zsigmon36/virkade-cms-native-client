@@ -10,6 +10,21 @@ import {
 import Header from './Header.js'
 
 class BasicAccount extends Component {
+
+    constructor(props){
+        super(props)
+        this.state = {
+            userName: '',
+            password: '',
+            securityQ: '',
+            securityA: ''
+        }
+    }
+
+    clickNext(){
+        this.props.navigation.navigate('BasicUser')
+    }
+
     render() {
         return (
             <View style={style.wrapper}>
@@ -22,14 +37,22 @@ class BasicAccount extends Component {
                         </View>
                         <View style={style.col}>
                             <Text style={style.label}>username:</Text>
-                            <TextInput style={style.input} underlineColorAndroid="#9fff80" />
+                            <TextInput style={style.input} underlineColorAndroid="#9fff80"  onChangeText={(userName) => this.setState({"userName":userName})}  value={this.state.userName}/>
                         </View>
                         <View style={style.col}>
                             <Text style={style.label}>password:</Text>
-                            <TextInput style={style.input} underlineColorAndroid="#9fff80" />
+                            <TextInput style={style.input} underlineColorAndroid="#9fff80" onChangeText={(password) => this.setState({"password":password})}  value={this.state.password}/>
                         </View>
                         <View style={style.col}>
-                            <TouchableNativeFeedback onPress={() => this.props.navigation.navigate('BasicUser')}>
+                            <Text style={style.label}>security q:</Text>
+                            <TextInput style={style.input} underlineColorAndroid="#9fff80" onChangeText={(securityQ) => this.setState({"securityQ":securityQ})}  value={this.state.securityQ}/>
+                        </View>
+                        <View style={style.col}>
+                            <Text style={style.label}>security a:</Text>
+                            <TextInput style={style.input} underlineColorAndroid="#9fff80" onChangeText={(securityA) => this.setState({"securityA":securityA})}  value={this.state.securityA}/>
+                        </View>
+                        <View style={style.col}>
+                            <TouchableNativeFeedback onPress={() => this.clickNext()}>
                                 <View style={style.next}>
                                     <Text style={style.label}>next</Text>
                                 </View>

@@ -5,13 +5,14 @@ import {
     Text,
     View,
     Button,
+    Alert,
     TouchableNativeFeedback
 } from 'react-native' 
 import Header from './Header.js'
 
 class Splash extends Component {
+    
     render() {
-
         return (
             <View style={style.wrapper}>
             <Header/>
@@ -38,7 +39,6 @@ class Splash extends Component {
                             </View>
                         </TouchableNativeFeedback>
                     </View>
-
                 </View>
                 <View style={style.spacer}></View>
             </View>
@@ -81,7 +81,6 @@ const style = StyleSheet.create({
         fontSize: 18,
         fontFamily: 'TerminusTTFWindows-4.46.0'
     },
-    
     spacer: {
         flex: 0.1,
     },

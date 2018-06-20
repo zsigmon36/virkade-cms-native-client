@@ -8,8 +8,20 @@ import {
     TouchableNativeFeedback
 } from 'react-native';
 import Header from './Header.js'
+import {DatabaseAPI} from './dataAccess/DatabaseAPI.js'
 
 class Login extends Component {
+    constructor(props){
+        super(props)
+        this.state = {
+            userName: '',
+            password: ''
+        }
+    }
+
+    setSignIn = function(responseJSON){
+        console.log(responseJSON)
+    }
     render() {
         return (
             <View style={style.wrapper}>
@@ -22,16 +34,33 @@ class Login extends Component {
                         </View>
                         <View style={style.col}>
                             <Text style={style.label}>username:</Text>
-                            <TextInput style={style.input} underlineColorAndroid="#9fff80" />
+                            <TextInput style={style.input}  underlineColorAndroid="#9fff80" 
+                                onChangeText={(userName) => this.setState(userName)} 
+                                value={this.state.userName}/>
                         </View>
                         <View style={style.col}>
                             <Text style={style.label}>password:</Text>
-                            <TextInput style={style.input} underlineColorAndroid="#9fff80" visible-password={false} />
+                            <TextInput style={style.input} underlineColorAndroid="#9fff80" secureTextEntry={true} 
+                             onChangeText={(password) => this.setState(password)} 
+                             value={this.state.password}/>
                         </View>
                         <View style={style.col}>
-                            <TouchableNativeFeedback onPress={() => this.props.navigation.navigate('Splash')}>
+                            <TouchableNativeFeedback onPress={() => 
+                                DatabaseAPI.signin(
+                                    this.state.username, 
+                                    this.state.password, 
+                                    this.props.userData.authToken, 
+                                    this.setSignIn
+                                    )}>
                                 <View style={style.next}>
                                     <Text style={style.label}>submit</Text>
+                                </View>
+                            </TouchableNativeFeedback>
+                        </View>
+                        <View style={style.col}>
+                            <TouchableNativeFeedback onPress={() => this.props.navigation.navigate('ForgotPassword')}>
+                                <View style={style.forgot}>
+                                    <Text style={style.label}>forgot password?</Text>
                                 </View>
                             </TouchableNativeFeedback>
                         </View>
@@ -83,6 +112,11 @@ const style = StyleSheet.create({
         height: 40,
 
         fontFamily: 'TerminusTTFWindows-4.46.0'
+    },
+    forgot: {
+        flex: 1,
+        height: 40,
+        marginTop: 10,
     },
     spacer: {
         flex: 0.1,

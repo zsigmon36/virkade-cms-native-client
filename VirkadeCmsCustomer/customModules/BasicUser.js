@@ -9,8 +9,23 @@ import {
     ScrollView
 } from 'react-native';
 import Header from './Header.js'
+import {DatabaseAPI} from './dataAccess/DatabaseAPI.js'
 
 class BasicUser extends Component {
+
+    constructor(props){
+        super(props)
+        this.state = {
+            firstName: '',
+            lastName: '',
+            emailAddress: ''
+        }
+    }
+
+    clickNext(){
+        this.props.navigation.navigate('PersonalUser')
+    }
+
     render() {
         return (
             <ScrollView >
@@ -24,18 +39,18 @@ class BasicUser extends Component {
                         </View>
                         <View style={style.col}>
                             <Text style={style.label}>first name:</Text>
-                            <TextInput style={style.input} underlineColorAndroid="#9fff80" />
+                            <TextInput style={style.input} underlineColorAndroid="#9fff80" onChangeText={(firstName) => this.setState({"firstName":firstName})}  value={this.state.firstName}/>
                         </View>
                         <View style={style.col}>
                             <Text style={style.label}>last name:</Text>
-                            <TextInput style={style.input} underlineColorAndroid="#9fff80" />
+                            <TextInput style={style.input} underlineColorAndroid="#9fff80" onChangeText={(lastName) => this.setState({"lastName":lastName})}  value={this.state.lastName}/>
                         </View>
                         <View style={style.col}>
                             <Text style={style.label}>email address:</Text>
-                            <TextInput style={style.input} underlineColorAndroid="#9fff80" />
+                            <TextInput style={style.input} underlineColorAndroid="#9fff80" onChangeText={(emailAddress) => this.setState({"emailAddress":emailAddress})}  value={this.state.emailAddress}/>
                         </View>
                         <View style={style.col}>
-                        <TouchableNativeFeedback onPress={() => this.props.navigation.navigate('PersonalUser')}>
+                        <TouchableNativeFeedback onPress={() => this.clickNext()}>
                             <View style={style.next}>
                                 <Text style={style.label}>next</Text>
                             </View>
