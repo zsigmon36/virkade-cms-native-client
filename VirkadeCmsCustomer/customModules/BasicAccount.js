@@ -1,4 +1,5 @@
 import React, { Component } from 'react';
+import { connect } from 'react-redux';
 import {
     TextInput,
     StyleSheet,
@@ -8,21 +9,40 @@ import {
     TouchableNativeFeedback
 } from 'react-native';
 import Header from './Header.js'
-
+import { bindActionCreators } from 'redux';
+import basicAccountAction from './reduxActions/BasicAccountAction'
 class BasicAccount extends Component {
 
     constructor(props){
         super(props)
-        this.state = {
-            userName: '',
-            password: '',
-            securityQ: '',
-            securityA: ''
-        }
+    }
+    updateInput(data){
+        this.props.actions(data)
     }
 
     clickNext(){
-        this.props.navigation.navigate('BasicUser')
+        this.validateInput() && this.props.navigation.navigate('BasicUser')
+    }
+
+    validateInput(){
+        let {username, password, securityQ, securityA} = this.props.basicAccount;
+        if (!username || username.length < 6){
+            alert('username is too short')
+            return false;
+        }
+        if (!password || password.length < 8){
+            alert('password is too short')
+            return false;
+        }
+        if (!securityQ){
+            alert('securityQ cannot be empty')
+            return false;
+        }
+        if (!securityA){
+            alert('securityA cannot be empty')
+            return false;
+        }
+        return true;
     }
 
     render() {
@@ -37,19 +57,23 @@ class BasicAccount extends Component {
                         </View>
                         <View style={style.col}>
                             <Text style={style.label}>username:</Text>
-                            <TextInput style={style.input} underlineColorAndroid="#9fff80"  onChangeText={(userName) => this.setState({"userName":userName})}  value={this.state.userName}/>
+                            <TextInput style={style.input} underlineColorAndroid="#9fff80"  onChangeText={(username) => 
+                                this.updateInput({username:username})}  value={this.props.basicAccount.username}/>
                         </View>
                         <View style={style.col}>
                             <Text style={style.label}>password:</Text>
-                            <TextInput style={style.input} underlineColorAndroid="#9fff80" onChangeText={(password) => this.setState({"password":password})}  value={this.state.password}/>
+                            <TextInput style={style.input} secureTextEntry={true} underlineColorAndroid="#9fff80" onChangeText={(password) => 
+                                this.updateInput({password:password})}  value={this.props.basicAccount.password}/>
                         </View>
                         <View style={style.col}>
                             <Text style={style.label}>security q:</Text>
-                            <TextInput style={style.input} underlineColorAndroid="#9fff80" onChangeText={(securityQ) => this.setState({"securityQ":securityQ})}  value={this.state.securityQ}/>
+                            <TextInput style={style.input} underlineColorAndroid="#9fff80" onChangeText={(securityQ) => 
+                                this.updateInput({securityQ:securityQ})}  value={this.props.basicAccount.securityQ}/>
                         </View>
                         <View style={style.col}>
                             <Text style={style.label}>security a:</Text>
-                            <TextInput style={style.input} underlineColorAndroid="#9fff80" onChangeText={(securityA) => this.setState({"securityA":securityA})}  value={this.state.securityA}/>
+                            <TextInput style={style.input} underlineColorAndroid="#9fff80" onChangeText={(securityA) => 
+                                this.updateInput({securityA:securityA})}  value={this.props.basicAccount.securityA}/>
                         </View>
                         <View style={style.col}>
                             <TouchableNativeFeedback onPress={() => this.clickNext()}>
@@ -66,7 +90,19 @@ class BasicAccount extends Component {
     }
 }
 
-export default BasicAccount;
+function mapStateToProps(state, ownProps){
+    return {
+        basicAccount: state.basicAccount
+    }
+}
+
+function mapDispatchToProps(dispatch){
+    return {
+        actions : bindActionCreators(basicAccountAction, dispatch)
+    }
+}
+
+export default connect(mapStateToProps, mapDispatchToProps)(BasicAccount);
 
 const style = StyleSheet.create({
     wrapper: {

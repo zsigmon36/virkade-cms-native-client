@@ -17,16 +17,16 @@ const EMAILADDRESS = 'emailAddress'
 const USERID = 'userId'
 const CREATED_DATE = 'createdDate'
 
-let cmsGraphQLHost = `${HOST}:${PORT}${API_ADDRESS}`
+let cmsGraphQLHost = `http://${HOST}:${PORT}${API_ADDRESS}`
 
 export const DatabaseAPI = {
     signin: function (username, password, callBack) {
         let query = GraphQLParamStrings.signIn(username, password)
-        dataFetch(query, username, authToken, callBack)
+        dataFetch(query, username, authToken = '', callBack)
     },
     createNewUser: function (emailAddress, username, password, securityQ, securityA, firstName, lastName, callBack) {
         let query = GraphQLParamStrings.createNewUser(emailAddress, username, password, securityQ, securityA, firstName, lastName)
-        dataMutate(query, username, authToken, callBack)
+        dataFetch(query, username, authToken = '', callBack)
     }
 }
 
@@ -64,7 +64,7 @@ const GraphQLParamStrings = {
 }
 
 
- const dataFetch = function(queryString, callBack, retries = 2){
+ const dataFetch = function(queryString, username, authToken, callBack, retries = 2){
     
     let qs = cmsGraphQLHost+queryString;
     fetch(qs, {
@@ -80,6 +80,6 @@ const GraphQLParamStrings = {
           callBack(jsonData)
       }).catch(function(error){
         console.error("Woopsie Daisy, something broke")
-        if (retries > 0) {dataFetch(queryString, callBack, --retries)}
+        if (retries > 0) {dataFetch(queryString, username, authToken, callBack, --retries)}
       });
  }

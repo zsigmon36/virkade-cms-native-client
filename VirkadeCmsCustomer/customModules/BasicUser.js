@@ -1,4 +1,5 @@
 import React, { Component } from 'react';
+import { connect } from 'react-redux';
 import {
     TextInput,
     StyleSheet,
@@ -9,22 +10,49 @@ import {
     ScrollView
 } from 'react-native';
 import Header from './Header.js'
+import { bindActionCreators } from 'redux';
+import validator from 'validator';
+import basicUserAction from './reduxActions/BasicUserAction'
 import {DatabaseAPI} from './dataAccess/DatabaseAPI.js'
 
 class BasicUser extends Component {
 
     constructor(props){
         super(props)
-        this.state = {
-            firstName: '',
-            lastName: '',
-            emailAddress: ''
-        }
+    }
+    updateInput(data){
+        this.props.actions(data)
     }
 
+
     clickNext(){
+        let {firstName, lastName, emailAddress} = this.props.basicUser;
+        let {username,password, securityQ, securityA} = this.props.basicAccount;
+        this.validateInput() && DatabaseAPI.createNewUser(emailAddress, username, password, 
+            securityQ, securityA, firstName, lastName, this.nextPage)
+    }
+
+    validateInput(){
+        let {firstName, lastName, emailAddress} = this.props.basicUser;
+        if (!firstName){
+            alert('firstName cannot be empty')
+            return false;
+        }
+        if (!lastName){
+            alert('lastName cannot be empty')
+            return false;
+        }
+        if (!validator.isEmail(emailAddress)){
+            alert('emailAddress is not valid')
+            return false;
+        }
+        return true;
+    }
+
+    nextPage = function(data){
         this.props.navigation.navigate('PersonalUser')
     }
+
 
     render() {
         return (
@@ -39,20 +67,23 @@ class BasicUser extends Component {
                         </View>
                         <View style={style.col}>
                             <Text style={style.label}>first name:</Text>
-                            <TextInput style={style.input} underlineColorAndroid="#9fff80" onChangeText={(firstName) => this.setState({"firstName":firstName})}  value={this.state.firstName}/>
+                            <TextInput style={style.input} underlineColorAndroid="#9fff80" onChangeText={(firstName) => 
+                                this.updateInput({"firstName":firstName})}  value={this.props.basicUser.firstName}/>
                         </View>
                         <View style={style.col}>
                             <Text style={style.label}>last name:</Text>
-                            <TextInput style={style.input} underlineColorAndroid="#9fff80" onChangeText={(lastName) => this.setState({"lastName":lastName})}  value={this.state.lastName}/>
+                            <TextInput style={style.input} underlineColorAndroid="#9fff80" onChangeText={(lastName) => 
+                                this.updateInput({"lastName":lastName})}  value={this.props.basicUser.lastName}/>
                         </View>
                         <View style={style.col}>
                             <Text style={style.label}>email address:</Text>
-                            <TextInput style={style.input} underlineColorAndroid="#9fff80" onChangeText={(emailAddress) => this.setState({"emailAddress":emailAddress})}  value={this.state.emailAddress}/>
+                            <TextInput style={style.input} underlineColorAndroid="#9fff80" onChangeText={(emailAddress) => 
+                                this.updateInput({"emailAddress":emailAddress})}  value={this.props.basicUser.emailAddress}/>
                         </View>
                         <View style={style.col}>
                         <TouchableNativeFeedback onPress={() => this.clickNext()}>
                             <View style={style.next}>
-                                <Text style={style.label}>next</Text>
+                                <Text style={style.label}>create account</Text>
                             </View>
                             </TouchableNativeFeedback>
                         </View>
@@ -65,7 +96,20 @@ class BasicUser extends Component {
     }
 }
 
-export default BasicUser;
+function mapStateToProps(state, ownProps){
+    return {
+        basicAccount : state.basicAccount,
+        basicUser : state.basicUser
+    }
+}
+
+function mapDispatchToProps(dispatch){
+    return {
+        actions : bindActionCreators(basicUserAction, dispatch)
+    }
+}
+
+export default connect(mapStateToProps, mapDispatchToProps)(BasicUser);
 
 const style = StyleSheet.create({
     
