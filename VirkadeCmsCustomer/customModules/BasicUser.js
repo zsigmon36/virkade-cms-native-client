@@ -115,7 +115,7 @@ const style = StyleSheet.create({
     
     wrapper: {
         flex: 1,
-        minHeight: 725
+        minHeight: "850"
     },
     body: {
         flexDirection: 'row',
