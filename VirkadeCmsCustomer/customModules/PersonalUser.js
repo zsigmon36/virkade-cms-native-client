@@ -118,7 +118,7 @@ const style = StyleSheet.create({
     col: {
         marginTop: 15,
         flexDirection: 'row',
-        justifyContent: 'space-between'
+        alignItems: 'center'
     },
     label: {
         color: '#9fff80',
@@ -128,8 +128,7 @@ const style = StyleSheet.create({
     input: {
         flex: 1,
         color: '#9fff80',
-        height: 40,
-
+        fontSize: 18,
         fontFamily: 'TerminusTTFWindows-4.46.0'
     },
     spacer: {

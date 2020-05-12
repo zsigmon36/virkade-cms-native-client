@@ -1,5 +1,6 @@
-import React, { Component } from 'react';
-import {StackNavigator} from 'react-navigation'
+import React from 'react';
+import { NavigationContainer } from "@react-navigation/native"
+import { createStackNavigator } from "@react-navigation/stack"
 import BasicAccount from './BasicAccount.js'
 import BasicUser from './BasicUser.js'
 import PersonalUser from './PersonalUser.js'
@@ -8,25 +9,23 @@ import TermsConditions from './TermsConditions.js'
 import LimitedLiable from './LimitedLiable.js'
 import Splash from './Splash.js'
 import Login from './Login.js'
-import Header from './Header.js'
 
-const VirkadePages = StackNavigator({
-  Splash: {screen: Splash},
-  Login: {screen: Login},
-  BasicAccount: {screen: BasicAccount},
-  BasicUser: {screen: BasicUser},
-  PersonalUser: {screen: PersonalUser},
-  FinalDetails: {screen: FinalDetails},
-  TermsConditions: {screen: TermsConditions},
-  LimitedLiable : {screen: LimitedLiable}
-},
-{
-  initialRouteName: 'Splash',
-  navigationOptions: {
-    header: null
-  }
+const Stack = createStackNavigator()
+const VirkadePages = () => {
+  return (
+    <NavigationContainer>
+      <Stack.Navigator initialRouteName="Splash" headerMode='none' >
+        <Stack.Screen name="Splash" component={Splash} />
+        <Stack.Screen name="Login" component={Login} />
+        <Stack.Screen name="BasicAccount" component={BasicAccount} />
+        <Stack.Screen name="BasicUser" component={BasicUser} />
+        <Stack.Screen name="PersonalUser" component={PersonalUser} />
+        <Stack.Screen name="FinalDetails" component={FinalDetails} />
+        <Stack.Screen name="TermsConditions" component={TermsConditions} />
+        <Stack.Screen name="LimitedLiable" component={LimitedLiable} />
+      </Stack.Navigator>
+    </NavigationContainer>
+  )
 }
-
-)
 
 export default VirkadePages;

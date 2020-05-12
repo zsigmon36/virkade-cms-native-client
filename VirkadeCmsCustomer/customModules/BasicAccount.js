@@ -10,7 +10,8 @@ import {
 } from 'react-native';
 import Header from './Header.js'
 import { bindActionCreators } from 'redux';
-import basicAccountAction from './reduxActions/BasicAccountAction'
+import basicAccountAction from './reduxActions/BasicAccountAction';
+
 class BasicAccount extends Component {
 
     constructor(props){
@@ -129,7 +130,10 @@ const style = StyleSheet.create({
     col: {
         marginTop: 15,
         flexDirection: 'row',
-        justifyContent: 'space-between'
+        alignItems: 'center'
+        //alignSelf: 'baseline'
+        //alignContent: 'center'
+        //justifyContent: 'center'
     },
     label: {
         color: '#9fff80',
@@ -138,9 +142,8 @@ const style = StyleSheet.create({
     },
     input: {
         flex: 1,
+        fontSize: 18,
         color: '#9fff80',
-        height: 40,
-
         fontFamily: 'TerminusTTFWindows-4.46.0'
     },
     spacer: {

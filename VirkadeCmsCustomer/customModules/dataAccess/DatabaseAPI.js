@@ -1,7 +1,8 @@
-const HOST = '192.168.1.240'
+//const HOST = '192.168.1.240'
+const HOST = '192.168.1.7'
 const PORT = '80'
 const API_ADDRESS = '/service'
-const QUERY = '?query='
+const QUERY = 'query'
 const MUTATION = 'mutation'
 const AUTHDATA = 'authData'
 const SIGN_IN = 'signIn'
@@ -31,8 +32,8 @@ export const DatabaseAPI = {
 }
 
 const GraphQLParamStrings = {
-    signIn : function (username, password) {
-        return `${QUERY} ${SIGN_IN}
+    signIn: function (username, password) {
+        return `"${QUERY}": "{ ${SIGN_IN}
             (
                 ${AUTHDATA}:{
                     ${USERNAME}:${username},
@@ -43,43 +44,49 @@ const GraphQLParamStrings = {
                 ${TOKEN}
             }`
     },
-    createNewUser : function (emailAddress, username, password, securityQ, securityA, firstName, lastName) {
-        return `${QUERY} ${CREATE_NEW_USER}
+    createNewUser: function (emailAddress, username, password, securityQ, securityA, firstName, lastName) {
+        let query = `${MUTATION} { ${CREATE_NEW_USER}
             (
-                ${EMAILADDRESS}:${emailAddress},
+                ${EMAILADDRESS}:\"${emailAddress}\",
                 ${AUTHDATA}:{
-                    ${USERNAME}:${username},
-                    ${PASSWORD}:${password},
-                    ${SECURITYQ}:${securityQ},
-                    ${SECURITYA}:${securityA}
+                    ${USERNAME}:\"${username}\",
+                    ${PASSWORD}:\"${password}\",
+                    ${SECURITYQ}:\"${securityQ}\",
+                    ${SECURITYA}:\"${securityA}\"
                 },
-                ${FIRST_NAME}:${firstName},
-                ${LAST_NAME}:${lastName}
-
+                ${FIRST_NAME}:\"${firstName}\",
+                ${LAST_NAME}:\"${lastName}\"
             ){
-                ${USERNAME},
+                ${USERNAME} 
                 ${USERID}
-            }`
+            }}`
+        return query; //.replace(/\s/g, '');
+
     }
 }
 
 
- const dataFetch = function(queryString, username, authToken, callBack, retries = 2){
-    
-    let qs = cmsGraphQLHost+queryString;
-    fetch(qs, {
+const dataFetch = function (queryString, username, authToken, callBack, retries = 2) {
+
+    let qs = cmsGraphQLHost;
+    let promise = fetch(qs, {
         method: 'POST',
+        body: JSON.stringify({ query: queryString }),
         headers: {
-          Accept: 'application/json',
-          'Content-Type': 'application/json',
-          'Authorization': 'Bearer '+authToken,
-          'UserName': username
+            Accept: 'application/json',
+            'Content-Type': 'application/json',
+            'Authorization': 'Bearer ' + authToken,
+            'UserName': username
         }
-      }).then(function(response){
-          jsonData = response.json()
-          callBack(jsonData)
-      }).catch(function(error){
+    });
+
+    promise.then(response => response.json())
+    .then(results => {
+        callBack(jsonData)
+    }).catch(error => {
         console.error("Woopsie Daisy, something broke")
-        if (retries > 0) {dataFetch(queryString, username, authToken, callBack, --retries)}
-      });
- }
+        if (retries > 0) { 
+            dataFetch(queryString, username, authToken, callBack, --retries)
+        }
+    });
+}
