@@ -99,7 +99,7 @@ const style = StyleSheet.create({
     col: {
         marginTop: 15,
         flexDirection: 'row',
-        justifyContent: 'space-between'
+        alignItems: 'center'
     },
     label: {
         color: '#9fff80',

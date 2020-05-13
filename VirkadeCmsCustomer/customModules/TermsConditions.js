@@ -10,13 +10,13 @@ import {
 } from 'react-native';
 import CheckBox from 'react-native-checkbox';
 import Header from './Header.js'
-
-const termsConditionsContent = "this is some sample t&c \n the real legal stuff will be here after some time \n until that gets here enjoy this ranting"
+import Markdown from 'react-native-markdown-renderer';
+import { tandc } from '../static/tandc'
 
 class TermsConditions extends Component {
     state = {
         agree: '[ ]',
-    }
+    } 
 
     agreeCheckBox = () => {
         if (this.state.agree == '[ ]') {
@@ -26,6 +26,8 @@ class TermsConditions extends Component {
         }
     }
     render() {
+        let termsAndConds = tandc.enUS;
+        console.log(tandc)
         return (
             <ScrollView >
                 <View style={style.wrapper}>
@@ -36,15 +38,13 @@ class TermsConditions extends Component {
                             <View style={style.colFirst}>
                                 <Text style={style.h1}>::terms & conditions::</Text>
                             </View>
-                            <View style={[style.col,style.border, style.padit]}>
-                                <Text style={[style.label]} >
-                                    {termsConditionsContent}
-                                </Text>
+                            <View style={[style.col, style.border, style.padit]}>
+                                <Markdown style={mdStyle}>{termsAndConds}</Markdown>
                             </View>
-                            <View style={style.col}>
+                            <View style={[style.col, style.edgeSpace]}>
                                 <Text style={style.checkBox} onPress={this.agreeCheckBox}> {this.state.agree} do you agree to the terms and conditions?</Text>
                             </View>
-                            <View style={style.col}>
+                            <View style={[style.col, style.edgeSpace]}>
                                 <TouchableNativeFeedback onPress={() => this.props.navigation.navigate('LimitedLiable')}>
                                     <View style={style.next}>
                                         <Text style={style.label}>next</Text>
@@ -62,20 +62,40 @@ class TermsConditions extends Component {
 
 export default TermsConditions;
 
+const mdStyle = StyleSheet.create({
+    text: {
+        color: '#9fff80',
+        fontFamily: 'TerminusTTFWindows-Bold-4.46.0',
+    },
+    listOrderedItemIcon: {
+        color: '#9fff80',
+        marginLeft: 10,
+        marginRight: 10,
+        lineHeight: 34,
+    },
+    listUnorderedItemIcon: {
+        color: '#9fff80',
+        marginLeft: 10,
+        marginRight: 10,
+        lineHeight: 34,
+    },
+  });
+
+
 const style = StyleSheet.create({
 
     wrapper: {
-        flex: 1,
-        minHeight: 725
+        flex: 0,
+        minHeight: 850
     },
     body: {
         flexDirection: 'row',
-        flex: 0.75,
+        flex: 0,
         backgroundColor: '#001a00',
     },
     main: {
         flexDirection: 'column',
-        flex: 1
+        flex: 0
     },
     h1: {
         color: '#9fff80',
@@ -89,7 +109,11 @@ const style = StyleSheet.create({
     col: {
         marginTop: 15,
         flexDirection: 'row',
-        justifyContent: 'space-between'
+        alignItems: 'center'
+    },
+    edgeSpace: {
+        marginLeft: 20,
+        marginRight: 20
     },
     label: {
         color: '#9fff80',
@@ -98,14 +122,13 @@ const style = StyleSheet.create({
     },
     checkBox: {
         color: '#9fff80',
-        fontSize: 14,
+        fontSize: 18,
         fontFamily: 'TerminusTTFWindows-4.46.0'
     },
     input: {
         flex: 1,
         color: '#9fff80',
-        height: 40,
-
+        fontSize: 18,
         fontFamily: 'TerminusTTFWindows-4.46.0'
     },
     textArea: {

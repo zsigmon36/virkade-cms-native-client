@@ -11,39 +11,56 @@ import {
 import Header from './Header.js'
 import { bindActionCreators } from 'redux';
 import basicAccountAction from './reduxActions/BasicAccountAction';
+import { DatabaseAPI } from './dataAccess/DatabaseAPI.js'
 
 class BasicAccount extends Component {
 
-    constructor(props){
+    constructor(props) {
         super(props)
+        this.clickNext = this.clickNext.bind(this)
     }
-    updateInput(data){
+
+    state = {
+        validatorMsg: ''
+    }
+
+    updateInput(data) {
         this.props.actions(data)
+        this.validateInput(false)
     }
 
-    clickNext(){
-        this.validateInput() && this.props.navigation.navigate('BasicUser')
+    clickNext(data) {
+        if (data.getUserByUserName) {
+            alert('username already exists, \n looks like someone beat you to it :(')
+        } else {
+            this.props.navigation.navigate('BasicUser')
+        }
     }
 
-    validateInput(){
-        let {username, password, securityQ, securityA} = this.props.basicAccount;
-        if (!username || username.length < 6){
-            alert('username is too short')
-            return false;
+    validateInput(isAlert = true) {
+        let { username, password, securityQ, securityA } = this.props.basicAccount;
+        let msg = '';
+        valid = true;
+        if (!username || username.length < 6) {
+            msg = 'username is too short'
+            valid = false;
+        } else if (!password || password.length < 8) {
+            msg = 'password is too short'
+            valid = false;
+        } else if (!securityQ) {
+            msg = 'securityQ cannot be empty'
+            valid = false;
+        } else if (!securityA) {
+            msg = 'securityA cannot be empty'
+            valid = false;
         }
-        if (!password || password.length < 8){
-            alert('password is too short')
-            return false;
+        this.setState({ validatorMsg: msg })
+
+        if (isAlert && !valid) {
+            alert(msg)
         }
-        if (!securityQ){
-            alert('securityQ cannot be empty')
-            return false;
-        }
-        if (!securityA){
-            alert('securityA cannot be empty')
-            return false;
-        }
-        return true;
+        return valid;
+
     }
 
     render() {
@@ -53,31 +70,34 @@ class BasicAccount extends Component {
                 <View style={style.body}>
                     <View style={style.spacer}></View>
                     <View style={style.main}>
+                        <View style={style.h2}>
+                            <Text style={style.label}>{this.state.validatorMsg}</Text>
+                        </View>
                         <View style={style.colFirst}>
                             <Text style={style.h1}>::create account::</Text>
                         </View>
                         <View style={style.col}>
                             <Text style={style.label}>username:</Text>
-                            <TextInput style={style.input} underlineColorAndroid="#9fff80"  onChangeText={(username) => 
-                                this.updateInput({username:username})}  value={this.props.basicAccount.username}/>
+                            <TextInput style={style.input} underlineColorAndroid="#9fff80" onChangeText={(username) =>
+                                this.updateInput({ username: username })} value={this.props.basicAccount.username} />
                         </View>
                         <View style={style.col}>
                             <Text style={style.label}>password:</Text>
-                            <TextInput style={style.input} secureTextEntry={true} underlineColorAndroid="#9fff80" onChangeText={(password) => 
-                                this.updateInput({password:password})}  value={this.props.basicAccount.password}/>
+                            <TextInput style={style.input} secureTextEntry={true} underlineColorAndroid="#9fff80" onChangeText={(password) =>
+                                this.updateInput({ password: password })} value={this.props.basicAccount.password} />
                         </View>
                         <View style={style.col}>
                             <Text style={style.label}>security q:</Text>
-                            <TextInput style={style.input} underlineColorAndroid="#9fff80" onChangeText={(securityQ) => 
-                                this.updateInput({securityQ:securityQ})}  value={this.props.basicAccount.securityQ}/>
+                            <TextInput style={style.input} underlineColorAndroid="#9fff80" onChangeText={(securityQ) =>
+                                this.updateInput({ securityQ: securityQ })} value={this.props.basicAccount.securityQ} />
                         </View>
                         <View style={style.col}>
                             <Text style={style.label}>security a:</Text>
-                            <TextInput style={style.input} underlineColorAndroid="#9fff80" onChangeText={(securityA) => 
-                                this.updateInput({securityA:securityA})}  value={this.props.basicAccount.securityA}/>
+                            <TextInput style={style.input} underlineColorAndroid="#9fff80" onChangeText={(securityA) =>
+                                this.updateInput({ securityA: securityA })} value={this.props.basicAccount.securityA} />
                         </View>
                         <View style={style.col}>
-                            <TouchableNativeFeedback onPress={() => this.clickNext()}>
+                            <TouchableNativeFeedback onPress={() => this.validateInput() && DatabaseAPI.getUserByUserName(this.props.basicAccount.username, this.clickNext)}>
                                 <View style={style.next}>
                                     <Text style={style.label}>next</Text>
                                 </View>
@@ -91,15 +111,15 @@ class BasicAccount extends Component {
     }
 }
 
-function mapStateToProps(state, ownProps){
+function mapStateToProps(state, ownProps) {
     return {
         basicAccount: state.basicAccount
     }
 }
 
-function mapDispatchToProps(dispatch){
+function mapDispatchToProps(dispatch) {
     return {
-        actions : bindActionCreators(basicAccountAction, dispatch)
+        actions: bindActionCreators(basicAccountAction, dispatch)
     }
 }
 
@@ -121,6 +141,12 @@ const style = StyleSheet.create({
     h1: {
         color: '#9fff80',
         fontSize: 26,
+        alignSelf: 'center',
+        fontFamily: 'TerminusTTFWindows-Bold-4.46.0'
+    },
+    h2: {
+        color: '#9fff80',
+        fontSize: 20,
         alignSelf: 'center',
         fontFamily: 'TerminusTTFWindows-Bold-4.46.0'
     },

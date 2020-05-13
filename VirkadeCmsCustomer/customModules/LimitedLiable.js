@@ -10,8 +10,8 @@ import {
 } from 'react-native';
 import CheckBox from 'react-native-checkbox';
 import Header from './Header.js'
-
-const termsConditionsContent = "this is some sample limited liability waiver \n the real legal stuff will be here after some time \n until that gets here enjoy this ranting"
+import Markdown from 'react-native-markdown-renderer';
+import { liabilityWaiver } from '../static/liabilityWaiver'
 
 class LimitedLiable extends Component {
     state = {
@@ -26,6 +26,7 @@ class LimitedLiable extends Component {
         }
     }
     render() {
+        let waiver = liabilityWaiver.enUS
         return (
             <ScrollView >
                 <View style={style.wrapper}>
@@ -37,15 +38,13 @@ class LimitedLiable extends Component {
                                 <Text style={style.h1}>::liability waiver::</Text>
                             </View>
                             <View style={[style.col,style.border, style.padit]}>
-                                <Text style={style.label} >
-                                    {termsConditionsContent}
-                                </Text>
+                                <Markdown style={mdStyle}>{waiver}</Markdown>
                             </View>
-                            <View style={style.col}>
+                            <View style={[style.col, style.edgeSpace]}>
                                 <Text style={style.checkBox} onPress={this.agreeCheckBox}> {this.state.agree} do you agree to waive liability?</Text>
                             </View>
-                            <View style={style.col}>
-                                <TouchableNativeFeedback onPress={() => this.props.navigation.navigate('home')}>
+                            <View style={[style.col, style.edgeSpace]}>
+                                <TouchableNativeFeedback onPress={() => this.props.navigation.navigate('Splash')}>
                                     <View style={style.next}>
                                         <Text style={style.label}>finish</Text>
                                     </View>
@@ -62,20 +61,39 @@ class LimitedLiable extends Component {
 
 export default LimitedLiable;
 
+const mdStyle = StyleSheet.create({
+    text: {
+        color: '#9fff80',
+        fontFamily: 'TerminusTTFWindows-Bold-4.46.0',
+    },
+    listOrderedItemIcon: {
+        color: '#9fff80',
+        marginLeft: 10,
+        marginRight: 10,
+        lineHeight: 34,
+    },
+    listUnorderedItemIcon: {
+        color: '#9fff80',
+        marginLeft: 10,
+        marginRight: 10,
+        lineHeight: 34,
+    },
+  });
+
 const style = StyleSheet.create({
 
     wrapper: {
-        flex: 1,
+        flex: 0,
         minHeight: 725
     },
     body: {
         flexDirection: 'row',
-        flex: 0.75,
+        flex: 0,
         backgroundColor: '#001a00',
     },
     main: {
         flexDirection: 'column',
-        flex: 1
+        flex: 0
     },
     h1: {
         color: '#9fff80',
@@ -89,7 +107,11 @@ const style = StyleSheet.create({
     col: {
         marginTop: 15,
         flexDirection: 'row',
-        justifyContent: 'space-between'
+        alignItems: 'center'
+    },
+    edgeSpace: {
+        marginLeft: 20,
+        marginRight: 20
     },
     label: {
         color: '#9fff80',
@@ -98,14 +120,13 @@ const style = StyleSheet.create({
     },
     checkBox: {
         color: '#9fff80',
-        fontSize: 14,
+        fontSize: 18,
         fontFamily: 'TerminusTTFWindows-4.46.0'
     },
     input: {
         flex: 1,
         color: '#9fff80',
-        height: 40,
-
+        fontSize: 18,
         fontFamily: 'TerminusTTFWindows-4.46.0'
     },
     textArea: {

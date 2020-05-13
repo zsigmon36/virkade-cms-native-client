@@ -7,6 +7,7 @@ const MUTATION = 'mutation'
 const AUTHDATA = 'authData'
 const SIGN_IN = 'signIn'
 const CREATE_NEW_USER = 'createNewUser'
+const GET_USER_BY_USERNAME = 'getUserByUserName'
 const USERNAME = 'userName'
 const PASSWORD = 'password'
 const SECURITYQ = 'securityQuestion'
@@ -23,11 +24,15 @@ let cmsGraphQLHost = `http://${HOST}:${PORT}${API_ADDRESS}`
 export const DatabaseAPI = {
     signin: function (username, password, callBack) {
         let query = GraphQLParamStrings.signIn(username, password)
-        dataFetch(query, username, authToken = '', callBack)
+        return dataFetch(query, username, authToken = '', callBack)
     },
     createNewUser: function (emailAddress, username, password, securityQ, securityA, firstName, lastName, callBack) {
         let query = GraphQLParamStrings.createNewUser(emailAddress, username, password, securityQ, securityA, firstName, lastName)
-        dataFetch(query, username, authToken = '', callBack)
+        return dataFetch(query, username, authToken = '', callBack)
+    },
+    getUserByUserName: function(username, callBack) {
+        let query = GraphQLParamStrings.getUserByUserName(username, callBack)
+        return dataFetch(query, username, authToken = '', callBack)
     }
 }
 
@@ -62,30 +67,42 @@ const GraphQLParamStrings = {
             }}`
         return query; //.replace(/\s/g, '');
 
+    },
+    getUserByUserName: function (username) {
+        let query = `${QUERY} { ${GET_USER_BY_USERNAME}
+            (
+                ${USERNAME}:\"${username}\",
+            ){
+                ${USERNAME} 
+                ${USERID}
+            }}`
+        return query; //.replace(/\s/g, '');
+
     }
 }
 
 
-const dataFetch = function (queryString, username, authToken, callBack, retries = 2) {
+const dataFetch = function (queryString, username, authToken, callBack, retries = 1) {
 
     let qs = cmsGraphQLHost;
-    let promise = fetch(qs, {
+    let body = JSON.stringify({ query: queryString });
+
+    fetch(qs, {
         method: 'POST',
-        body: JSON.stringify({ query: queryString }),
+        body: body,
         headers: {
             Accept: 'application/json',
             'Content-Type': 'application/json',
             'Authorization': 'Bearer ' + authToken,
             'UserName': username
         }
-    });
-
-    promise.then(response => response.json())
-    .then(results => {
-        callBack(jsonData)
+    }).then(response => response.json()
+    ).then(results => {
+        data = results.data;
+        callBack(data)
     }).catch(error => {
         console.error("Woopsie Daisy, something broke")
-        if (retries > 0) { 
+        if (retries > 0) {
             dataFetch(queryString, username, authToken, callBack, --retries)
         }
     });
