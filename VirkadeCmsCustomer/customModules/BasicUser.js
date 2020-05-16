@@ -34,8 +34,16 @@ class BasicUser extends Component {
     clickNext() {
         let { firstName, lastName, emailAddress } = this.props.basicUser;
         let { username, password, securityQ, securityA } = this.props.basicAccount;
-        this.validateInput() && DatabaseAPI.createNewUser(emailAddress, username, password,
-            securityQ, securityA, firstName, lastName, this.nextPage)
+        let user = {
+            firstName: firstName,
+            lastName : lastName,
+            emailAddress : emailAddress,
+            username : username,
+            password : password,
+            securityQ : securityQ,
+            securityA : securityA
+        }
+        this.validateInput() && DatabaseAPI.createNewUser(user, this.nextPage)
     }
 
     validateInput(isAlert = true) {
@@ -61,8 +69,8 @@ class BasicUser extends Component {
     }
 
     nextPage = function (data) {
-        console.log("data:" + data)
         if (data.createNewUser) {
+            this.updateInput({userId : data.createNewUser.userid})
             this.props.navigation.navigate('PersonalUser')    
         } else {
             alert('User already exists, \n Looks like someone beat you to it :(.')
@@ -72,7 +80,7 @@ class BasicUser extends Component {
 
     render() {
         return (
-            <ScrollView >
+            <ScrollView keyboardDismissMode='on-drag'>
                 <View style={style.wrapper}>
                     <Header />
                     <View style={style.body}>

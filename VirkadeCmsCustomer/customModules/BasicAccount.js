@@ -6,6 +6,7 @@ import {
     Text,
     View,
     Button,
+    ScrollView,
     TouchableNativeFeedback
 } from 'react-native';
 import Header from './Header.js'
@@ -65,48 +66,50 @@ class BasicAccount extends Component {
 
     render() {
         return (
-            <View style={style.wrapper}>
-                <Header />
-                <View style={style.body}>
-                    <View style={style.spacer}></View>
-                    <View style={style.main}>
-                        <View style={style.h2}>
-                            <Text style={style.label}>{this.state.validatorMsg}</Text>
+            <ScrollView keyboardDismissMode='on-drag'>
+                <View style={style.wrapper}>
+                    <Header />
+                    <View style={style.body}>
+                        <View style={style.spacer}></View>
+                        <View style={style.main}>
+                            <View style={style.h2}>
+                                <Text style={style.label}>{this.state.validatorMsg}</Text>
+                            </View>
+                            <View style={style.colFirst}>
+                                <Text style={style.h1}>::create account::</Text>
+                            </View>
+                            <View style={style.col}>
+                                <Text style={style.label}>username:</Text>
+                                <TextInput style={style.input} underlineColorAndroid="#9fff80" onChangeText={(username) =>
+                                    this.updateInput({ username: username })} value={this.props.basicAccount.username} />
+                            </View>
+                            <View style={style.col}>
+                                <Text style={style.label}>password:</Text>
+                                <TextInput style={style.input} secureTextEntry={true} underlineColorAndroid="#9fff80" onChangeText={(password) =>
+                                    this.updateInput({ password: password })} value={this.props.basicAccount.password} />
+                            </View>
+                            <View style={style.col}>
+                                <Text style={style.label}>security q:</Text>
+                                <TextInput style={style.input} underlineColorAndroid="#9fff80" onChangeText={(securityQ) =>
+                                    this.updateInput({ securityQ: securityQ })} value={this.props.basicAccount.securityQ} />
+                            </View>
+                            <View style={style.col}>
+                                <Text style={style.label}>security a:</Text>
+                                <TextInput style={style.input} underlineColorAndroid="#9fff80" onChangeText={(securityA) =>
+                                    this.updateInput({ securityA: securityA })} value={this.props.basicAccount.securityA} />
+                            </View>
+                            <View style={style.col}>
+                                <TouchableNativeFeedback onPress={() => this.validateInput() && DatabaseAPI.getUserByUserName(this.props.basicAccount.username, this.clickNext)}>
+                                    <View style={style.next}>
+                                        <Text style={style.label}>next</Text>
+                                    </View>
+                                </TouchableNativeFeedback>
+                            </View>
                         </View>
-                        <View style={style.colFirst}>
-                            <Text style={style.h1}>::create account::</Text>
-                        </View>
-                        <View style={style.col}>
-                            <Text style={style.label}>username:</Text>
-                            <TextInput style={style.input} underlineColorAndroid="#9fff80" onChangeText={(username) =>
-                                this.updateInput({ username: username })} value={this.props.basicAccount.username} />
-                        </View>
-                        <View style={style.col}>
-                            <Text style={style.label}>password:</Text>
-                            <TextInput style={style.input} secureTextEntry={true} underlineColorAndroid="#9fff80" onChangeText={(password) =>
-                                this.updateInput({ password: password })} value={this.props.basicAccount.password} />
-                        </View>
-                        <View style={style.col}>
-                            <Text style={style.label}>security q:</Text>
-                            <TextInput style={style.input} underlineColorAndroid="#9fff80" onChangeText={(securityQ) =>
-                                this.updateInput({ securityQ: securityQ })} value={this.props.basicAccount.securityQ} />
-                        </View>
-                        <View style={style.col}>
-                            <Text style={style.label}>security a:</Text>
-                            <TextInput style={style.input} underlineColorAndroid="#9fff80" onChangeText={(securityA) =>
-                                this.updateInput({ securityA: securityA })} value={this.props.basicAccount.securityA} />
-                        </View>
-                        <View style={style.col}>
-                            <TouchableNativeFeedback onPress={() => this.validateInput() && DatabaseAPI.getUserByUserName(this.props.basicAccount.username, this.clickNext)}>
-                                <View style={style.next}>
-                                    <Text style={style.label}>next</Text>
-                                </View>
-                            </TouchableNativeFeedback>
-                        </View>
+                        <View style={style.spacer}></View>
                     </View>
-                    <View style={style.spacer}></View>
                 </View>
-            </View>
+            </ScrollView>
         );
     }
 }

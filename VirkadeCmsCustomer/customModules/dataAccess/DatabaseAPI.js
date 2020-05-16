@@ -1,12 +1,13 @@
 //const HOST = '192.168.1.240'
 const HOST = '192.168.1.7'
-const PORT = '80'
+const PORT = '136'
 const API_ADDRESS = '/service'
 const QUERY = 'query'
 const MUTATION = 'mutation'
 const AUTHDATA = 'authData'
 const SIGN_IN = 'signIn'
 const CREATE_NEW_USER = 'createNewUser'
+const UPDATE_USER = 'updateUser'
 const GET_USER_BY_USERNAME = 'getUserByUserName'
 const USERNAME = 'userName'
 const PASSWORD = 'password'
@@ -26,14 +27,18 @@ export const DatabaseAPI = {
         let query = GraphQLParamStrings.signIn(username, password)
         return dataFetch(query, username, authToken = '', callBack)
     },
-    createNewUser: function (emailAddress, username, password, securityQ, securityA, firstName, lastName, callBack) {
-        let query = GraphQLParamStrings.createNewUser(emailAddress, username, password, securityQ, securityA, firstName, lastName)
+    createNewUser: function (userObj, callBack) {
+        let query = GraphQLParamStrings.createNewUser(userObj)
         return dataFetch(query, username, authToken = '', callBack)
     },
     getUserByUserName: function(username, callBack) {
-        let query = GraphQLParamStrings.getUserByUserName(username, callBack)
+        let query = GraphQLParamStrings.getUserByUserName(username)
         return dataFetch(query, username, authToken = '', callBack)
-    }
+    },
+    updateUser: function (userObj, callBack) {
+        let query = GraphQLParamStrings.updateUser(userObj)
+        return dataFetch(query, username, authToken = '', callBack)
+    },
 }
 
 const GraphQLParamStrings = {
@@ -49,18 +54,37 @@ const GraphQLParamStrings = {
                 ${TOKEN}
             }`
     },
-    createNewUser: function (emailAddress, username, password, securityQ, securityA, firstName, lastName) {
+    createNewUser: function (userObj) {
         let query = `${MUTATION} { ${CREATE_NEW_USER}
             (
-                ${EMAILADDRESS}:\"${emailAddress}\",
+                ${EMAILADDRESS}:\"${userObj.emailAddress}\",
                 ${AUTHDATA}:{
-                    ${USERNAME}:\"${username}\",
-                    ${PASSWORD}:\"${password}\",
-                    ${SECURITYQ}:\"${securityQ}\",
-                    ${SECURITYA}:\"${securityA}\"
+                    ${USERNAME}:\"${userObj.username}\",
+                    ${PASSWORD}:\"${userObj.password}\",
+                    ${SECURITYQ}:\"${userObj.securityQ}\",
+                    ${SECURITYA}:\"${userObj.securityA}\"
                 },
-                ${FIRST_NAME}:\"${firstName}\",
-                ${LAST_NAME}:\"${lastName}\"
+                ${FIRST_NAME}:\"${userObj.firstName}\",
+                ${LAST_NAME}:\"${userObj.lastName}\"
+            ){
+                ${USERNAME} 
+                ${USERID}
+            }}`
+        return query; //.replace(/\s/g, '');
+
+    },
+    updateUser: function (userObj) {
+        let query = `${MUTATION} { ${UPDATE_USER}
+            (
+                ${EMAILADDRESS}:\"${userObj.emailAddress}\",
+                ${AUTHDATA}:{
+                    ${USERNAME}:\"${userObj.username}\",
+                    ${PASSWORD}:\"${userObj.password}\",
+                    ${SECURITYQ}:\"${userObj.securityQ}\",
+                    ${SECURITYA}:\"${userObj.securityA}\"
+                },
+                ${FIRST_NAME}:\"${userObj.firstName}\",
+                ${LAST_NAME}:\"${userObj.lastName}\"
             ){
                 ${USERNAME} 
                 ${USERID}
@@ -104,6 +128,8 @@ const dataFetch = function (queryString, username, authToken, callBack, retries 
         console.error("Woopsie Daisy, something broke")
         if (retries > 0) {
             dataFetch(queryString, username, authToken, callBack, --retries)
+        } else {
+            alert("Woopsie Daisy, something broke")
         }
     });
 }
