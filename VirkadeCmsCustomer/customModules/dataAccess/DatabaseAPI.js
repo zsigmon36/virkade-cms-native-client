@@ -1,3 +1,7 @@
+
+//import { Alert } from 'react-native';
+
+
 //const HOST = '192.168.1.240'
 const HOST = '192.168.1.7'
 const PORT = '136'
@@ -23,13 +27,13 @@ const CREATED_DATE = 'createdDate'
 let cmsGraphQLHost = `http://${HOST}:${PORT}${API_ADDRESS}`
 
 export const DatabaseAPI = {
-    signin: function (username, password, callBack) {
+    signIn: function (username, password, callBack = undefined) {
         let query = GraphQLParamStrings.signIn(username, password)
         return dataFetch(query, username, authToken = '', callBack)
     },
     createNewUser: function (userObj, callBack) {
         let query = GraphQLParamStrings.createNewUser(userObj)
-        return dataFetch(query, username, authToken = '', callBack)
+        return dataFetch(query, userObj.username, authToken = '', callBack)
     },
     getUserByUserName: function(username, callBack) {
         let query = GraphQLParamStrings.getUserByUserName(username)
@@ -37,22 +41,24 @@ export const DatabaseAPI = {
     },
     updateUser: function (userObj, callBack) {
         let query = GraphQLParamStrings.updateUser(userObj)
-        return dataFetch(query, username, authToken = '', callBack)
+        return dataFetch(query, userObj.username, userObj.authToken.token, callBack)
     },
 }
 
 const GraphQLParamStrings = {
     signIn: function (username, password) {
-        return `"${QUERY}": "{ ${SIGN_IN}
+        return `${MUTATION} { ${SIGN_IN}
             (
                 ${AUTHDATA}:{
-                    ${USERNAME}:${username},
-                    ${PASSWORD}:${password}
+                    ${USERNAME}:\"${username}\",
+                    ${PASSWORD}:\"${password}\"
                 }
             ){
                 ${USERNAME},
-                ${TOKEN}
-            }`
+                ${TOKEN},
+                ${CREATED_DATE}
+            }
+        }`
     },
     createNewUser: function (userObj) {
         let query = `${MUTATION} { ${CREATE_NEW_USER}
@@ -123,13 +129,17 @@ const dataFetch = function (queryString, username, authToken, callBack, retries 
     }).then(response => response.json()
     ).then(results => {
         data = results.data;
-        callBack(data)
+        if (callBack){
+            callBack(data)
+        } else {
+            return data;
+        }
     }).catch(error => {
         console.error("Woopsie Daisy, something broke")
         if (retries > 0) {
             dataFetch(queryString, username, authToken, callBack, --retries)
         } else {
-            alert("Woopsie Daisy, something broke")
+            Alert.alert('error',' \n Woopsie Daisy, something broke')
         }
     });
 }

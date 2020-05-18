@@ -26,5 +26,6 @@ export default VirkadeCMS;
 const style = {
   topContainer : {
     flex: 1,
+    fontFamily: 'TerminusTTFWindows-4.46.0'
   }
 }

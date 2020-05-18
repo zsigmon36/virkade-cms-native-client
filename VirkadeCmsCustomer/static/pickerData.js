@@ -1,0 +1,36 @@
+export const pickerData = {
+    heightFt : [
+        {label : '3 foot', value :'3'},
+        {label : '4 foot', value :'4'},
+        {label : '5 foot', value :'5'},
+        {label : '6 foot', value :'6'},
+        {label : '7 foot', value :'7'},
+    ],
+    heightIn : [
+        {label : '1 inches', value :'1'},
+        {label : '2 inches', value :'2'},
+        {label : '3 inches', value :'3'},
+        {label : '4 inches', value :'4'},
+        {label : '5 inches', value :'5'},
+        {label : '6 inches', value :'6'},
+        {label : '7 inches', value :'7'},
+        {label : '8 inches', value :'8'},
+        {label : '9 inches', value :'9'},
+        {label : '10 inches', value :'10'},
+        {label : '11 inches', value :'11'},
+        {label : '12 inches', value :'12'},
+    ],
+    idp : [
+        {label : '4.0', value :'40'},
+        {label : '4.5', value :'45'},
+        {label : '5.0', value :'50'},
+        {label : '5.5', value :'55'},
+        {label : '6.0', value :'60'},
+        {label : '6.5', value :'65'},
+        {label : '7.0', value :'70'},
+        {label : '7.5', value :'75'},
+        {label : '8.0', value :'80'},
+        {label : '8.5', value :'85'},
+        {label : '9.0', value :'90'},    
+    ]
+}

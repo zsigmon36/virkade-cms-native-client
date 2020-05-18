@@ -5,14 +5,14 @@ import {
     StyleSheet,
     Text,
     View,
-    Button,
+    Alert,
     TouchableNativeFeedback,
     ScrollView
 } from 'react-native';
 import Header from './Header.js'
 import { bindActionCreators } from 'redux';
 import validator from 'validator';
-import basicUserAction from './reduxActions/BasicUserAction'
+import userAction from './reduxActions/UserAction'
 import { DatabaseAPI } from './dataAccess/DatabaseAPI.js'
 
 class BasicUser extends Component {
@@ -20,6 +20,7 @@ class BasicUser extends Component {
     constructor(props) {
         super(props)
         this.nextPage = this.nextPage.bind(this);
+        this.signIn = this.signIn.bind(this);
     }
 
     state = {
@@ -32,22 +33,35 @@ class BasicUser extends Component {
     }
 
     clickNext() {
-        let { firstName, lastName, emailAddress } = this.props.basicUser;
-        let { username, password, securityQ, securityA } = this.props.basicAccount;
-        let user = {
-            firstName: firstName,
-            lastName : lastName,
-            emailAddress : emailAddress,
-            username : username,
-            password : password,
-            securityQ : securityQ,
-            securityA : securityA
+        let user = this.props.user;
+        if (this.validateInput()){
+            if (user.username == user.authToken.username){
+                data = {'signIn': {
+                    'userName': user.authToken.username, 
+                    'token': user.authToken.token, 
+                    'createdDate': user.authToken.createdDate
+                    }
+                }
+                this.nextPage(data);
+            } else {
+                DatabaseAPI.createNewUser(user, this.signIn)
+            } 
+        }         
+    }
+    nextPage(data){
+        let {userName, token, createdDate} = data.signIn
+        this.updateInput({'authToken' : {
+                'token': token,
+                'createdDate': createdDate,
+                'username': userName
+            }})
+        if (data.signIn) {
+            this.props.navigation.navigate('PersonalUser') 
         }
-        this.validateInput() && DatabaseAPI.createNewUser(user, this.nextPage)
     }
 
     validateInput(isAlert = true) {
-        let { firstName, lastName, emailAddress } = this.props.basicUser;
+        let { firstName, lastName, emailAddress } = this.props.user;
         let msg = '';
         let isValid = true;
         if (!firstName) {
@@ -57,23 +71,27 @@ class BasicUser extends Component {
             msg = 'lastName cannot be empty'
             isValid = false;
         } else if (!validator.isEmail(emailAddress)) {
-            msg = 'emailAddress is not a valid email'
+            msg = 'email address is not a valid'
             isValid = false;
         }
         this.setState({ validatorMsg: msg })
 
         if (isAlert && !isValid) {
-            alert(msg)
+            Alert.alert('::error::', msg)
         }
         return isValid;
     }
 
-    nextPage = function (data) {
-        if (data.createNewUser) {
-            this.updateInput({userId : data.createNewUser.userid})
-            this.props.navigation.navigate('PersonalUser')    
+    signIn(data) {
+        let user = data.createNewUser
+        if (user) {
+            let userIdValue = user.userId
+            this.updateInput({"userId" : userIdValue})
+            let username = this.props.user.username;
+            let password = this.props.user.password;
+            DatabaseAPI.signIn(username, password, this.nextPage)  
         } else {
-            alert('User already exists, \n Looks like someone beat you to it :(.')
+            Alert.alert('::error::','\nUser already exists, Looks like someone beat you to it :(')
         }
     }
 
@@ -95,17 +113,17 @@ class BasicUser extends Component {
                             <View style={style.col}>
                                 <Text style={style.label}>first name:</Text>
                                 <TextInput style={style.input} underlineColorAndroid="#9fff80" onChangeText={(firstName) =>
-                                    this.updateInput({ "firstName": firstName })} value={this.props.basicUser.firstName} />
+                                    this.updateInput({ "firstName": firstName })} value={this.props.user.firstName} />
                             </View>
                             <View style={style.col}>
                                 <Text style={style.label}>last name:</Text>
                                 <TextInput style={style.input} underlineColorAndroid="#9fff80" onChangeText={(lastName) =>
-                                    this.updateInput({ "lastName": lastName })} value={this.props.basicUser.lastName} />
+                                    this.updateInput({ "lastName": lastName })} value={this.props.user.lastName} />
                             </View>
                             <View style={style.col}>
                                 <Text style={style.label}>email address:</Text>
                                 <TextInput style={style.input} underlineColorAndroid="#9fff80" onChangeText={(emailAddress) =>
-                                    this.updateInput({ "emailAddress": emailAddress })} value={this.props.basicUser.emailAddress} />
+                                    this.updateInput({ "emailAddress": emailAddress })} value={this.props.user.emailAddress} />
                             </View>
                             <View style={style.col}>
                                 <TouchableNativeFeedback onPress={() => this.clickNext()}>
@@ -125,14 +143,13 @@ class BasicUser extends Component {
 
 function mapStateToProps(state, ownProps) {
     return {
-        basicAccount: state.basicAccount,
-        basicUser: state.basicUser
+        user: state.user
     }
 }
 
 function mapDispatchToProps(dispatch) {
     return {
-        actions: bindActionCreators(basicUserAction, dispatch)
+        actions: bindActionCreators(userAction, dispatch)
     }
 }
 
@@ -142,7 +159,7 @@ const style = StyleSheet.create({
 
     wrapper: {
         flex: 1,
-        minHeight: 1000
+        minHeight: 900
     },
     body: {
         flexDirection: 'row',

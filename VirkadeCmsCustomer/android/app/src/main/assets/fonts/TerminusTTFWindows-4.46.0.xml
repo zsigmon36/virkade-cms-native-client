@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="utf-8"?>
+<font-family xmlns:android="http://schemas.android.com/apk/res/android"  xmlns:app="http://schemas.android.com/apk/res-auto">
+    <font name = "terminus-normal"
+        android:fontStyle="normal"
+        android:fontWeight="400"
+        android:font="@fonts/TerminusTTFWindows-4.46.0"
+        app:fontStyle="normal"
+        app:fontWeight="400"
+        app:font="@fonts/TerminusTTFWindows-4.46.0" />
+    <font
+        android:fontStyle="italic"
+        android:fontWeight="400"
+        android:font="@fonts/TerminusTTFWindows-Italic-4.46.0" />
+    <font
+        android:fontsStyle="bold"
+        android:fontWeight="400"
+        android:font="@fonts/TerminusTTFWindows-Bold-4.46.0"
+        app:fontStyle="italic"
+        app:fontWeight="400"
+        app:font="@fonts/TerminusTTFWindows-Bold-4.46.0" />
+    <font
+        android:fontStyle="bold-italic"
+        android:fontWeight="400"
+        android:font="@fonts/TerminusTTFWindows-Bold Italic-4.46.0" />
+</font-family>

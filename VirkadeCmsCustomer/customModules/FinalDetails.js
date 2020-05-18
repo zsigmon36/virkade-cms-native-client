@@ -14,7 +14,7 @@ import Header from './Header.js'
 class FinalDetails extends Component {
     state = {
         everVr: '[ ]',
-        contactYou: '[ ]',
+        canContact: '[ ]',
         reService: '[ ]'
     }
 
@@ -26,10 +26,10 @@ class FinalDetails extends Component {
         }
     }
     contactCheckBox = () => {
-        if (this.state.contactYou == '[ ]') {
-            this.setState({ contactYou: '[X]' })
+        if (this.state.canContact == '[ ]') {
+            this.setState({ canContact: '[X]' })
         } else {
-            this.setState({ contactYou: '[ ]' })
+            this.setState({ canContact: '[ ]' })
         }
     }
     reCheckBox = () => {
@@ -55,10 +55,10 @@ class FinalDetails extends Component {
                             </View>
 
                             <View style={style.col}>
-                                <Text style={style.checkBox} onPress={this.contactCheckBox}> {this.state.contactYou} can we contact you?</Text>
+                                <Text style={style.checkBox} onPress={this.contactCheckBox}> {this.state.canContact} can we contact you?</Text>
                             </View>
                             <View style={style.col}>
-                                <Text style={style.checkBox} onPress={this.reCheckBox}> {this.state.reService} interested in VR Real Estate services?</Text>
+                                <Text style={style.checkBox} onPress={this.reCheckBox}> {this.state.reService} interested in VR real estate services?</Text>
                             </View>
                             <View style={style.col}>
                                 <Text style={style.label}>:note any conditions we should be aware of:</Text>
@@ -67,7 +67,13 @@ class FinalDetails extends Component {
                                 <TextInput multiline={true} style={[style.input, style.textArea]} underlineColorAndroid='transparent' />
                             </View>
                             <View style={style.col}>
-                                <TouchableNativeFeedback onPress={() => this.props.navigation.navigate('TermsConditions')}>
+                                <TouchableNativeFeedback onPress={() => 
+                                    
+
+                                    this.props.navigation.navigate('TermsConditions'
+                                    
+                                    )}>
+                                        
                                     <View style={style.next}>
                                         <Text style={style.label}>legal stuff</Text>
                                     </View>
@@ -88,7 +94,7 @@ const style = StyleSheet.create({
 
     wrapper: {
         flex: 1,
-        minHeight: 1000
+        minHeight: 900
     },
     body: {
         flexDirection: 'row',

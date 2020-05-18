@@ -5,13 +5,13 @@ import {
     StyleSheet,
     Text,
     View,
-    Button,
+    Alert,
     ScrollView,
     TouchableNativeFeedback
 } from 'react-native';
 import Header from './Header.js'
 import { bindActionCreators } from 'redux';
-import basicAccountAction from './reduxActions/BasicAccountAction';
+import userAction from './reduxActions/UserAction';
 import { DatabaseAPI } from './dataAccess/DatabaseAPI.js'
 
 class BasicAccount extends Component {
@@ -19,6 +19,7 @@ class BasicAccount extends Component {
     constructor(props) {
         super(props)
         this.clickNext = this.clickNext.bind(this)
+        this.nextPage = this.nextPage.bind(this)
     }
 
     state = {
@@ -30,35 +31,47 @@ class BasicAccount extends Component {
         this.validateInput(false)
     }
 
-    clickNext(data) {
+    clickNext() {
+        let {username, authToken} = this.props.user;
+        let isValid = this.validateInput()
+        if (isValid && username != authToken.username){
+            DatabaseAPI.getUserByUserName(this.props.user.username, this.nextPage)
+        } else if (isValid){
+            this.props.navigation.navigate('BasicUser')
+        }
+        
+    }
+    nextPage(data){
         if (data.getUserByUserName) {
-            alert('username already exists, \n looks like someone beat you to it :(')
+            Alert.alert('::error::','\nusername already exists, looks like someone beat you to it :(')
         } else {
             this.props.navigation.navigate('BasicUser')
         }
     }
 
     validateInput(isAlert = true) {
-        let { username, password, securityQ, securityA } = this.props.basicAccount;
+        let { username, password, securityQ, securityA } = this.props.user;
         let msg = '';
         valid = true;
-        if (!username || username.length < 6) {
+        if (username == "" || username.length < 6){
             msg = 'username is too short'
             valid = false;
+        } else if (this.props.user.authToken.username === username) {
+            msg = `you are logged in as ${username} \nchange username if you want to create a new account`
         } else if (!password || password.length < 8) {
             msg = 'password is too short'
             valid = false;
         } else if (!securityQ) {
-            msg = 'securityQ cannot be empty'
+            msg = 'security question cannot be empty'
             valid = false;
         } else if (!securityA) {
-            msg = 'securityA cannot be empty'
+            msg = 'security answer cannot be empty'
             valid = false;
         }
         this.setState({ validatorMsg: msg })
 
         if (isAlert && !valid) {
-            alert(msg)
+            Alert.alert('::error::', msg)
         }
         return valid;
 
@@ -81,25 +94,25 @@ class BasicAccount extends Component {
                             <View style={style.col}>
                                 <Text style={style.label}>username:</Text>
                                 <TextInput style={style.input} underlineColorAndroid="#9fff80" onChangeText={(username) =>
-                                    this.updateInput({ username: username })} value={this.props.basicAccount.username} />
+                                    this.updateInput({ username: username })} value={this.props.user.username} />
                             </View>
                             <View style={style.col}>
                                 <Text style={style.label}>password:</Text>
                                 <TextInput style={style.input} secureTextEntry={true} underlineColorAndroid="#9fff80" onChangeText={(password) =>
-                                    this.updateInput({ password: password })} value={this.props.basicAccount.password} />
+                                    this.updateInput({ password: password })} value={this.props.user.password} />
                             </View>
                             <View style={style.col}>
                                 <Text style={style.label}>security q:</Text>
                                 <TextInput style={style.input} underlineColorAndroid="#9fff80" onChangeText={(securityQ) =>
-                                    this.updateInput({ securityQ: securityQ })} value={this.props.basicAccount.securityQ} />
+                                    this.updateInput({ securityQ: securityQ })} value={this.props.user.securityQ} />
                             </View>
                             <View style={style.col}>
                                 <Text style={style.label}>security a:</Text>
                                 <TextInput style={style.input} underlineColorAndroid="#9fff80" onChangeText={(securityA) =>
-                                    this.updateInput({ securityA: securityA })} value={this.props.basicAccount.securityA} />
+                                    this.updateInput({ securityA: securityA })} value={this.props.user.securityA} />
                             </View>
                             <View style={style.col}>
-                                <TouchableNativeFeedback onPress={() => this.validateInput() && DatabaseAPI.getUserByUserName(this.props.basicAccount.username, this.clickNext)}>
+                                <TouchableNativeFeedback onPress={() => this.clickNext()}>
                                     <View style={style.next}>
                                         <Text style={style.label}>next</Text>
                                     </View>
@@ -116,13 +129,13 @@ class BasicAccount extends Component {
 
 function mapStateToProps(state, ownProps) {
     return {
-        basicAccount: state.basicAccount
+        user: state.user
     }
 }
 
 function mapDispatchToProps(dispatch) {
     return {
-        actions: bindActionCreators(basicAccountAction, dispatch)
+        actions: bindActionCreators(userAction, dispatch)
     }
 }
 
@@ -130,7 +143,8 @@ export default connect(mapStateToProps, mapDispatchToProps)(BasicAccount);
 
 const style = StyleSheet.create({
     wrapper: {
-        flex: 1
+        flex: 1,
+        minHeight: 900
     },
     body: {
         flexDirection: 'row',
@@ -142,13 +156,11 @@ const style = StyleSheet.create({
         flex: 1
     },
     h1: {
-        color: '#9fff80',
         fontSize: 26,
         alignSelf: 'center',
         fontFamily: 'TerminusTTFWindows-Bold-4.46.0'
     },
-    h2: {
-        color: '#9fff80',
+    h2: {   
         fontSize: 20,
         alignSelf: 'center',
         fontFamily: 'TerminusTTFWindows-Bold-4.46.0'
@@ -160,12 +172,8 @@ const style = StyleSheet.create({
         marginTop: 15,
         flexDirection: 'row',
         alignItems: 'center'
-        //alignSelf: 'baseline'
-        //alignContent: 'center'
-        //justifyContent: 'center'
     },
     label: {
-        color: '#9fff80',
         fontSize: 18,
         fontFamily: 'TerminusTTFWindows-4.46.0'
     },
