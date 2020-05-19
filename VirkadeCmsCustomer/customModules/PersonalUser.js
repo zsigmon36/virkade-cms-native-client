@@ -23,6 +23,7 @@ class PersonalUser extends Component {
     constructor(props) {
         super(props)
         this.nextPage = this.nextPage.bind(this);
+        this.getPickerSates = this.getPickerSates.bind(this);
     }
 
     state = {
@@ -32,6 +33,16 @@ class PersonalUser extends Component {
     updateInput(data) {
         this.validateInput(false)
         this.props.actions(data)
+    }
+
+    getPickerSates(data){
+        let pickerItems;
+        if (data.getAllStates){
+            (data.getAllStates).map(item => {
+                pickerItems.push(<Picker.Item key={item.stateCode} label={item.name} value={item.stateCode} />)
+            })
+        }
+        return pickerItems
     }
 
     clickNext() {
@@ -54,7 +65,7 @@ class PersonalUser extends Component {
         return isValid;
     }
 
-    nextPage = function (data) {
+    nextPage(data) {
         if (data.updateUser) {
             this.props.navigation.navigate('FinalDetails')
         } else {
@@ -132,7 +143,19 @@ class PersonalUser extends Component {
                         </View>
                         <View style={style.col}>
                             <Text style={style.label}>eye space:</Text>
-                            <TextInput style={style.input} underlineColorAndroid="#9fff80" />
+                            <Picker
+                                selectedValue={this.props.user.idp}
+                                style={style.input}
+                                onValueChange={(itemValue) =>
+                                    this.updateInput({ "idp": itemValue })
+                                }>
+                                <Picker.Item label="select" value="" />
+                                {
+                                     (pickerData.idp).map( (item) => {
+                                        return <Picker.Item key={item.value} label={item.label} value={item.value} />
+                                    })
+                                }
+                            </Picker>
                         </View>
                         <View style={[style.col, style.center]}>
                             <Text style={[style.label, style.h2]}>::physical address::</Text>
@@ -159,7 +182,15 @@ class PersonalUser extends Component {
                         </View>
                         <View style={style.col}>
                             <Text style={style.label}>state:</Text>
-                            <TextInput style={style.input} underlineColorAndroid="#9fff80" />
+                            <Picker
+                                selectedValue={this.props.user.state}
+                                style={style.input}
+                                onValueChange={(itemValue) =>
+                                    this.updateInput({ "state": itemValue })
+                                }>
+                                <Picker.Item label="select" value="" />
+                                {DatabaseAPI.getAllStates(this.nextPage)}
+                            </Picker>
                         </View>
                         <View style={style.col}>
                             <Text style={style.label}>postal code:</Text>
