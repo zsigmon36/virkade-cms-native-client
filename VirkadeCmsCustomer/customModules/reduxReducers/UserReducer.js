@@ -1,34 +1,4 @@
-const defaultState = {
-            username:"",
-            userId:"",
-            password:"",
-            securityQ:"",
-            securityA:"",
-            firstName:"",
-            lastName:"",
-            emailAddress:"",
-            gender:"",
-            age:"",
-            heightFt:"",
-            heightIn:"",
-            weight:"",
-            idp:"",
-            street:"",
-            apt:"",
-            unit:"",
-            city:"",
-            state:"",
-            postalCode:"",
-            typeCode:"PHYSCL_ADRS",
-            everVr: false,
-            canContact: false,
-            reService: false,
-            authToken : {
-                token: "",
-                createdDate: "",
-                username: ""
-            }
-}
+import { defaultState } from '../../static/reduxDefault'
 
 export default function userReducer(state = defaultState, action){
     let newState = Object.assign({}, state);

@@ -1,30 +1,58 @@
 import React, { Component } from 'react';
 import {
-    TextInput,
     StyleSheet,
     Text,
     View,
+    Alert,
     TouchableNativeFeedback,
     ScrollView,
-    Alert
 } from 'react-native';
-import CheckBox from 'react-native-checkbox';
 import Header from './Header.js'
 import Markdown from 'react-native-markdown-renderer';
 import { tandc } from '../static/tandc'
+import { connect } from 'react-redux';
+import { bindActionCreators } from 'redux';
+import userAction from './reduxActions/UserAction'
 
 class TermsConditions extends Component {
+    
+    constructor(props) {
+        super(props)
+        this.nextPage = this.nextPage.bind(this);
+    }
+    
     state = {
         agree: '[ ]',
     } 
 
     agreeCheckBox = () => {
         if (this.state.agree == '[ ]') {
+            this.updateInput({tcAgree:true})
             this.setState({ agree: '[X]' })
         } else {
+            this.updateInput({tcAgree:false})
             this.setState({ agree: '[ ]' })
         }
     }
+
+    clickNext() {
+        let user = this.props.user
+        if (user.tcAgree) {
+            DatabaseAPI.userTermsCond(user, this.nextPage)
+        } else {
+            Alert.alert('::info::','\nyou must agree to the terms and conditions to continue')
+        }
+        
+    }
+
+    nextPage(data) {
+        if (data && data.userTermsCond) {
+            this.props.navigation.navigate('TermsConditions')
+        } else {
+            Alert.alert('::error::','\nhmmm... \nlooks like something went wrong.')
+        }
+    }
+
     render() {
         let termsAndConds = tandc.enUS;
         console.log(tandc)
@@ -60,7 +88,19 @@ class TermsConditions extends Component {
     }
 }
 
-export default TermsConditions;
+function mapStateToProps(state, ownProps) {
+    return {
+        user: state.user
+    }
+}
+
+function mapDispatchToProps(dispatch) {
+    return {
+        actions: bindActionCreators(userAction, dispatch)
+    }
+}
+
+export default connect(mapStateToProps, mapDispatchToProps)(TermsConditions);
 
 const mdStyle = StyleSheet.create({
     text: {

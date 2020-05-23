@@ -1,30 +1,58 @@
-
-//import { Alert } from 'react-native';
-
-
+//connection details - probs move to config file
 //const HOST = '192.168.1.240'
 const HOST = '192.168.1.7'
 const PORT = '136'
 const API_ADDRESS = '/service'
+const PROTOCOL = 'http'
+
+//queries
 const QUERY = 'query'
+const GET_ALL_STATES = 'getAllStates'
+const GET_USER_BY_USERNAME = 'getUserByUserName'
+
+//mutations
 const MUTATION = 'mutation'
-const AUTHDATA = 'authData'
-const SIGN_IN = 'signIn'
 const CREATE_NEW_USER = 'createNewUser'
 const UPDATE_USER = 'updateUser'
-const GET_USER_BY_USERNAME = 'getUserByUserName'
+const SIGN_IN = 'signIn'
+
+//params & fields
+const INPUT_USER = 'InputUser'
+const AUTHDATA = 'authData'
+const EMAILADDRESS = 'emailAddress'
+const USERID = 'userId'
+const TYPE_CODE = 'typeCode'
+const ADDRESSID = 'addressId'
+const STATUSID = 'statusId'
 const USERNAME = 'userName'
 const PASSWORD = 'password'
 const SECURITYQ = 'securityQuestion'
 const SECURITYA = 'securityAnswer'
 const FIRST_NAME = 'firstName'
 const LAST_NAME = 'lastName'
+const GENDER = 'gender'
+const AGE = 'age'
+const HEIGHT = 'height'
+const WEIGHT = 'weight'
+const IDP = 'idp'
+const EMAIL_VERIFIED = 'emailVerified'
+const PLAYED_BEFORE = 'playedBefore'
+const REAL_ESTATE_SERVICE = 'reServices'
+const CAN_CONTACT = 'canContact'
 const TOKEN = 'token'
-const EMAILADDRESS = 'emailAddress'
-const USERID = 'userId'
+const NAME = 'name'
 const CREATED_DATE = 'createdDate'
 
-let cmsGraphQLHost = `http://${HOST}:${PORT}${API_ADDRESS}`
+const INPUT_ADDRESS = 'InputAddress'
+const STREET = 'street'
+const APT = 'apt'
+const STATE_CODE = 'stateCode'
+const STATE_ID = 'stateId'
+const UNIT = 'unit'
+const CITY = 'city'
+const POSTAL_CODE = 'postalCode'
+
+let cmsGraphQLHost = `${PROTOCOL}://${HOST}:${PORT}${API_ADDRESS}`
 
 export const DatabaseAPI = {
     signIn: function (username, password, callBack = undefined) {
@@ -43,6 +71,14 @@ export const DatabaseAPI = {
         let query = GraphQLParamStrings.updateUser(userObj)
         return dataFetch(query, userObj.username, userObj.authToken.token, callBack)
     },
+    getAllStates: function (userObj, callback) {
+        let query = GraphQLParamStrings.getAllStates()
+        return dataFetch(query, userObj.username, userObj.authToken.token, callback)
+    },
+    addUserAddress: function (userObj, callback) {
+        let query = GraphQLParamStrings.addUserAddress(userObj)
+        return dataFetch(query, userObj.username, userObj.authToken.token, callback)
+    }
 }
 
 const GraphQLParamStrings = {
@@ -80,17 +116,35 @@ const GraphQLParamStrings = {
 
     },
     updateUser: function (userObj) {
-        let query = `${MUTATION} { ${UPDATE_USER}
-            (
-                ${EMAILADDRESS}:\"${userObj.emailAddress}\",
-                ${AUTHDATA}:{
-                    ${USERNAME}:\"${userObj.username}\",
-                    ${PASSWORD}:\"${userObj.password}\",
-                    ${SECURITYQ}:\"${userObj.securityQ}\",
-                    ${SECURITYA}:\"${userObj.securityA}\"
-                },
-                ${FIRST_NAME}:\"${userObj.firstName}\",
-                ${LAST_NAME}:\"${userObj.lastName}\"
+
+        let feet = parseInt(userObj.heightFt);
+        let inch = parseInt(userObj.heightIn);
+        let height = (feet * 12) + inch;
+
+        let query = `${MUTATION}{${UPDATE_USER}
+            (   
+                ${INPUT_USER}:{
+                    ${EMAILADDRESS}:\"${userObj.emailAddress}\",
+                    ${AUTHDATA}:{
+                        ${USERNAME}:\"${userObj.username}\",
+                        ${PASSWORD}:\"${userObj.password}\",
+                        ${SECURITYQ}:\"${userObj.securityQ}\",
+                        ${SECURITYA}:\"${userObj.securityA}\"
+                    },
+                    ${FIRST_NAME}:\"${userObj.firstName}\",
+                    ${LAST_NAME}:\"${userObj.lastName}\",
+                    ${TYPE_CODE}:\"${userObj.userTypeCode}\",
+                    ${STATUSID}:\"${userObj.statusId}\",
+                    ${GENDER}:\"${userObj.gender}\",
+                    ${AGE}:\"${parseInt(userObj.age)}\",
+                    ${WEIGHT}:\"${parseInt(userObj.weight)}\",
+                    ${HEIGHT}:\"${height}\",
+                    ${IDP}:\"${parseFloat(userObj.idp)}\",
+                    ${EMAIL_VERIFIED}:\"${userObj.emailVerified}\",
+                    ${PLAYED_BEFORE}:\"${userObj.everVr}\",
+                    ${REAL_ESTATE_SERVICE}:\"${userObj.reServices}\",
+                    ${CAN_CONTACT}:\"${userObj.canContact}\",
+                }
             ){
                 ${USERNAME} 
                 ${USERID}
@@ -108,6 +162,31 @@ const GraphQLParamStrings = {
             }}`
         return query; //.replace(/\s/g, '');
 
+    },
+    getAllStates: function () {
+        let query = `${QUERY} { ${GET_ALL_STATES}
+            {
+                ${NAME} 
+                ${STATE_CODE}
+                ${STATE_ID}
+            }}`
+        return query;
+    },
+    addUserAddress: function (userObj) {
+        let query = `${MUTATION}{${UPDATE_USER}
+            (   
+                ${INPUT_ADDRESS}:{
+                    ${STATE_CODE}:\"${userObj.state}\",
+                    ${TYPE_CODE}:\"${userObj.addressTypeCode}\",
+                    ${STREET}:\"${userObj.street}\",
+                    ${UNIT}:\"${userObj.unit}\",
+                    ${APT}:\"${userObj.apt}\",
+                    ${CITY}:\"${userObj.city}\",
+                    ${POSTAL_CODE}:\"${userObj.postalCode}\",
+                }
+            ){
+                    ${ADDRESSID} 
+        }}`
     }
 }
 
@@ -135,11 +214,14 @@ const dataFetch = function (queryString, username, authToken, callBack, retries 
             return data;
         }
     }).catch(error => {
-        console.error("Woopsie Daisy, something broke")
         if (retries > 0) {
             dataFetch(queryString, username, authToken, callBack, --retries)
         } else {
-            Alert.alert('error',' \n Woopsie Daisy, something broke')
+            if (callBack){
+                callBack(error)
+            } else {
+                return error;
+            }
         }
     });
 }

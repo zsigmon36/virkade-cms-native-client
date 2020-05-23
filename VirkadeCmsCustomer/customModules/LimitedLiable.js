@@ -1,30 +1,60 @@
 import React, { Component } from 'react';
 import {
-    TextInput,
     StyleSheet,
     Text,
     View,
     TouchableNativeFeedback,
     ScrollView,
-    Alert
 } from 'react-native';
-import CheckBox from 'react-native-checkbox';
 import Header from './Header.js'
 import Markdown from 'react-native-markdown-renderer';
 import { liabilityWaiver } from '../static/liabilityWaiver'
+import { connect } from 'react-redux';
+import { bindActionCreators } from 'redux';
+import userAction from './reduxActions/UserAction'
+import { defaultState } from '../static/reduxDefault'
 
 class LimitedLiable extends Component {
+    
+    constructor(props) {
+        super(props)
+        this.nextPage = this.nextPage.bind(this);
+    }
+
     state = {
         agree: '[ ]',
     }
 
     agreeCheckBox = () => {
         if (this.state.agree == '[ ]') {
+            this.updateInput({liableAgree:true})
             this.setState({ agree: '[X]' })
         } else {
+            this.updateInput({liableAgree:false})
             this.setState({ agree: '[ ]' })
         }
     }
+
+    clickNext() {
+        let user = this.props.user
+        if (user.tcAgree) {
+            DatabaseAPI.userLimitLiable(user, this.nextPage)
+        } else {
+            Alert.alert('::info::','\nyou must agree to the liability waiver to continue')
+        }
+        
+    }
+
+    nextPage(data) {
+        if (data && data.userLimitLiable) {
+            this.updateInput(defaultState)
+            Alert.alert('::info::','\nthanks for registering \nyou are all set, login with and schedule your play time :)')
+            this.props.navigation.navigate('Splash')
+        } else {
+            Alert.alert('::error::','\nhmmm... \nlooks like something went wrong.')
+        }
+    }
+
     render() {
         let waiver = liabilityWaiver.enUS
         return (
@@ -44,7 +74,7 @@ class LimitedLiable extends Component {
                                 <Text style={style.checkBox} onPress={this.agreeCheckBox}> {this.state.agree} do you agree to waive liability?</Text>
                             </View>
                             <View style={[style.col, style.edgeSpace]}>
-                                <TouchableNativeFeedback onPress={() => this.props.navigation.navigate('Splash')}>
+                                <TouchableNativeFeedback onPress={() => this.clickNext()}>
                                     <View style={style.next}>
                                         <Text style={style.label}>finish</Text>
                                     </View>
@@ -59,7 +89,19 @@ class LimitedLiable extends Component {
     }
 }
 
-export default LimitedLiable;
+function mapStateToProps(state, ownProps) {
+    return {
+        user: state.user
+    }
+}
+
+function mapDispatchToProps(dispatch) {
+    return {
+        actions: bindActionCreators(userAction, dispatch)
+    }
+}
+
+export default connect(mapStateToProps, mapDispatchToProps)(LimitedLiable);
 
 const mdStyle = StyleSheet.create({
     text: {

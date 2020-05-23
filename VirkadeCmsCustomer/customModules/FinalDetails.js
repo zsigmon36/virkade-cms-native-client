@@ -6,40 +6,101 @@ import {
     View,
     TouchableNativeFeedback,
     ScrollView,
-    Alert
 } from 'react-native';
-import CheckBox from 'react-native-checkbox';
 import Header from './Header.js'
+import { connect } from 'react-redux';
+import { bindActionCreators } from 'redux';
+import userAction from './reduxActions/UserAction'
 
 class FinalDetails extends Component {
+    
+    constructor(props) {
+        super(props)
+        this.nextPage = this.nextPage.bind(this);
+    }
+    
     state = {
         everVr: '[ ]',
         canContact: '[ ]',
-        reService: '[ ]'
+        reService: '[ ]',
+    }
+
+    updateInput(data) {
+        this.props.actions(data)
     }
 
     everVrCheckBox = () => {
         if (this.state.everVr == '[ ]') {
+            this.updateInput({everVr:true})
             this.setState({ everVr: '[X]' })
         } else {
+            this.updateInput({everVr:false})
             this.setState({ everVr: '[ ]' })
         }
     }
     contactCheckBox = () => {
         if (this.state.canContact == '[ ]') {
+            this.updateInput({canContact:true})
             this.setState({ canContact: '[X]' })
         } else {
+            this.updateInput({canContact:false})
             this.setState({ canContact: '[ ]' })
         }
     }
     reCheckBox = () => {
         if (this.state.reService == '[ ]') {
+            this.updateInput({reService:true})
             this.setState({ reService: '[X]' })
         } else {
+            this.updateInput({reService:false})
             this.setState({ reService: '[ ]' })
         }
     }
+
+    //at somepoint we should be able to add numbers
+    getContactInfo() {
+        let contactDetails = [];
+        contactDetails.push(
+                <View style={style.col}>
+                    <Text style={style.label} >::email address::</Text>
+                </View>
+        )
+        contactDetails.push(
+                <View style={style.col}>
+                    <Text style={style.label} >{this.props.user.emailAddress}</Text>
+                </View>
+        )
+        contactDetails.push(
+                <View style={style.col}>
+                    <Text style={style.label} >::phone numbers::</Text>
+                </View>
+          
+        )
+        for (number in this.props.user.phoneNumbers) {
+            contactDetails.push(
+                <View style={style.col}>
+                    <Text style={style.label} >{`${number.type} : ${number.countryCode} - ${number.number}`}</Text>
+                </View>
+            )
+        }
+        this.setState({'contactDetails':contactDetails});
+    }
+
+    clickNext() {
+        let user = this.props.user
+        DatabaseAPI.updateUser(user, this.nextPage)
+    }
+
+    nextPage(data) {
+        if (data && data.updateUser) {
+            this.props.navigation.navigate('TermsConditions')
+        } else {
+            Alert.alert('::error::','\nhmmm... \nlooks like something went wrong.')
+        }
+    }
+
     render() {
+       this.getContactInfo()
         return (
             <ScrollView >
                 <View style={style.wrapper}>
@@ -55,8 +116,11 @@ class FinalDetails extends Component {
                             </View>
 
                             <View style={style.col}>
-                                <Text style={style.checkBox} onPress={this.contactCheckBox}> {this.state.canContact} can we contact you?</Text>
-                            </View>
+                                <Text style={style.checkBox} onPress={this.contactCheckBox}> {this.state.canContact} can we contact you? </Text>
+                                {
+                                this.state.canContact === '[X]' && this.state.contactDetails
+                                }
+                            </View>  
                             <View style={style.col}>
                                 <Text style={style.checkBox} onPress={this.reCheckBox}> {this.state.reService} interested in VR real estate services?</Text>
                             </View>
@@ -68,11 +132,8 @@ class FinalDetails extends Component {
                             </View>
                             <View style={style.col}>
                                 <TouchableNativeFeedback onPress={() => 
-                                    
-
-                                    this.props.navigation.navigate('TermsConditions'
-                                    
-                                    )}>
+                                     this.clickNext()     
+                                  }>
                                         
                                     <View style={style.next}>
                                         <Text style={style.label}>legal stuff</Text>
@@ -88,7 +149,19 @@ class FinalDetails extends Component {
     }
 }
 
-export default FinalDetails;
+function mapStateToProps(state, ownProps) {
+    return {
+        user: state.user
+    }
+}
+
+function mapDispatchToProps(dispatch) {
+    return {
+        actions: bindActionCreators(userAction, dispatch)
+    }
+}
+
+export default connect(mapStateToProps, mapDispatchToProps)(FinalDetails);
 
 const style = StyleSheet.create({
 

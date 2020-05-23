@@ -28,13 +28,13 @@ class BasicUser extends Component {
     }
 
     updateInput(data) {
-        this.validateInput(false)
         this.props.actions(data)
+        this.validateInput(data, false)
     }
 
     clickNext() {
         let user = this.props.user;
-        if (this.validateInput()){
+        if (this.validateInput(user)){
             if (user.username == user.authToken.username){
                 data = {'signIn': {
                     'userName': user.authToken.username, 
@@ -49,28 +49,31 @@ class BasicUser extends Component {
         }         
     }
     nextPage(data){
-        let {userName, token, createdDate} = data.signIn
-        this.updateInput({'authToken' : {
+        if (data && data.signIn) {
+            let {userName, token, createdDate} = data.signIn
+            this.updateInput({'authToken' : {
                 'token': token,
                 'createdDate': createdDate,
                 'username': userName
             }})
-        if (data.signIn) {
             this.props.navigation.navigate('PersonalUser') 
+        } else {
+            Alert.alert('::error::','\nLooks like something went wrong :(')
+
         }
     }
 
-    validateInput(isAlert = true) {
-        let { firstName, lastName, emailAddress } = this.props.user;
+    validateInput = (data, isAlert = true) => {
+        let { firstName, lastName, emailAddress } = data;
         let msg = '';
         let isValid = true;
-        if (!firstName) {
-            msg = 'firstName cannot be empty'
+        if (firstName != undefined && firstName == "" ) {
+            msg = 'first name cannot be empty'
             isValid = false;
-        } else if (!lastName) {
-            msg = 'lastName cannot be empty'
+        } else if (lastName != undefined && lastName == "") {
+            msg = 'last name cannot be empty'
             isValid = false;
-        } else if (!validator.isEmail(emailAddress)) {
+        } else if (emailAddress != undefined && !validator.isEmail(emailAddress)) {
             msg = 'email address is not a valid'
             isValid = false;
         }
@@ -83,8 +86,8 @@ class BasicUser extends Component {
     }
 
     signIn(data) {
-        let user = data.createNewUser
-        if (user) {
+        if (data && data.createNewUser) {
+            let user = data.createNewUser;
             let userIdValue = user.userId
             this.updateInput({"userId" : userIdValue})
             let username = this.props.user.username;

@@ -26,14 +26,14 @@ class BasicAccount extends Component {
         validatorMsg: ''
     }
 
-    updateInput(data) {
+    updateInput = (data) => {
         this.props.actions(data)
-        this.validateInput(false)
+        this.validateInput(data, false)
     }
 
     clickNext() {
         let {username, authToken} = this.props.user;
-        let isValid = this.validateInput()
+        let isValid = this.validateInput(this.props.user)
         if (isValid && username != authToken.username){
             DatabaseAPI.getUserByUserName(this.props.user.username, this.nextPage)
         } else if (isValid){
@@ -42,32 +42,32 @@ class BasicAccount extends Component {
         
     }
     nextPage(data){
-        if (data.getUserByUserName) {
+        if (data && data.getUserByUserName) {
             Alert.alert('::error::','\nusername already exists, looks like someone beat you to it :(')
         } else {
             this.props.navigation.navigate('BasicUser')
         }
     }
 
-    validateInput(isAlert = true) {
-        let { username, password, securityQ, securityA } = this.props.user;
+    validateInput(data, isAlert = true) {
+        let { username, password, securityQ, securityA } = data;
         let msg = '';
-        valid = true;
-        if (username == "" || username.length < 6){
+        valid = true
+        if (username != undefined && (username == "" || username.length < 6)){
             msg = 'username is too short'
+            valid = false;
+        } else if (password != undefined  && (password == "" || password.length < 8)) {
+            msg = 'password is too short'
+            valid = false;
+        } else if (securityQ != undefined  && securityQ == "") {
+            msg = 'security question cannot be empty'
+            valid = false;
+        } else if (securityA != undefined  && securityA == "") {
+            msg = 'security answer cannot be empty'
             valid = false;
         } else if (this.props.user.authToken.username === username) {
             msg = `you are logged in as ${username} \nchange username if you want to create a new account`
-        } else if (!password || password.length < 8) {
-            msg = 'password is too short'
-            valid = false;
-        } else if (!securityQ) {
-            msg = 'security question cannot be empty'
-            valid = false;
-        } else if (!securityA) {
-            msg = 'security answer cannot be empty'
-            valid = false;
-        }
+        } 
         this.setState({ validatorMsg: msg })
 
         if (isAlert && !valid) {

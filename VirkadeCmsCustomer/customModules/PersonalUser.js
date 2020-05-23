@@ -23,37 +23,41 @@ class PersonalUser extends Component {
     constructor(props) {
         super(props)
         this.nextPage = this.nextPage.bind(this);
-        this.getPickerSates = this.getPickerSates.bind(this);
+        this.setPickerSates = this.setPickerSates.bind(this);
+        DatabaseAPI.getAllStates(this.props.user, this.setPickerSates)
     }
 
     state = {
-        validatorMsg: ''
+        validatorMsg: '',
+        pickerStates: <Picker.Item key="1" label="Arkansas" value="AR" />
     }
 
     updateInput(data) {
-        this.validateInput(false)
         this.props.actions(data)
+        this.validateInput(data, false)
     }
 
-    getPickerSates(data){
-        let pickerItems;
+    setPickerSates(data){
+        let pickerItems = [];
         if (data.getAllStates){
             (data.getAllStates).map(item => {
                 pickerItems.push(<Picker.Item key={item.stateCode} label={item.name} value={item.stateCode} />)
             })
         }
-        return pickerItems
+        this.setState({'pickerStates': pickerItems})
     }
 
     clickNext() {
-        this.validateInput() && DatabaseAPI.updateUser(user, this.nextPage)
+        let user = this.props.user
+        this.validateInput(user) && DatabaseAPI.updateUser(user, this.nextPage)
     }
 
-    validateInput(isAlert = true) {
-        let zip = this.props.user.postalCode;
+    validateInput(data, isAlert = true) {
+        let {postalCode} = data;
         let msg = '';
         let isValid = true;
-        if (zip && validator.isPostalCode(zip,"US")) {
+        //let matches = zip.match(/^[0-9]{5}(?:-[0-9]{4})?$/g);
+        if (postalCode != undefined && !validator.isPostalCode(postalCode,"US")) {
             msg = 'postal code is not valid'
             isValid = false;
         }
@@ -66,14 +70,15 @@ class PersonalUser extends Component {
     }
 
     nextPage(data) {
-        if (data.updateUser) {
+        if (data && data.updateUser) {
             this.props.navigation.navigate('FinalDetails')
         } else {
-            Alert.alert('::error::','\nHmmm... \n\tLooks like something went wrong.')
+            Alert.alert('::error::','\nhmmm... \nlooks like something went wrong.')
         }
     }
 
     render() {
+        let user = this.props.user
         return (
             <ScrollView keyboardDismissMode='on-drag'>
                 <Header />
@@ -84,13 +89,13 @@ class PersonalUser extends Component {
                             <Text style={style.h1}>::personal info::</Text>
                         </View>
                         <View style={style.col}>
-                            <Text style={style.label}>:all of the following are optional.  However, we appreciate any personal details as these answers are used 
+                            <Text style={style.h3}>:all of the following are optional.  However, we appreciate any personal details as these answers are used 
                             to improve our services and offerings. We do not share the information with any 3rd party partners or organizations:</Text>
                         </View>
                         <View style={style.col}>
                             <Text style={style.label}>gender you identify:</Text>
                             <Picker
-                                selectedValue={this.props.user.gender}
+                                selectedValue={user.gender}
                                 style={style.picker}
                                 itemStyle={style.pickerItem}
                                 onValueChange={(itemValue) =>
@@ -104,12 +109,12 @@ class PersonalUser extends Component {
                         <View style={style.col}>
                             <Text style={style.label}>age:</Text>
                             <TextInput style={style.input} underlineColorAndroid="#9fff80" onChangeText={(age) =>
-                                    this.updateInput({ 'age': age })} value={this.props.user.age} />
+                                    this.updateInput({ 'age': age })} value={user.age} />
                         </View>
                         <View style={style.col}>
                             <Text style={style.label}>height:</Text>
                             <Picker
-                                selectedValue={this.props.user.heightFt}
+                                selectedValue={user.heightFt}
                                 style={style.input}
                                 itemStyle={style.input}
                                 onValueChange={(itemValue) =>
@@ -123,7 +128,7 @@ class PersonalUser extends Component {
                                 }
                             </Picker>
                             <Picker
-                                selectedValue={this.props.user.heightIn}
+                                selectedValue={user.heightIn}
                                 style={style.input}
                                 onValueChange={(itemValue) =>
                                     this.updateInput({ "heightIn": itemValue })
@@ -139,12 +144,12 @@ class PersonalUser extends Component {
                         <View style={style.col}>
                             <Text style={style.label}>weight:</Text>
                             <TextInput style={style.input} underlineColorAndroid="#9fff80" onChangeText={(weight) =>
-                                    this.updateInput({ 'weight': weight })} value={this.props.user.weight}/>
+                                    this.updateInput({ 'weight': weight })} value={user.weight}/>
                         </View>
                         <View style={style.col}>
                             <Text style={style.label}>eye space:</Text>
                             <Picker
-                                selectedValue={this.props.user.idp}
+                                selectedValue={user.idp}
                                 style={style.input}
                                 onValueChange={(itemValue) =>
                                     this.updateInput({ "idp": itemValue })
@@ -163,39 +168,45 @@ class PersonalUser extends Component {
                         <View style={style.col}>
                             <Text style={style.label}>street:</Text>
                             <TextInput style={style.input} underlineColorAndroid="#9fff80" onChangeText={(street) =>
-                                    this.updateInput({ 'street': street })} value={this.props.user.street}/>
+                                    this.updateInput({ 'street': street })} value={user.street}/>
                         </View>
                         <View style={style.col}>
                             <Text style={style.label}>apt:</Text>
                             <TextInput style={style.input} underlineColorAndroid="#9fff80" onChangeText={(apt) =>
-                                    this.updateInput({ 'apt': apt })} value={this.props.user.apt}/>
+                                    this.updateInput({ 'apt': apt })} value={user.apt}/>
                         </View>
                         <View style={style.col}>
                             <Text style={style.label}>unit:</Text>
                             <TextInput style={style.input} underlineColorAndroid="#9fff80" onChangeText={(unit) =>
-                                    this.updateInput({ 'unit': unit })} value={this.props.user.unit}/>
+                                    this.updateInput({ 'unit': unit })} value={user.unit}/>
                         </View>
                         <View style={style.col}>
                             <Text style={style.label}>city:</Text>
                             <TextInput style={style.input} underlineColorAndroid="#9fff80" onChangeText={(city) =>
-                                    this.updateInput({ 'city': city })} value={this.props.user.city}/>
+                                    this.updateInput({ 'city': city })} value={user.city}/>
                         </View>
                         <View style={style.col}>
                             <Text style={style.label}>state:</Text>
                             <Picker
-                                selectedValue={this.props.user.state}
+                                selectedValue={user.state}
                                 style={style.input}
                                 onValueChange={(itemValue) =>
                                     this.updateInput({ "state": itemValue })
                                 }>
                                 <Picker.Item label="select" value="" />
-                                {DatabaseAPI.getAllStates(this.nextPage)}
+                                {this.state.pickerStates}
                             </Picker>
                         </View>
+                        { this.state.validatorMsg !== '' && (
+                            <View style={style.center}>
+                                    <Text style={style.label}>{this.state.validatorMsg}</Text>
+                            </View>
+                            )
+                        }
                         <View style={style.col}>
                             <Text style={style.label}>postal code:</Text>
                             <TextInput style={style.input} underlineColorAndroid="#9fff80" onChangeText={(postalCode) =>
-                                    this.updateInput({ 'postalCode': postalCode })} value={this.props.user.postalCode}/>
+                                    this.updateInput({ 'postalCode': postalCode })} value={user.postalCode}/>
                         </View>
                         <View style={style.col}>
                             <TouchableNativeFeedback onPress={() => this.clickNext()}>
@@ -246,19 +257,20 @@ const style = StyleSheet.create({
         fontFamily: 'TerminusTTFWindows-Bold-4.46.0'
     },
     h2: {
-        fontSize: 24,
+        fontSize: 22,
         color: '#9fff80',
         alignSelf: 'center',
         fontFamily: 'TerminusTTFWindows-Bold-4.46.0'
     },
     h3: {
-        fontSize: 20,
+        fontSize: 18,
         color: '#9fff80',
         alignSelf: 'center',
         fontFamily: 'TerminusTTFWindows-Bold-4.46.0'
     },
     center: {
         alignSelf: 'center',
+        alignItems: 'center'
     },
     colFirst: {
         marginTop: 10,
