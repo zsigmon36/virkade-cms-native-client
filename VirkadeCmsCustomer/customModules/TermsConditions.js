@@ -13,6 +13,7 @@ import { tandc } from '../static/tandc'
 import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
 import userAction from './reduxActions/UserAction'
+import { DatabaseAPI } from './dataAccess/DatabaseAPI.js'
 
 class TermsConditions extends Component {
     
@@ -24,6 +25,10 @@ class TermsConditions extends Component {
     state = {
         agree: '[ ]',
     } 
+    
+    updateInput(data) {
+        this.props.actions(data)
+    }
 
     agreeCheckBox = () => {
         if (this.state.agree == '[ ]') {
@@ -47,7 +52,7 @@ class TermsConditions extends Component {
 
     nextPage(data) {
         if (data && data.userTermsCond) {
-            this.props.navigation.navigate('TermsConditions')
+            this.props.navigation.navigate('LimitedLiable')
         } else {
             Alert.alert('::error::','\nhmmm... \nlooks like something went wrong.')
         }

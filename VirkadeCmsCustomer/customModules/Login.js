@@ -4,24 +4,52 @@ import {
     StyleSheet,
     Text,
     View,
-    Button,
-    TouchableNativeFeedback
+    TouchableNativeFeedback,
+    Alert
 } from 'react-native';
 import Header from './Header.js'
 import {DatabaseAPI} from './dataAccess/DatabaseAPI.js'
+import { connect } from 'react-redux';
+import { bindActionCreators } from 'redux';
+import userAction from './reduxActions/UserAction';
 
 class Login extends Component {
     constructor(props){
         super(props)
-        this.state = {
-            userName: '',
-            password: ''
+        this.signInCallBack = this.signInCallBack.bind(this)
+        this.populateStore = this.populateStore.bind(this)
+    }
+
+    updateInput(data) {
+        this.props.actions(data)
+    }
+
+    signInCallBack(data){
+        if (data && data.signIn) {
+            let {username, token, createdDate} = data.signIn
+            this.updateInput({'authToken' : {
+                'token': token,
+                'createdDate': createdDate,
+                'username': username
+            }})
+            DatabaseAPI.getAllFieldsUserByUserName(username,  this.populateStore)
+        } else {
+            Alert.alert('::error::',`\nlogin failed, make sure you provided the correct credentials or select forgot password`)
+
         }
     }
 
-    setSignIn = function(responseJSON){
-        console.log(responseJSON)
+    populateStore(data, error) {
+        if (data && data.getUserByUsername) {
+            let userDetails = data.getUserByUsername
+            this.updateInput({'fullUser': userDetails})
+            this.props.navigation.navigate('Home');
+        } else {
+            Alert.alert('::error::',`\nLooks like something went wrong :( \n${error[0].message}`)
+
+        }
     }
+
     render() {
         return (
             <View style={style.wrapper}>
@@ -35,23 +63,19 @@ class Login extends Component {
                         <View style={style.col}>
                             <Text style={style.label}>username:</Text>
                             <TextInput style={style.input}  underlineColorAndroid="#9fff80" 
-                                onChangeText={(userName) => this.setState(userName)} 
-                                value={this.state.userName}/>
+                                onChangeText={(username) =>
+                                    this.updateInput({ username: username })} value={this.props.user.username}/>
                         </View>
                         <View style={style.col}>
                             <Text style={style.label}>password:</Text>
                             <TextInput style={style.input} underlineColorAndroid="#9fff80" secureTextEntry={true} 
-                             onChangeText={(password) => this.setState(password)} 
-                             value={this.state.password}/>
+                             onChangeText={(password) =>
+                                this.updateInput({ password: password })} value={this.props.user.password} />
                         </View>
                         <View style={style.col}>
                             <TouchableNativeFeedback onPress={() => 
-                                DatabaseAPI.signin(
-                                    this.state.username, 
-                                    this.state.password, 
-                                    this.props.userData.authToken, 
-                                    this.setSignIn
-                                    )}>
+                                    DatabaseAPI.signIn(this.props.user.username, this.props.user.password, this.signInCallBack)
+                                    }>
                                 <View style={style.next}>
                                     <Text style={style.label}>submit</Text>
                                 </View>
@@ -72,7 +96,19 @@ class Login extends Component {
     }
 }
 
-export default Login;
+function mapStateToProps(state, ownProps) {
+    return {
+        user: state.user
+    }
+}
+
+function mapDispatchToProps(dispatch) {
+    return {
+        actions: bindActionCreators(userAction, dispatch)
+    }
+}
+
+export default connect(mapStateToProps, mapDispatchToProps)(Login);
 
 const style = StyleSheet.create({
     wrapper: {

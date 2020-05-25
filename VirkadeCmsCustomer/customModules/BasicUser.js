@@ -48,13 +48,13 @@ class BasicUser extends Component {
             } 
         }         
     }
-    nextPage(data){
+    nextPage(data, error){
         if (data && data.signIn) {
-            let {userName, token, createdDate} = data.signIn
+            let {username, token, createdDate} = data.signIn
             this.updateInput({'authToken' : {
                 'token': token,
                 'createdDate': createdDate,
-                'username': userName
+                'username': username
             }})
             this.props.navigation.navigate('PersonalUser') 
         } else {
@@ -85,7 +85,7 @@ class BasicUser extends Component {
         return isValid;
     }
 
-    signIn(data) {
+    signIn(data, error) {
         if (data && data.createNewUser) {
             let user = data.createNewUser;
             let userIdValue = user.userId

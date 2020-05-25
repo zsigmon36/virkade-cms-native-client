@@ -8,23 +8,29 @@ const PROTOCOL = 'http'
 //queries
 const QUERY = 'query'
 const GET_ALL_STATES = 'getAllStates'
-const GET_USER_BY_USERNAME = 'getUserByUserName'
+const GET_USER_BY_USERNAME = 'getUserByUsername'
 
 //mutations
 const MUTATION = 'mutation'
 const CREATE_NEW_USER = 'createNewUser'
 const UPDATE_USER = 'updateUser'
+const CREATE_USER_ADDRESS = 'addUserAddress'
+const CREATE_PHONE = 'addPhone'
 const SIGN_IN = 'signIn'
+const ADD_COMMENT = 'addComment'
 
 //params & fields
-const INPUT_USER = 'InputUser'
+const TYPE = 'type'
+const INPUT_USER = 'inputUser'
 const AUTHDATA = 'authData'
 const EMAILADDRESS = 'emailAddress'
 const USERID = 'userId'
 const TYPE_CODE = 'typeCode'
+const CODE = 'code'
 const ADDRESSID = 'addressId'
 const STATUSID = 'statusId'
-const USERNAME = 'userName'
+const STATUS = 'status'
+const USERNAME = 'username'
 const PASSWORD = 'password'
 const SECURITYQ = 'securityQuestion'
 const SECURITYA = 'securityAnswer'
@@ -43,15 +49,27 @@ const TOKEN = 'token'
 const NAME = 'name'
 const CREATED_DATE = 'createdDate'
 
-const INPUT_ADDRESS = 'InputAddress'
+const INPUT_ADDRESS = 'inputAddress'
+const ADDRESS = 'address'
 const STREET = 'street'
 const APT = 'apt'
+const STATE = 'state'
 const STATE_CODE = 'stateCode'
 const STATE_ID = 'stateId'
 const UNIT = 'unit'
 const CITY = 'city'
 const POSTAL_CODE = 'postalCode'
 
+const INPUT_PHONE = 'inputPhone'
+const PHONEID = 'phoneId'
+const PHONE_COUNTRY_CODE = 'countryCode'
+const PHONE_NUMBER = 'number'
+const PHONE_NUMBERS = 'phoneNumbers'
+
+const INPUT_COMMENT = 'inputComment'
+const COMMENT_CONTENT = 'commentContent'
+const COMMENTID = 'commentId'
+  
 let cmsGraphQLHost = `${PROTOCOL}://${HOST}:${PORT}${API_ADDRESS}`
 
 export const DatabaseAPI = {
@@ -67,6 +85,10 @@ export const DatabaseAPI = {
         let query = GraphQLParamStrings.getUserByUserName(username)
         return dataFetch(query, username, authToken = '', callBack)
     },
+    getAllFieldsUserByUserName: function(username, callBack) {
+        let query = GraphQLParamStrings.getAllFieldsUserByUserName(username)
+        return dataFetch(query, username, authToken = '', callBack)
+    },
     updateUser: function (userObj, callBack) {
         let query = GraphQLParamStrings.updateUser(userObj)
         return dataFetch(query, userObj.username, userObj.authToken.token, callBack)
@@ -78,7 +100,15 @@ export const DatabaseAPI = {
     addUserAddress: function (userObj, callback) {
         let query = GraphQLParamStrings.addUserAddress(userObj)
         return dataFetch(query, userObj.username, userObj.authToken.token, callback)
-    }
+    },
+    addUserPhone: function (userObj, callback) {
+        let query = GraphQLParamStrings.addUserPhone(userObj)
+        return dataFetch(query, userObj.username, userObj.authToken.token, callback)
+    },
+    addUserComment: function (userObj, callback) {
+        let query = GraphQLParamStrings.addUserComment(userObj)
+        return dataFetch(query, userObj.username, userObj.authToken.token, callback)
+    },
 }
 
 const GraphQLParamStrings = {
@@ -116,34 +146,42 @@ const GraphQLParamStrings = {
 
     },
     updateUser: function (userObj) {
-
+     
         let feet = parseInt(userObj.heightFt);
         let inch = parseInt(userObj.heightIn);
         let height = (feet * 12) + inch;
+        let age = userObj.age;
+        let weight = userObj.weight;
+
+        if (age === '' || age == undefined){
+            age = 0;
+        }
+        if (weight === '' || age == undefined){
+            weight = 0;
+        }
 
         let query = `${MUTATION}{${UPDATE_USER}
             (   
                 ${INPUT_USER}:{
+                    ${USERID}:${userObj.userId},
+                    ${TYPE_CODE}:\"${userObj.userTypeCode}\",
+                    ${STATUSID}:${userObj.statusId},
                     ${EMAILADDRESS}:\"${userObj.emailAddress}\",
-                    ${AUTHDATA}:{
-                        ${USERNAME}:\"${userObj.username}\",
-                        ${PASSWORD}:\"${userObj.password}\",
-                        ${SECURITYQ}:\"${userObj.securityQ}\",
-                        ${SECURITYA}:\"${userObj.securityA}\"
-                    },
+                    ${USERNAME}:\"${userObj.username}\",
+                    ${PASSWORD}:\"${userObj.password}\",
+                    ${SECURITYQ}:\"${userObj.securityQ}\",
+                    ${SECURITYA}:\"${userObj.securityA}\"
                     ${FIRST_NAME}:\"${userObj.firstName}\",
                     ${LAST_NAME}:\"${userObj.lastName}\",
-                    ${TYPE_CODE}:\"${userObj.userTypeCode}\",
-                    ${STATUSID}:\"${userObj.statusId}\",
                     ${GENDER}:\"${userObj.gender}\",
-                    ${AGE}:\"${parseInt(userObj.age)}\",
-                    ${WEIGHT}:\"${parseInt(userObj.weight)}\",
-                    ${HEIGHT}:\"${height}\",
-                    ${IDP}:\"${parseFloat(userObj.idp)}\",
-                    ${EMAIL_VERIFIED}:\"${userObj.emailVerified}\",
-                    ${PLAYED_BEFORE}:\"${userObj.everVr}\",
-                    ${REAL_ESTATE_SERVICE}:\"${userObj.reServices}\",
-                    ${CAN_CONTACT}:\"${userObj.canContact}\",
+                    ${AGE}:${parseInt(age)},
+                    ${HEIGHT}:${height},
+                    ${WEIGHT}:${parseInt(weight)},      
+                    ${IDP}:${parseFloat(userObj.idp)},
+                    ${EMAIL_VERIFIED}:${userObj.emailVerified},
+                    ${PLAYED_BEFORE}:${userObj.everVr},
+                    ${REAL_ESTATE_SERVICE}:${userObj.reService},
+                    ${CAN_CONTACT}:${userObj.canContact},
                 }
             ){
                 ${USERNAME} 
@@ -163,6 +201,57 @@ const GraphQLParamStrings = {
         return query; //.replace(/\s/g, '');
 
     },
+    getAllFieldsUserByUserName: function (username) {
+        let query = `${QUERY} { ${GET_USER_BY_USERNAME}
+            (
+                ${USERNAME}:\"${username}\",
+            ){
+                ${USERID}
+                ${USERNAME} 
+                ${TYPE} {
+                    ${CODE}
+                }
+                ${ADDRESS}{
+                    ${STATE} {
+                        ${STATE_CODE}
+                    }
+                    ${TYPE}{
+                        ${CODE}
+                    }
+                    ${STREET}
+                    ${UNIT}
+                    ${APT}
+                    ${CITY}
+                    ${POSTAL_CODE}
+                }
+                ${STATUS} {
+                    ${STATUSID}
+                }
+                ${EMAILADDRESS}
+                ${PHONE_NUMBERS} {
+                    ${PHONE_NUMBER}
+                    ${PHONE_COUNTRY_CODE}
+                    ${TYPE} {
+                        ${CODE}
+                    }
+                }
+                ${SECURITYQ}
+                ${FIRST_NAME}
+                ${LAST_NAME}
+                ${GENDER}
+                ${AGE}
+                ${HEIGHT}
+                ${WEIGHT}
+                ${IDP}
+                ${EMAIL_VERIFIED}
+                ${PLAYED_BEFORE}
+                ${REAL_ESTATE_SERVICE}
+                ${CAN_CONTACT}
+            }
+        }`
+        return query; //.replace(/\s/g, '');
+
+    },
     getAllStates: function () {
         let query = `${QUERY} { ${GET_ALL_STATES}
             {
@@ -173,21 +262,78 @@ const GraphQLParamStrings = {
         return query;
     },
     addUserAddress: function (userObj) {
-        let query = `${MUTATION}{${UPDATE_USER}
+
+        let unit = userObj.unit;
+        let apt = userObj.apt;
+        let street = userObj.street;
+        let city = userObj.street;
+        let state = userObj.state
+        let postalCode = userObj.postalCode
+
+        if (unit == undefined){
+            unit = ''
+        }
+        if (apt == undefined){
+            apt = ''
+        }
+        if (street == undefined){
+            street = ''
+        }
+        if (city == undefined){
+            city = ''
+        }
+        if (state == undefined){
+            state = ''
+        }
+        if (postalCode == undefined){
+            postalCode = ''
+        }
+
+        let query = `${MUTATION}{${CREATE_USER_ADDRESS}
             (   
                 ${INPUT_ADDRESS}:{
-                    ${STATE_CODE}:\"${userObj.state}\",
+                    ${STATE_CODE}:\"${state}\",
                     ${TYPE_CODE}:\"${userObj.addressTypeCode}\",
-                    ${STREET}:\"${userObj.street}\",
-                    ${UNIT}:\"${userObj.unit}\",
-                    ${APT}:\"${userObj.apt}\",
-                    ${CITY}:\"${userObj.city}\",
-                    ${POSTAL_CODE}:\"${userObj.postalCode}\",
+                    ${STREET}:\"${street}\",
+                    ${UNIT}:\"${unit}\",
+                    ${APT}:\"${apt}\",
+                    ${CITY}:\"${city}\",
+                    ${POSTAL_CODE}:\"${postalCode}\",
                 }
             ){
-                    ${ADDRESSID} 
+                    ${ADDRESSID}
         }}`
-    }
+        return query;
+    },
+    addUserPhone: function (userObj) {
+        let query = `${MUTATION}{${CREATE_PHONE}
+            (   
+                ${INPUT_PHONE}:{
+                    ${USERNAME}:\"${userObj.username}\",
+                    ${TYPE_CODE}:\"${userObj.phoneType}\",
+                    ${PHONE_COUNTRY_CODE}:${userObj.phoneCountryCode},
+                    ${PHONE_NUMBER}:\"${userObj.phoneNumber}\",
+                }
+            ){
+                    ${PHONEID} 
+                    ${USERID} 
+        }}`
+        return query;
+    },
+    addUserComment: function (userObj) {
+        let query = `${MUTATION}{${ADD_COMMENT}
+            (   
+                ${INPUT_COMMENT}:{
+                    ${USERNAME}:\"${userObj.username}\",
+                    ${TYPE_CODE}:\"${userObj.commentType}\",
+                    ${COMMENT_CONTENT}:${userObj.commentContent},
+                }
+            ){
+                    ${COMMENTID} 
+                    ${USERID} 
+        }}`
+        return query;
+    },
 }
 
 
@@ -203,15 +349,16 @@ const dataFetch = function (queryString, username, authToken, callBack, retries 
             Accept: 'application/json',
             'Content-Type': 'application/json',
             'Authorization': 'Bearer ' + authToken,
-            'UserName': username
+            'Username': username
         }
     }).then(response => response.json()
     ).then(results => {
-        data = results.data;
+        let data = results.data;
+        let errors = results.errors
         if (callBack){
-            callBack(data)
+            callBack(data, errors)
         } else {
-            return data;
+            return results;
         }
     }).catch(error => {
         if (retries > 0) {

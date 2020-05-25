@@ -42,7 +42,7 @@ class BasicAccount extends Component {
         
     }
     nextPage(data, error){
-        if (data && data.getUserByUsername) {
+        if (data && data.getUserByUserName) {
             Alert.alert('::error::','\nusername already exists, looks like someone beat you to it :(')
         } else {
             this.props.navigation.navigate('BasicUser')

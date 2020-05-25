@@ -18,19 +18,53 @@ import { Picker } from '@react-native-community/picker';
 import { pickerData } from '../static/pickerData';
 
 
-class PersonalUser extends Component {
+class EditAccount extends Component {
 
     constructor(props) {
         super(props)
-        this.nextPage = this.nextPage.bind(this);
+        this.statusMessage = this.statusMessage.bind(this);
         this.setPickerSates = this.setPickerSates.bind(this);
         this.addPhoneNumber = this.addPhoneNumber.bind(this);
+        this.updateUser = this.updateUser.bind(this);
+        this.statusMessage = this.statusMessage.bind(this);
+        this.validateUsername = this.validateUsername.bind(this);
         DatabaseAPI.getAllStates(this.props.user, this.setPickerSates)
     }
 
     state = {
         validatorMsg: '',
-        pickerStates: <Picker.Item key="1" label="Arkansas" value="AR" />
+        pickerStates: <Picker.Item key="1" label="Arkansas" value="AR" />,
+        everVr: '[ ]',
+        canContact: '[ ]',
+        reService: '[ ]',
+    }
+
+    everVrCheckBox = () => {
+        if (this.state.everVr == '[ ]') {
+            this.updateInput({everVr:true})
+            this.setState({ everVr: '[X]' })
+        } else {
+            this.updateInput({everVr:false})
+            this.setState({ everVr: '[ ]' })
+        }
+    }
+    contactCheckBox = () => {
+        if (this.state.canContact == '[ ]') {
+            this.updateInput({canContact:true})
+            this.setState({ canContact: '[X]' })
+        } else {
+            this.updateInput({canContact:false})
+            this.setState({ canContact: '[ ]' })
+        }
+    }
+    reCheckBox = () => {
+        if (this.state.reService == '[ ]') {
+            this.updateInput({reService:true})
+            this.setState({ reService: '[X]' })
+        } else {
+            this.updateInput({reService:false})
+            this.setState({ reService: '[ ]' })
+        }
     }
 
     updateInput(data) {
@@ -38,54 +72,95 @@ class PersonalUser extends Component {
         this.validateInput(data, false)
     }
 
-    setPickerSates(data){
+    setPickerSates(data) {
         let pickerItems = [];
-        if (data.getAllStates){
+        if (data.getAllStates) {
             (data.getAllStates).map(item => {
                 pickerItems.push(<Picker.Item key={item.name} label={item.name} value={item.stateCode} />)
             })
         }
-        this.setState({'pickerStates': pickerItems})
+        this.setState({ 'pickerStates': pickerItems })
     }
 
     clickNext() {
-        let user = this.props.user
-        if (user.street || user.postalCode || user.state || user.city) {
-            this.validateInput(user) && DatabaseAPI.addUserAddress(user, this.addPhoneNumber)
+        let { username, authToken } = this.props.user;
+        let isValid = this.validateInput(this.props.user)
+        if (isValid && username != authToken.username) {
+            DatabaseAPI.getUserByUserName(this.props.user.username, this.validateUsername);
+        } else if (isValid) {
+            this.validateUsername(null)
+        }
+
+    }
+
+    validateUsername(data, error) {
+        if (data && data.getUserByUserName) {
+            Alert.alert('::error::', '\nusername already exists, looks like someone beat you to it :(')
+        } else if (user.street || user.postalCode || user.state || user.city) {
+            DatabaseAPI.addUserAddress(user, this.addPhoneNumber)
         } else {
             this.addPhoneNumber();
         }
     }
 
-    addPhoneNumber(){
+    addPhoneNumber() {
         let user = this.props.user
         if (user.phoneNumber) {
-            this.validateInput(user) && DatabaseAPI.addUserPhone(user, this.nextPage)
+            this.validateInput(user) && DatabaseAPI.addUserPhone(user, this.updateUser)
         } else {
-            this.nextPage();
+            this.updateUser();
         }
     }
 
-    nextPage() {
-        this.props.navigation.navigate('FinalDetails')
+    updateUser() {
+        let user = this.props.user
+        DatabaseAPI.updateUser(user, this.statusMessage)
+    }
+
+    statusMessage(data, error) {
+        if (data && data.updateUser) {
+            Alert.alert("::info::", "update complete")
+        } else {
+            Alert.alert('::error::', `\nhmmm... \nlooks like something went wrong. \n${error[0].messages}`)
+        }
     }
 
     validateInput(data, isAlert = true) {
-        let {postalCode, age, weight, phoneNumber} = data;
+        let { postalCode, age, weight, phoneNumber, username, password, securityQ, securityA, firstName, lastName, emailAddress } = data;
         let msg = '';
         let isValid = true;
-        //let matches = zip.match(/^[0-9]{5}(?:-[0-9]{4})?$/g);
-        if (postalCode != undefined && postalCode != '' && !validator.isPostalCode(postalCode,"US") ) {
+        if (postalCode != undefined && postalCode != '' && !validator.isPostalCode(postalCode, "US")) {
             msg = 'postal code is not valid'
             isValid = false;
-        } else if (age != undefined && age != '' && !validator.isNumeric(age) ) {
+        } else if (age != undefined && age != '' && !validator.isNumeric(age)) {
             msg = 'age has to be a number'
             isValid = false;
-        } else if (weight != undefined && weight != '' && !validator.isNumeric(weight) ) {
+        } else if (weight != undefined && weight != '' && !validator.isNumeric(weight)) {
             msg = 'age has to be a number'
             isValid = false;
-        } else if (phoneNumber != undefined && phoneNumber != '' && !validator.isMobilePhone(phoneNumber, 'any') ) {
+        } else if (phoneNumber != undefined && phoneNumber != '' && !validator.isMobilePhone(phoneNumber, 'any')) {
             msg = 'mobile phone number is invalid'
+            isValid = false;
+        } else if (username != undefined && (username == "" || username.length < 6)) {
+            msg = 'username is too short'
+            valid = false;
+        } else if (password != undefined && (password == "" || password.length < 8)) {
+            msg = 'password is too short'
+            valid = false;
+        } else if (securityQ != undefined && securityQ == "") {
+            msg = 'security question cannot be empty'
+            valid = false;
+        } else if (securityA != undefined && securityA == "") {
+            msg = 'security answer cannot be empty'
+            valid = false;
+        } else if (firstName != undefined && firstName == "") {
+            msg = 'first name cannot be empty'
+            isValid = false;
+        } else if (lastName != undefined && lastName == "") {
+            msg = 'last name cannot be empty'
+            isValid = false;
+        } else if (emailAddress != undefined && !validator.isEmail(emailAddress)) {
+            msg = 'email address is not a valid'
             isValid = false;
         }
         this.setState({ validatorMsg: msg })
@@ -105,11 +180,54 @@ class PersonalUser extends Component {
                     <View style={style.spacer}></View>
                     <View style={style.main}>
                         <View style={style.colFirst}>
-                            <Text style={style.h1}>::personal info::</Text>
+                            <Text style={style.h1}>::account details::</Text>
                         </View>
                         <View style={style.col}>
-                            <Text style={style.h3}>:all of the following are optional.  However, we appreciate any personal details as these answers are used 
-                            to improve our services and offerings. We do not share the information with any 3rd party partners or organizations:</Text>
+                            <Text style={style.h2}>::basic account details::</Text>
+                        </View>
+                        <View style={style.center}>
+                            <Text style={style.label}>{this.state.validatorMsg}</Text>
+                        </View>
+                        <View style={style.col}>
+                            <Text style={style.label}>username:</Text>
+                            <TextInput style={style.input} underlineColorAndroid="#9fff80" onChangeText={(username) =>
+                                this.updateInput({ username: username })} value={this.props.user.username} />
+                        </View>
+                        <View style={style.col}>
+                            <Text style={style.label}>password:</Text>
+                            <TextInput style={style.input} secureTextEntry={true} underlineColorAndroid="#9fff80" onChangeText={(password) =>
+                                this.updateInput({ password: password })} value={this.props.user.password} />
+                        </View>
+                        <View style={style.col}>
+                            <Text style={style.label}>security q:</Text>
+                            <TextInput style={style.input} underlineColorAndroid="#9fff80" onChangeText={(securityQ) =>
+                                this.updateInput({ securityQ: securityQ })} value={this.props.user.securityQ} />
+                        </View>
+                        <View style={style.col}>
+                            <Text style={style.label}>security a:</Text>
+                            <TextInput style={style.input} underlineColorAndroid="#9fff80" onChangeText={(securityA) =>
+                                this.updateInput({ securityA: securityA })} value={this.props.user.securityA} />
+                        </View>
+                        <View style={style.colFirst}>
+                            <Text style={style.h2}>::personal info::</Text>
+                        </View>
+                            <View style={style.center}>
+                                <Text style={style.label}>{this.state.validatorMsg}</Text>
+                            </View>
+                        <View style={style.col}>
+                            <Text style={style.label}>first name:</Text>
+                            <TextInput style={style.input} underlineColorAndroid="#9fff80" onChangeText={(firstName) =>
+                                this.updateInput({ "firstName": firstName })} value={this.props.user.firstName} />
+                        </View>
+                        <View style={style.col}>
+                            <Text style={style.label}>last name:</Text>
+                            <TextInput style={style.input} underlineColorAndroid="#9fff80" onChangeText={(lastName) =>
+                                this.updateInput({ "lastName": lastName })} value={this.props.user.lastName} />
+                        </View>
+                        <View style={style.col}>
+                            <Text style={style.label}>email address:</Text>
+                            <TextInput style={style.input} underlineColorAndroid="#9fff80" onChangeText={(emailAddress) =>
+                                this.updateInput({ "emailAddress": emailAddress })} value={this.props.user.emailAddress} />
                         </View>
                         <View style={style.col}>
                             <Text style={style.label}>gender you identify:</Text>
@@ -128,7 +246,7 @@ class PersonalUser extends Component {
                         <View style={style.col}>
                             <Text style={style.label}>age:</Text>
                             <TextInput style={style.input} underlineColorAndroid="#9fff80" onChangeText={(age) =>
-                                    this.updateInput({ 'age': age })} value={user.age} />
+                                this.updateInput({ 'age': age })} value={user.age} />
                         </View>
                         <View style={style.col}>
                             <Text style={style.label}>height:</Text>
@@ -138,11 +256,11 @@ class PersonalUser extends Component {
                                 itemStyle={style.input}
                                 onValueChange={(itemValue) =>
                                     this.updateInput({ "heightFt": itemValue })
-                                }>        
+                                }>
                                 <Picker.Item label="sel foot" value="0" />
                                 {
-                                    (pickerData.heightFt).map( (item) => {
-                                       return <Picker.Item key={item.value} label={item.label} value={item.value} />
+                                    (pickerData.heightFt).map((item) => {
+                                        return <Picker.Item key={item.value} label={item.label} value={item.value} />
                                     })
                                 }
                             </Picker>
@@ -154,7 +272,7 @@ class PersonalUser extends Component {
                                 }>
                                 <Picker.Item label="sel inch" value="0" />
                                 {
-                                     (pickerData.heightIn).map( (item) => {
+                                    (pickerData.heightIn).map((item) => {
                                         return <Picker.Item key={item.value} label={item.label} value={item.value} />
                                     })
                                 }
@@ -163,7 +281,7 @@ class PersonalUser extends Component {
                         <View style={style.col}>
                             <Text style={style.label}>weight:</Text>
                             <TextInput style={style.input} underlineColorAndroid="#9fff80" onChangeText={(weight) =>
-                                    this.updateInput({ 'weight': weight })} value={user.weight}/>
+                                this.updateInput({ 'weight': weight })} value={user.weight} />
                         </View>
                         <View style={style.col}>
                             <Text style={style.label}>eye space:</Text>
@@ -175,7 +293,7 @@ class PersonalUser extends Component {
                                 }>
                                 <Picker.Item label="select" value="0.0" />
                                 {
-                                     (pickerData.idp).map( (item) => {
+                                    (pickerData.idp).map((item) => {
                                         return <Picker.Item key={item.value} label={item.label} value={item.value} />
                                     })
                                 }
@@ -187,22 +305,22 @@ class PersonalUser extends Component {
                         <View style={style.col}>
                             <Text style={style.label}>street:</Text>
                             <TextInput style={style.input} underlineColorAndroid="#9fff80" onChangeText={(street) =>
-                                    this.updateInput({ 'street': street })} value={user.street}/>
+                                this.updateInput({ 'street': street })} value={user.street} />
                         </View>
                         <View style={style.col}>
                             <Text style={style.label}>apt:</Text>
                             <TextInput style={style.input} underlineColorAndroid="#9fff80" onChangeText={(apt) =>
-                                    this.updateInput({ 'apt': apt })} value={user.apt}/>
+                                this.updateInput({ 'apt': apt })} value={user.apt} />
                         </View>
                         <View style={style.col}>
                             <Text style={style.label}>unit:</Text>
                             <TextInput style={style.input} underlineColorAndroid="#9fff80" onChangeText={(unit) =>
-                                    this.updateInput({ 'unit': unit })} value={user.unit}/>
+                                this.updateInput({ 'unit': unit })} value={user.unit} />
                         </View>
                         <View style={style.col}>
                             <Text style={style.label}>city:</Text>
                             <TextInput style={style.input} underlineColorAndroid="#9fff80" onChangeText={(city) =>
-                                    this.updateInput({ 'city': city })} value={user.city}/>
+                                this.updateInput({ 'city': city })} value={user.city} />
                         </View>
                         <View style={style.col}>
                             <Text style={style.label}>state:</Text>
@@ -216,16 +334,16 @@ class PersonalUser extends Component {
                                 {this.state.pickerStates}
                             </Picker>
                         </View>
-                        { this.state.validatorMsg !== '' && (
+                        {this.state.validatorMsg !== '' && (
                             <View style={style.center}>
-                                    <Text style={style.label}>{this.state.validatorMsg}</Text>
+                                <Text style={style.label}>{this.state.validatorMsg}</Text>
                             </View>
-                            )
+                        )
                         }
                         <View style={style.col}>
                             <Text style={style.label}>postal code:</Text>
                             <TextInput style={style.input} underlineColorAndroid="#9fff80" onChangeText={(postalCode) =>
-                                    this.updateInput({ 'postalCode': postalCode })} value={user.postalCode}/>
+                                this.updateInput({ 'postalCode': postalCode })} value={user.postalCode} />
                         </View>
                         <View style={style.colFirst}>
                             <Text style={style.h2}>::mobile phone number::</Text>
@@ -240,14 +358,14 @@ class PersonalUser extends Component {
                                 }>
                                 <Picker.Item label="select" value='0' />
                                 {
-                                    (pickerData.phoneCountries).map( (item) => {
-                                       return <Picker.Item key={item.value} label={item.label} value={item.value} />
+                                    (pickerData.phoneCountries).map((item) => {
+                                        return <Picker.Item key={item.value} label={item.label} value={item.value} />
                                     })
                                 }
                             </Picker>
                             <Text style={style.label}>number:</Text>
                             <TextInput style={style.input} underlineColorAndroid="#9fff80" onChangeText={(phoneNumber) =>
-                                    this.updateInput({ 'phoneNumber': phoneNumber })} value={user.phoneNumber}/>
+                                this.updateInput({ 'phoneNumber': phoneNumber })} value={user.phoneNumber} />
                         </View>
                         <View style={style.col}>
                             <TouchableNativeFeedback onPress={() => this.clickNext()}>
@@ -276,7 +394,7 @@ function mapDispatchToProps(dispatch) {
     }
 }
 
-export default connect(mapStateToProps, mapDispatchToProps)(PersonalUser);
+export default connect(mapStateToProps, mapDispatchToProps)(EditAccount);
 
 const style = StyleSheet.create({
     wrapper: {
@@ -308,6 +426,11 @@ const style = StyleSheet.create({
         color: '#9fff80',
         alignSelf: 'center',
         fontFamily: 'TerminusTTFWindows-Bold-4.46.0'
+    },
+    checkBox: {
+        color: '#9fff80',
+        fontSize: 14,
+        fontFamily: 'TerminusTTFWindows-4.46.0'
     },
     center: {
         alignSelf: 'center',

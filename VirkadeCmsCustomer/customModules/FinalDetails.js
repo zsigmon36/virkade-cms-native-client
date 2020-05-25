@@ -11,12 +11,15 @@ import Header from './Header.js'
 import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
 import userAction from './reduxActions/UserAction'
+import { DatabaseAPI } from './dataAccess/DatabaseAPI.js'
 
 class FinalDetails extends Component {
     
     constructor(props) {
         super(props)
         this.nextPage = this.nextPage.bind(this);
+        this.updateUser = this.updateUser.bind(this);
+        
     }
     
     state = {
@@ -49,58 +52,33 @@ class FinalDetails extends Component {
     }
     reCheckBox = () => {
         if (this.state.reService == '[ ]') {
-            this.updateInput({reService:true})
-            this.setState({ reService: '[X]' })
+            this.updateInput({reServices:true})
+            this.setState({ reServices: '[X]' })
         } else {
-            this.updateInput({reService:false})
-            this.setState({ reService: '[ ]' })
+            this.updateInput({reServices:false})
+            this.setState({ reServices: '[ ]' })
         }
     }
 
-    //at somepoint we should be able to add numbers
-    getContactInfo() {
-        let contactDetails = [];
-        contactDetails.push(
-                <View style={style.col}>
-                    <Text style={style.label} >::email address::</Text>
-                </View>
-        )
-        contactDetails.push(
-                <View style={style.col}>
-                    <Text style={style.label} >{this.props.user.emailAddress}</Text>
-                </View>
-        )
-        contactDetails.push(
-                <View style={style.col}>
-                    <Text style={style.label} >::phone numbers::</Text>
-                </View>
-          
-        )
-        for (number in this.props.user.phoneNumbers) {
-            contactDetails.push(
-                <View style={style.col}>
-                    <Text style={style.label} >{`${number.type} : ${number.countryCode} - ${number.number}`}</Text>
-                </View>
-            )
-        }
-        this.setState({'contactDetails':contactDetails});
-    }
-
-    clickNext() {
+    updateUser(){
         let user = this.props.user
         DatabaseAPI.updateUser(user, this.nextPage)
     }
 
-    nextPage(data) {
+    clickNext() {
+        let user = this.props.user
+        DatabaseAPI.addUserComment(user, this.updateUser)
+    }
+
+    nextPage(data, error) {
         if (data && data.updateUser) {
             this.props.navigation.navigate('TermsConditions')
         } else {
-            Alert.alert('::error::','\nhmmm... \nlooks like something went wrong.')
+            Alert.alert('::error::',`\nhmmm... \nlooks like something went wrong. \n${error[0].messages}`)
         }
     }
 
     render() {
-       this.getContactInfo()
         return (
             <ScrollView >
                 <View style={style.wrapper}>
@@ -114,27 +92,21 @@ class FinalDetails extends Component {
                             <View style={style.col}>
                                 <Text style={style.checkBox} onPress={this.everVrCheckBox}> {this.state.everVr} ever experienced VR?</Text>
                             </View>
-
+                            <View style={style.col}>
+                                <Text style={style.checkBox} onPress={this.reCheckBox}> {this.state.reServices} interested in VR real estate services?</Text>
+                            </View>
                             <View style={style.col}>
                                 <Text style={style.checkBox} onPress={this.contactCheckBox}> {this.state.canContact} can we contact you? </Text>
-                                {
-                                this.state.canContact === '[X]' && this.state.contactDetails
-                                }
-                            </View>  
-                            <View style={style.col}>
-                                <Text style={style.checkBox} onPress={this.reCheckBox}> {this.state.reService} interested in VR real estate services?</Text>
                             </View>
                             <View style={style.col}>
                                 <Text style={style.label}>:note any conditions we should be aware of:</Text>
                             </View>
                             <View style={style.col}>
-                                <TextInput multiline={true} style={[style.input, style.textArea]} underlineColorAndroid='transparent' />
+                                <TextInput multiline={true} style={[style.input, style.textArea]} underlineColorAndroid='transparent' onChangeText={(commentContent) =>
+                                    this.updateInput({ 'commentContent': commentContent })} />
                             </View>
                             <View style={style.col}>
-                                <TouchableNativeFeedback onPress={() => 
-                                     this.clickNext()     
-                                  }>
-                                        
+                                <TouchableNativeFeedback onPress={() => this.clickNext()}>   
                                     <View style={style.next}>
                                         <Text style={style.label}>legal stuff</Text>
                                     </View>
@@ -194,7 +166,7 @@ const style = StyleSheet.create({
     },
     label: {
         color: '#9fff80',
-        fontSize: 18,
+        fontSize: 16,
         fontFamily: 'TerminusTTFWindows-4.46.0'
     },
     checkBox: {

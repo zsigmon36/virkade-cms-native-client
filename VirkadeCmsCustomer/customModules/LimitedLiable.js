@@ -13,6 +13,7 @@ import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
 import userAction from './reduxActions/UserAction'
 import { defaultState } from '../static/reduxDefault'
+import { DatabaseAPI } from './dataAccess/DatabaseAPI.js'
 
 class LimitedLiable extends Component {
     
@@ -23,6 +24,10 @@ class LimitedLiable extends Component {
 
     state = {
         agree: '[ ]',
+    }
+        
+    updateInput(data) {
+        this.props.actions(data)
     }
 
     agreeCheckBox = () => {
@@ -47,7 +52,7 @@ class LimitedLiable extends Component {
 
     nextPage(data) {
         if (data && data.userLimitLiable) {
-            this.updateInput(defaultState)
+            this.updateInput({resetDefaults :defaultState})
             Alert.alert('::info::','\nthanks for registering \nyou are all set, login with and schedule your play time :)')
             this.props.navigation.navigate('Splash')
         } else {
