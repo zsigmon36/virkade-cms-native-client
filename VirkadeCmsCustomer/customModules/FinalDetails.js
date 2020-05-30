@@ -4,6 +4,7 @@ import {
     StyleSheet,
     Text,
     View,
+    Alert,
     TouchableNativeFeedback,
     ScrollView,
 } from 'react-native';
@@ -23,9 +24,9 @@ class FinalDetails extends Component {
     }
     
     state = {
-        everVr: '[ ]',
+        playedBefore: '[ ]',
         canContact: '[ ]',
-        reService: '[ ]',
+        reServices: '[ ]',
     }
 
     updateInput(data) {
@@ -33,12 +34,12 @@ class FinalDetails extends Component {
     }
 
     everVrCheckBox = () => {
-        if (this.state.everVr == '[ ]') {
-            this.updateInput({everVr:true})
-            this.setState({ everVr: '[X]' })
+        if (this.state.playedBefore == '[ ]') {
+            this.updateInput({playedBefore:true})
+            this.setState({ playedBefore: '[X]' })
         } else {
-            this.updateInput({everVr:false})
-            this.setState({ everVr: '[ ]' })
+            this.updateInput({playedBefore:false})
+            this.setState({ playedBefore: '[ ]' })
         }
     }
     contactCheckBox = () => {
@@ -51,7 +52,7 @@ class FinalDetails extends Component {
         }
     }
     reCheckBox = () => {
-        if (this.state.reService == '[ ]') {
+        if (this.state.reServices == '[ ]') {
             this.updateInput({reServices:true})
             this.setState({ reServices: '[X]' })
         } else {
@@ -74,7 +75,7 @@ class FinalDetails extends Component {
         if (data && data.updateUser) {
             this.props.navigation.navigate('TermsConditions')
         } else {
-            Alert.alert('::error::',`\nhmmm... \nlooks like something went wrong. \n${error[0].messages}`)
+            Alert.alert('::error::',`\nhmmm... \nlooks like something went wrong. \n${error[0].message}`)
         }
     }
 
@@ -90,7 +91,7 @@ class FinalDetails extends Component {
                                 <Text style={style.h1}>::final info::</Text>
                             </View>
                             <View style={style.col}>
-                                <Text style={style.checkBox} onPress={this.everVrCheckBox}> {this.state.everVr} ever experienced VR?</Text>
+                                <Text style={style.checkBox} onPress={this.everVrCheckBox}> {this.state.playedBefore} ever experienced VR?</Text>
                             </View>
                             <View style={style.col}>
                                 <Text style={style.checkBox} onPress={this.reCheckBox}> {this.state.reServices} interested in VR real estate services?</Text>

@@ -3,6 +3,7 @@ import {
     StyleSheet,
     Text,
     View,
+    Alert,
     TouchableNativeFeedback,
     ScrollView,
 } from 'react-native';
@@ -42,21 +43,21 @@ class LimitedLiable extends Component {
 
     clickNext() {
         let user = this.props.user
-        if (user.tcAgree) {
-            DatabaseAPI.userLimitLiable(user, this.nextPage)
+        if (user.liableAgree) {
+            DatabaseAPI.addUserLegalDoc(user, user.liableTypeCode, true, this.nextPage)
         } else {
             Alert.alert('::info::','\nyou must agree to the liability waiver to continue')
         }
         
     }
 
-    nextPage(data) {
-        if (data && data.userLimitLiable) {
+    nextPage(data, error) {
+        if (data && data.addUserLegalDoc) {
             this.updateInput({resetDefaults :defaultState})
-            Alert.alert('::info::','\nthanks for registering \nyou are all set, login with and schedule your play time :)')
+            Alert.alert('::info::','\nthanks for registering \nyou are all set, login and schedule your play time :)')
             this.props.navigation.navigate('Splash')
         } else {
-            Alert.alert('::error::','\nhmmm... \nlooks like something went wrong.')
+            Alert.alert('::error::',`\nhmmm... \nlooks like something went wrong.   \n${error[0].message}`)
         }
     }
 

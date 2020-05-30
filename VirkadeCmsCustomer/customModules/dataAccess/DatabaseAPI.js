@@ -1,7 +1,7 @@
 //connection details - probs move to config file
 //const HOST = '192.168.1.240'
-const HOST = '192.168.1.7'
-const PORT = '136'
+const HOST = '192.168.1.7' //move property
+const PORT = '136' //move to property
 const API_ADDRESS = '/service'
 const PROTOCOL = 'http'
 
@@ -18,6 +18,7 @@ const CREATE_USER_ADDRESS = 'addUserAddress'
 const CREATE_PHONE = 'addPhone'
 const SIGN_IN = 'signIn'
 const ADD_COMMENT = 'addComment'
+const ADD_USER_LEGAL_DOC = 'addUserLegalDoc'
 
 //params & fields
 const TYPE = 'type'
@@ -69,6 +70,14 @@ const PHONE_NUMBERS = 'phoneNumbers'
 const INPUT_COMMENT = 'inputComment'
 const COMMENT_CONTENT = 'commentContent'
 const COMMENTID = 'commentId'
+const NEW_LINE_TOKEN = '[LF]'
+
+const INPUT_LEGAL = 'inputLegal'
+const LEGAL_DOC_ID = 'legalDocId'
+const AGREE = 'agree'
+const ACTIVE_DATE = 'activeDate'
+const EXPIRE_DATE = 'expireDate'
+const ENABLED = 'enabled'
   
 let cmsGraphQLHost = `${PROTOCOL}://${HOST}:${PORT}${API_ADDRESS}`
 
@@ -109,6 +118,11 @@ export const DatabaseAPI = {
         let query = GraphQLParamStrings.addUserComment(userObj)
         return dataFetch(query, userObj.username, userObj.authToken.token, callback)
     },
+    addUserLegalDoc: function (userObj, legalTypeCode, agree = true, callback) {
+        let query = GraphQLParamStrings.addUserLegalDoc(userObj.username, legalTypeCode, agree)
+        console.log(query)
+        return dataFetch(query, userObj.username, userObj.authToken.token, callback)
+    }
 }
 
 const GraphQLParamStrings = {
@@ -179,8 +193,8 @@ const GraphQLParamStrings = {
                     ${WEIGHT}:${parseInt(weight)},      
                     ${IDP}:${parseFloat(userObj.idp)},
                     ${EMAIL_VERIFIED}:${userObj.emailVerified},
-                    ${PLAYED_BEFORE}:${userObj.everVr},
-                    ${REAL_ESTATE_SERVICE}:${userObj.reService},
+                    ${PLAYED_BEFORE}:${userObj.playedBefore},
+                    ${REAL_ESTATE_SERVICE}:${userObj.reServices},
                     ${CAN_CONTACT}:${userObj.canContact},
                 }
             ){
@@ -321,16 +335,41 @@ const GraphQLParamStrings = {
         return query;
     },
     addUserComment: function (userObj) {
+        let commentContent = (userObj.commentContent).replace(/\n/g, NEW_LINE_TOKEN)
         let query = `${MUTATION}{${ADD_COMMENT}
             (   
                 ${INPUT_COMMENT}:{
                     ${USERNAME}:\"${userObj.username}\",
                     ${TYPE_CODE}:\"${userObj.commentType}\",
-                    ${COMMENT_CONTENT}:${userObj.commentContent},
+                    ${COMMENT_CONTENT}:\"${commentContent}\",
                 }
             ){
                     ${COMMENTID} 
                     ${USERID} 
+        }}`
+        return query;
+    },
+    addUserLegalDoc: function (username, legalTypeCode, agree) {
+        //2020-05-30 02:30:57.311
+        let activeDate = new Date()
+        let expYear = activeDate.getFullYear() + 1
+        activeDate = `${activeDate.getUTCFullYear()}-${activeDate.getUTCMonth()}-${activeDate.getUTCDate()} ${activeDate.getUTCHours()}:${activeDate.getUTCMinutes()}:${activeDate.getUTCSeconds()}.000`
+       
+        let expireDate = new Date();
+        expireDate = `${expYear}-${expireDate.getUTCMonth()}-${expireDate.getUTCDate()} ${expireDate.getUTCHours()}:${expireDate.getUTCMinutes()}:${expireDate.getUTCSeconds()}.000`
+
+        let query = `${MUTATION}{${ADD_USER_LEGAL_DOC}
+            (   
+                ${INPUT_LEGAL}:{
+                    ${USERNAME}:\"${username}\",
+                    ${TYPE_CODE}:\"${legalTypeCode}\",
+                    ${AGREE}:${agree},
+                    ${ACTIVE_DATE}:\"${activeDate}\",
+                    ${EXPIRE_DATE}:\"${expireDate}\",
+                    ${ENABLED}:true
+                }
+            ){
+                    ${LEGAL_DOC_ID}
         }}`
         return query;
     },

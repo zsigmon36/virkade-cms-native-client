@@ -82,7 +82,7 @@ class PersonalUser extends Component {
             msg = 'age has to be a number'
             isValid = false;
         } else if (weight != undefined && weight != '' && !validator.isNumeric(weight) ) {
-            msg = 'age has to be a number'
+            msg = 'weight has to be a number'
             isValid = false;
         } else if (phoneNumber != undefined && phoneNumber != '' && !validator.isMobilePhone(phoneNumber, 'any') ) {
             msg = 'mobile phone number is invalid'
@@ -125,6 +125,12 @@ class PersonalUser extends Component {
                                 <Picker.Item label="female" value="f" />
                             </Picker>
                         </View>
+                        { this.state.validatorMsg !== '' && (
+                            <View style={style.center}>
+                                    <Text style={style.label}>{this.state.validatorMsg}</Text>
+                            </View>
+                            )
+                        }
                         <View style={style.col}>
                             <Text style={style.label}>age:</Text>
                             <TextInput style={style.input} underlineColorAndroid="#9fff80" onChangeText={(age) =>

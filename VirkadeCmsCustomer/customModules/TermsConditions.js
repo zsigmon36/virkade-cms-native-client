@@ -43,18 +43,18 @@ class TermsConditions extends Component {
     clickNext() {
         let user = this.props.user
         if (user.tcAgree) {
-            DatabaseAPI.userTermsCond(user, this.nextPage)
+            DatabaseAPI.addUserLegalDoc(user, user.tcTypeCode, true, this.nextPage)
         } else {
             Alert.alert('::info::','\nyou must agree to the terms and conditions to continue')
         }
         
     }
 
-    nextPage(data) {
-        if (data && data.userTermsCond) {
+    nextPage(data, error) {
+        if (data && data.addUserLegalDoc) {
             this.props.navigation.navigate('LimitedLiable')
         } else {
-            Alert.alert('::error::','\nhmmm... \nlooks like something went wrong.')
+            Alert.alert('::error::',`\nhmmm... \nlooks like something went wrong.  \n${error[0].message}`)
         }
     }
 
@@ -78,7 +78,7 @@ class TermsConditions extends Component {
                                 <Text style={style.checkBox} onPress={this.agreeCheckBox}> {this.state.agree} do you agree to the terms and conditions?</Text>
                             </View>
                             <View style={[style.col, style.edgeSpace]}>
-                                <TouchableNativeFeedback onPress={() => this.props.navigation.navigate('LimitedLiable')}>
+                                <TouchableNativeFeedback onPress={() => this.clickNext()}>
                                     <View style={style.next}>
                                         <Text style={style.label}>next</Text>
                                     </View>

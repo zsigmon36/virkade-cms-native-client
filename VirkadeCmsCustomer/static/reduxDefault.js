@@ -23,7 +23,7 @@ export const defaultState = {
     addressTypeCode:"PHYSCL_ADRS",
     statusId:1,
     emailVerified:false,
-    everVr: false,
+    playedBefore: false,
     canContact: false,
     phoneCountryCode: '0', 
     phoneNumber: "", 
@@ -32,7 +32,9 @@ export const defaultState = {
     commentType: "CNDTN_CMNT",
     reServices: false,
     tcAgree: false,
+    tcTypeCode: "TRMS_CNDTN",
     liableAgree: false,
+    liableTypeCode: "LTD_LBLE",
     authToken : {
         token: "",
         createdDate: "",
