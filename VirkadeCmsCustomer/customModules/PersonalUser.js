@@ -179,7 +179,7 @@ class PersonalUser extends Component {
                                 onValueChange={(itemValue) =>
                                     this.updateInput({ "idp": itemValue })
                                 }>
-                                <Picker.Item label="select" value="0.0" />
+                                <Picker.Item label="select" value="00" />
                                 {
                                      (pickerData.idp).map( (item) => {
                                         return <Picker.Item key={item.value} label={item.label} value={item.value} />

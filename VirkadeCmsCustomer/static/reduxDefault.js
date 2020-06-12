@@ -13,7 +13,7 @@ export const defaultState = {
     heightFt:"0",
     heightIn:"0",
     weight:"",
-    idp:'0.0',
+    idp:'00',
     street:undefined,
     apt:undefined,
     unit:undefined,

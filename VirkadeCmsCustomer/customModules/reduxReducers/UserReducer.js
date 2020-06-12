@@ -37,9 +37,9 @@ function covertUserData(data, state) {
             convertedUser.heightIn = heightIn
         } else if (rawUser[key] && key == 'phoneNumbers') {
             let phones = value
-            convertedUser.phoneCountryCode = phones[0].countryCode
-            convertedUser.phoneNumber = phones[0].number
-            convertedUser.phoneType = phones[0].type.code
+            convertedUser.phoneCountryCode = phones.length > 0 ? phones[0].countryCode : '0'
+            convertedUser.phoneNumber = phones.length > 0 ? phones[0].number : ""
+            convertedUser.phoneType = phones.length > 0 ? phones[0].type.code : "MBLE_PHNE"
         } else if (rawUser[key] && key == 'status') {
             convertedUser.statusId = value.statusId
         } else if (rawUser[key] && key == 'type') {

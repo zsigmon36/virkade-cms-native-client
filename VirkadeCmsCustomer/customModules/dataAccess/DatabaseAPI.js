@@ -17,6 +17,7 @@ const UPDATE_USER = 'updateUser'
 const CREATE_USER_ADDRESS = 'addUserAddress'
 const CREATE_PHONE = 'addPhone'
 const SIGN_IN = 'signIn'
+const SIGN_OUT = 'signOut'
 const ADD_COMMENT = 'addComment'
 const ADD_USER_LEGAL_DOC = 'addUserLegalDoc'
 
@@ -86,6 +87,10 @@ export const DatabaseAPI = {
         let query = GraphQLParamStrings.signIn(username, password)
         return dataFetch(query, username, authToken = '', callBack)
     },
+    signOut: function (authToken, callBack = undefined) {
+        let query = GraphQLParamStrings.signOut(authToken.username)
+        return dataFetch(query, authToken.username, authToken.token, callBack)
+    },
     createNewUser: function (userObj, callBack) {
         let query = GraphQLParamStrings.createNewUser(userObj)
         return dataFetch(query, userObj.username, authToken = '', callBack)
@@ -139,6 +144,9 @@ const GraphQLParamStrings = {
                 ${CREATED_DATE}
             }
         }`
+    },
+    signOut: function (username) {
+        return `${MUTATION} { ${SIGN_OUT} ( ${USERNAME}:\"${username}\" ) }`
     },
     createNewUser: function (userObj) {
         let query = `${MUTATION} { ${CREATE_NEW_USER}
@@ -353,10 +361,10 @@ const GraphQLParamStrings = {
         //2020-05-30 02:30:57.311
         let activeDate = new Date()
         let expYear = activeDate.getFullYear() + 1
-        activeDate = `${activeDate.getUTCFullYear()}-${activeDate.getUTCMonth()}-${activeDate.getUTCDate()} ${activeDate.getUTCHours()}:${activeDate.getUTCMinutes()}:${activeDate.getUTCSeconds()}.000`
+        activeDate = `${activeDate.getFullYear()}-${activeDate.getMonth()}-${activeDate.getDay()} ${activeDate.getHours()}:${activeDate.getMinutes()}:${activeDate.getSeconds()}`
        
         let expireDate = new Date();
-        expireDate = `${expYear}-${expireDate.getUTCMonth()}-${expireDate.getUTCDate()} ${expireDate.getUTCHours()}:${expireDate.getUTCMinutes()}:${expireDate.getUTCSeconds()}.000`
+        expireDate = `${expYear}-${expireDate.getMonth()}-${expireDate.getDate()} ${expireDate.getHours()}:${expireDate.getMinutes()}:${expireDate.getSeconds()}`
 
         let query = `${MUTATION}{${ADD_USER_LEGAL_DOC}
             (   
