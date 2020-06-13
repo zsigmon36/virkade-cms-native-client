@@ -34,32 +34,47 @@ class BasicAccount extends Component {
     }
 
     setSecurityQ(data, error) {
-        if (data && data.getSecurityQ) {
-            this.updateInput({ "securityQuestion": data.getSecurityQ })
+        if (data && data.getUserByUsername) {
+            this.updateInput({ "securityQuestion": data.getUserByUsername.securityQuestion })
             this.setState({ step: 2 });
-        } else {
+        } else if (error) {
             Alert.alert('::error::', `\nhmmm... \nlooks like something went wrong.  \n${error[0].message}`)
+        } else {
+            Alert.alert('::info::', `\nhmmm... \nlooks like we can't find that user.`)
         }
     }
     checkSecurityA(data, error) {
-        if (data && data.checkSecurityA) {
-            this.updateInput({ "securityAnswer": data.checkSecurityA })
+        if (data && data.recoverySignIn) {
             this.setState({ step: 3 });
-        } else {
+        } else if (error) {
             Alert.alert('::error::', `\nhmmm... \nlooks like something went wrong.  \n${error[0].message}`)
+        } else {
+            Alert.alert('::info::', `\nhmmm... \nlooks like we could not verify your credentials.`)
         }
     }
     nextPage(data, error) {
-        if (data && data.changePassword) {
-            Alert.alert('::info::', '\npassword update successful')
-            this.props.navigation.navigate('Splash')
-        } else {
+        if (data && data.setNewPassword) {
+            Alert.alert('::info::', '\npassword update successful',
+                [
+                    {
+                        text: "ok",
+                        onPress: this.props.navigation.navigate('Splash'),
+                        style: 'default'
+                    }
+                ],
+                { cancelable: false }
+            );
+
+        } else if (error) {
             Alert.alert('::error::', `\nhmmm... \nlooks like something went wrong.  \n${error[0].message}`)
+            this.setState({ step: 1 });
+        } else {
+            Alert.alert('::error::', `\nhmmm... \nlooks like we could not set your new password.`)
             this.setState({ step: 1 });
         }
     }
     validateInput(data, isAlert = true) {
-        let { username, password, securityQuestion, securityA } = data;
+        let { username, password, securityAnswer } = data;
         let msg = '';
         valid = true
         if (username != undefined && (username == "" || username.length < 6)) {
@@ -68,14 +83,11 @@ class BasicAccount extends Component {
         } else if (password != undefined && (password == "" || password.length < 8)) {
             msg = 'password is too short'
             valid = false;
-        } else if (securityQuestion != undefined && securityQuestion == "") {
-            msg = 'security question cannot be empty'
-            valid = false;
-        } else if (securityA != undefined && securityA == "") {
+        } else if (securityAnswer != undefined && securityAnswer == "") {
             msg = 'security answer cannot be empty'
             valid = false;
         } else if (this.props.user.authToken.username === username) {
-            msg = `you are logged in as ${username} \nchange username if you want to create a new account`
+            msg = `you are logged in as ${username} \nno need to recover the password`
         }
         this.setState({ validatorMsg: msg })
 
@@ -121,14 +133,21 @@ class BasicAccount extends Component {
                             }
                             {this.state.step == 3 &&
                                 <View style={style.col}>
-                                    <Text style={style.label}>password:</Text>
+                                    <Text style={style.label}>new password:</Text>
                                     <TextInput style={style.input} secureTextEntry={true} underlineColorAndroid="#9fff80" onChangeText={(password) =>
                                         this.updateInput({ password: password })} value={this.props.user.password} />
                                 </View>
                             }
+                            {this.state.step == 3 &&
+                                <View style={style.col}>
+                                    <Text style={style.label}>passcode:</Text>
+                                    <TextInput style={style.input} underlineColorAndroid="#9fff80" onChangeText={(passcode) =>
+                                        this.updateInput({ passcode: passcode })} value={this.props.user.passcode} />
+                                </View>
+                            }
                             {this.state.step == 1 &&
                                 <View style={style.col}>
-                                    <TouchableNativeFeedback onPress={() => validateInput(this.props.user.username) && DatabaseAPI.getSecurityQ(this.props.user.username, this.setSecurityQ)}>
+                                    <TouchableNativeFeedback onPress={() => this.validateInput({ username: this.props.user.username }) && DatabaseAPI.getSecurityQ(this.props.user.username, this.setSecurityQ)}>
                                         <View style={style.next}>
                                             <Text style={style.label}>get security question</Text>
                                         </View>
@@ -137,7 +156,7 @@ class BasicAccount extends Component {
                             }
                             {this.state.step == 2 &&
                                 <View style={style.col}>
-                                    <TouchableNativeFeedback onPress={() => validateInput(this.props.user.securityAnswer) && DatabaseAPI.checkSecurityA(this.props.user, this.checkSecurityA)}>
+                                    <TouchableNativeFeedback onPress={() => this.validateInput({ securityAnswer: this.props.user.securityAnswer }) && DatabaseAPI.checkSecurityA(this.props.user, this.checkSecurityA)}>
                                         <View style={style.next}>
                                             <Text style={style.label}>submit security answer</Text>
                                         </View>
@@ -146,7 +165,7 @@ class BasicAccount extends Component {
                             }
                             {this.state.step == 3 &&
                                 <View style={style.col}>
-                                    <TouchableNativeFeedback onPress={() => validateInput(this.props.user.password) && DatabaseAPI.changePassword(this.props.user, this.nextPage)}>
+                                    <TouchableNativeFeedback onPress={() => this.validateInput({ password: this.props.user.password }) && DatabaseAPI.setNewPassword(this.props.user, this.nextPage)}>
                                         <View style={style.next}>
                                             <Text style={style.label}>change password</Text>
                                         </View>

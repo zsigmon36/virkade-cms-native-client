@@ -144,7 +144,7 @@ export default connect(mapStateToProps, mapDispatchToProps)(BasicAccount);
 const style = StyleSheet.create({
     wrapper: {
         flex: 1,
-        minHeight: 900
+        minHeight: 1000
     },
     body: {
         flexDirection: 'row',

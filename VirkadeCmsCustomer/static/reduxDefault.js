@@ -3,6 +3,7 @@ export const defaultState = {
     userId:0,
     userTypeCode:"CSTMR",
     password:"",
+    passcode:"",
     securityQuestion:"",
     securityAnswer:"",
     firstName:"",

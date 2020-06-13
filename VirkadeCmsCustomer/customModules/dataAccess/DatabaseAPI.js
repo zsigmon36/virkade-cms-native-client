@@ -20,6 +20,8 @@ const SIGN_IN = 'signIn'
 const SIGN_OUT = 'signOut'
 const ADD_COMMENT = 'addComment'
 const ADD_USER_LEGAL_DOC = 'addUserLegalDoc'
+const RECOVERY_SIGN_IN = 'recoverySignIn'
+const SET_NEW_PASSWORD = 'setNewPassword'
 
 //params & fields
 const TYPE = 'type'
@@ -48,6 +50,7 @@ const PLAYED_BEFORE = 'playedBefore'
 const REAL_ESTATE_SERVICE = 'reServices'
 const CAN_CONTACT = 'canContact'
 const TOKEN = 'token'
+const PASSCODE = 'passCode'
 const NAME = 'name'
 const CREATED_DATE = 'createdDate'
 
@@ -125,9 +128,21 @@ export const DatabaseAPI = {
     },
     addUserLegalDoc: function (userObj, legalTypeCode, agree = true, callback) {
         let query = GraphQLParamStrings.addUserLegalDoc(userObj.username, legalTypeCode, agree)
-        console.log(query)
         return dataFetch(query, userObj.username, userObj.authToken.token, callback)
-    }
+    },
+    //for recovery pw
+    getSecurityQ: function (username, callback) {
+        let query = GraphQLParamStrings.getSecurityQ(username)
+        return dataFetch(query, username, authToken = '', callback)
+    },
+    checkSecurityA: function (userObj, callback) {
+        let query = GraphQLParamStrings.checkSecurityA(userObj)
+        return dataFetch(query, userObj.username, authToken = '', callback)
+    },
+    setNewPassword: function (userObj, callback) {
+        let query = GraphQLParamStrings.setNewPassword(userObj)
+        return dataFetch(query, userObj.username, authToken = '', callback)
+    },
 }
 
 const GraphQLParamStrings = {
@@ -381,10 +396,42 @@ const GraphQLParamStrings = {
         }}`
         return query;
     },
+    getSecurityQ: function (username) {
+        let query = `${QUERY} { ${GET_USER_BY_USERNAME}
+            (
+                ${USERNAME}:\"${username}\",
+            ){
+                ${SECURITYQ} 
+                ${USERNAME}
+                ${EMAILADDRESS}
+            }}`
+        return query; //.replace(/\s/g, '');
+
+    },
+    checkSecurityA: function (userObj) {
+        return `${MUTATION} { ${RECOVERY_SIGN_IN}
+            (
+                ${AUTHDATA}:{
+                    ${USERNAME}:\"${userObj.username}\",
+                    ${SECURITYA}:\"${userObj.securityAnswer}\"
+                }
+            )
+        }`
+    },
+    setNewPassword: function (userObj) {
+        let query = `${MUTATION} { ${SET_NEW_PASSWORD}
+            (
+                ${USERNAME}:\"${userObj.username}\",
+                ${PASSCODE}:\"${userObj.passcode}\",
+                ${PASSWORD}:\"${userObj.password}\"
+            )
+        }`
+        return query; //.replace(/\s/g, '');
+    },
 }
 
 
-const dataFetch = function (queryString, username, authToken, callBack, retries = 1) {
+const dataFetch = function (queryString, username, authToken, callBack, retries = 0) {
 
     let qs = cmsGraphQLHost;
     let body = JSON.stringify({ query: queryString });
@@ -398,8 +445,10 @@ const dataFetch = function (queryString, username, authToken, callBack, retries 
             'Authorization': 'Bearer ' + authToken,
             'Username': username
         }
-    }).then(response => response.json()
-    ).then(results => {
+    }).then(response => {
+        console.log(response);
+        return response.json()
+    }).then(results => {
         let data = results.data;
         let errors = results.errors
         if (callBack){
