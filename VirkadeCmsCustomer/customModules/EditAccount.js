@@ -31,14 +31,13 @@ class EditAccount extends Component {
         this.validateUsername = this.validateUsername.bind(this);
         DatabaseAPI.getAllStates(this.props.user, this.setPickerSates)
     }
-
     state = {
         validatorMsg: '',
         pickerStates: <Picker.Item key="1" label="Arkansas" value="AR" />,
         everVr: '[ ]',
         canContact: '[ ]',
         reService: '[ ]',
-        user: this.props.user,
+        user: Object.assign({}, this.props.user),
         loading: true,
     }
 
@@ -139,7 +138,7 @@ class EditAccount extends Component {
 
     statusMessage(data, error) {
         if (data && data.updateUser) {
-            this.props.actions({fullUser: this.state.user}) 
+            this.props.actions({ fullUser: this.state.user })
             Alert.alert("::info::", "update complete")
         } else {
             Alert.alert('::error::', `\nhmmm... \nlooks like something went wrong. \n${error[0].messages}`)
@@ -158,7 +157,7 @@ class EditAccount extends Component {
             msg = 'age has to be a number'
             isValid = false;
         } else if (weight != undefined && weight != '' && !validator.isNumeric(String(weight))) {
-            msg = 'age has to be a number'
+            msg = 'weight has to be a number'
             isValid = false;
         } else if (phoneNumber != undefined && phoneNumber != '' && !validator.isMobilePhone(phoneNumber, 'any')) {
             msg = 'mobile phone number is invalid'
@@ -182,7 +181,6 @@ class EditAccount extends Component {
     }
 
     render() {
-        let user = this.state.user
         return (
             <ScrollView keyboardDismissMode='on-drag' style={style.wrapper}>
                 <Loader loading={this.state.loading} />
@@ -191,34 +189,34 @@ class EditAccount extends Component {
                 <View style={style.body}>
                     <View style={style.spacer}></View>
                     <View style={style.main}>
+                        <View style={style.center}>
+                            <Text style={style.label}>{this.state.validatorMsg}</Text>
+                        </View>
                         <View style={style.colFirst}>
                             <Text style={style.h1}>::account details::</Text>
                         </View>
                         <View style={style.colFirst}>
                             <Text style={style.h2}>::personal info::</Text>
                         </View>
-                        <View style={style.center}>
-                            <Text style={style.label}>{this.state.validatorMsg}</Text>
-                        </View>
                         <View style={style.col}>
                             <Text style={style.label}>first name:</Text>
                             <TextInput style={style.input} underlineColorAndroid="#9fff80" onChangeText={(firstName) =>
-                                this.updateInput({ "firstName": firstName })} value={user.firstName} />
+                                this.updateInput({ "firstName": firstName })} value={this.state.user.firstName} />
                         </View>
                         <View style={style.col}>
                             <Text style={style.label}>last name:</Text>
                             <TextInput style={style.input} underlineColorAndroid="#9fff80" onChangeText={(lastName) =>
-                                this.updateInput({ "lastName": lastName })} value={user.lastName} />
+                                this.updateInput({ "lastName": lastName })} value={this.state.user.lastName} />
                         </View>
                         <View style={style.col}>
                             <Text style={style.label}>email address:</Text>
                             <TextInput style={style.input} underlineColorAndroid="#9fff80" onChangeText={(emailAddress) =>
-                                this.updateInput({ "emailAddress": emailAddress })} value={user.emailAddress} />
+                                this.updateInput({ "emailAddress": emailAddress })} value={this.state.user.emailAddress} />
                         </View>
                         <View style={style.col}>
                             <Text style={style.label}>gender you identify:</Text>
                             <Picker
-                                selectedValue={user.gender}
+                                selectedValue={this.state.user.gender}
                                 style={style.picker}
                                 itemStyle={style.pickerItem}
                                 onValueChange={(itemValue) =>
@@ -232,12 +230,12 @@ class EditAccount extends Component {
                         <View style={style.col}>
                             <Text style={style.label}>age:</Text>
                             <TextInput style={style.input} underlineColorAndroid="#9fff80" onChangeText={(age) =>
-                                this.updateInput({ 'age': age })} value={String(user.age)} />
+                                this.updateInput({ 'age': age })} value={String(this.state.user.age)} />
                         </View>
                         <View style={style.col}>
                             <Text style={style.label}>height:</Text>
                             <Picker
-                                selectedValue={user.heightFt}
+                                selectedValue={this.state.user.heightFt}
                                 style={style.input}
                                 itemStyle={style.input}
                                 onValueChange={(itemValue) =>
@@ -251,7 +249,7 @@ class EditAccount extends Component {
                                 }
                             </Picker>
                             <Picker
-                                selectedValue={user.heightIn}
+                                selectedValue={this.state.user.heightIn}
                                 style={style.input}
                                 onValueChange={(itemValue) =>
                                     this.updateInput({ "heightIn": itemValue })
@@ -267,12 +265,12 @@ class EditAccount extends Component {
                         <View style={style.col}>
                             <Text style={style.label}>weight:</Text>
                             <TextInput style={style.input} underlineColorAndroid="#9fff80" onChangeText={(weight) =>
-                                this.updateInput({ 'weight': weight })} value={String(user.weight)} />
+                                this.updateInput({ 'weight': weight })} value={String(this.state.user.weight)} />
                         </View>
                         <View style={style.col}>
                             <Text style={style.label}>eye space:</Text>
                             <Picker
-                                selectedValue={user.idp}
+                                selectedValue={this.state.user.idp}
                                 style={style.input}
                                 onValueChange={(itemValue) =>
                                     this.updateInput({ "idp": itemValue })
@@ -286,32 +284,35 @@ class EditAccount extends Component {
                             </Picker>
                         </View>
                         <View style={[style.col, style.center]}>
+                            <Text style={style.label}>{this.state.validatorMsg}</Text>
+                        </View>
+                        <View style={[style.col, style.center]}>
                             <Text style={[style.label, style.h2]}>::physical address::</Text>
                         </View>
                         <View style={style.col}>
                             <Text style={style.label}>street:</Text>
                             <TextInput style={style.input} underlineColorAndroid="#9fff80" onChangeText={(street) =>
-                                this.updateInput({ 'street': street })} value={user.street} />
+                                this.updateInput({ 'street': street })} value={this.state.user.street} />
                         </View>
                         <View style={style.col}>
                             <Text style={style.label}>apt:</Text>
                             <TextInput style={style.input} underlineColorAndroid="#9fff80" onChangeText={(apt) =>
-                                this.updateInput({ 'apt': apt })} value={user.apt} />
+                                this.updateInput({ 'apt': apt })} value={this.state.user.apt} />
                         </View>
                         <View style={style.col}>
                             <Text style={style.label}>unit:</Text>
                             <TextInput style={style.input} underlineColorAndroid="#9fff80" onChangeText={(unit) =>
-                                this.updateInput({ 'unit': unit })} value={user.unit} />
+                                this.updateInput({ 'unit': unit })} value={this.state.user.unit} />
                         </View>
                         <View style={style.col}>
                             <Text style={style.label}>city:</Text>
                             <TextInput style={style.input} underlineColorAndroid="#9fff80" onChangeText={(city) =>
-                                this.updateInput({ 'city': city })} value={user.city} />
+                                this.updateInput({ 'city': city })} value={this.state.user.city} />
                         </View>
                         <View style={style.col}>
                             <Text style={style.label}>state:</Text>
                             <Picker
-                                selectedValue={user.state}
+                                selectedValue={this.state.user.state}
                                 style={style.input}
                                 onValueChange={(itemValue) =>
                                     this.updateInput({ "state": itemValue })
@@ -320,16 +321,13 @@ class EditAccount extends Component {
                                 {this.state.pickerStates}
                             </Picker>
                         </View>
-                        {this.state.validatorMsg !== '' && (
-                            <View style={style.center}>
-                                <Text style={style.label}>{this.state.validatorMsg}</Text>
-                            </View>
-                        )
-                        }
                         <View style={style.col}>
                             <Text style={style.label}>postal code:</Text>
                             <TextInput style={style.input} underlineColorAndroid="#9fff80" onChangeText={(postalCode) =>
-                                this.updateInput({ 'postalCode': postalCode })} value={user.postalCode} />
+                                this.updateInput({ 'postalCode': postalCode })} value={this.state.user.postalCode} />
+                        </View>
+                        <View style={[style.col, style.center]}>
+                            <Text style={style.label}>{this.state.validatorMsg}</Text>
                         </View>
                         <View style={style.colFirst}>
                             <Text style={style.h2}>::mobile phone number::</Text>
@@ -337,7 +335,7 @@ class EditAccount extends Component {
                         <View style={style.col}>
                             <Text style={style.label}>cc:</Text>
                             <Picker
-                                selectedValue={user.phoneCountryCode}
+                                selectedValue={this.state.user.phoneCountryCode}
                                 style={style.input}
                                 onValueChange={(itemValue) =>
                                     this.updateInput({ "phoneCountryCode": itemValue })
@@ -351,7 +349,7 @@ class EditAccount extends Component {
                             </Picker>
                             <Text style={style.label}>number:</Text>
                             <TextInput style={style.input} underlineColorAndroid="#9fff80" onChangeText={(phoneNumber) =>
-                                this.updateInput({ 'phoneNumber': phoneNumber })} value={user.phoneNumber} />
+                                this.updateInput({ 'phoneNumber': phoneNumber })} value={this.state.user.phoneNumber} />
                         </View>
                         <View style={style.col}>
                             <TouchableNativeFeedback onPress={() => this.clickNext()}>
@@ -361,7 +359,7 @@ class EditAccount extends Component {
                             </TouchableNativeFeedback>
                         </View>
                         <View style={style.col}>
-                            <TouchableNativeFeedback onPress={() => this.props.navigation.navigate('Home') }>
+                            <TouchableNativeFeedback onPress={() => this.props.navigation.navigate('Home')}>
                                 <View style={style.next}>
                                     <Text style={style.label}>home</Text>
                                 </View>
