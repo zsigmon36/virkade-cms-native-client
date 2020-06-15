@@ -17,7 +17,7 @@ import userAction from './reduxActions/UserAction'
 import { DatabaseAPI } from './dataAccess/DatabaseAPI.js'
 import { Picker } from '@react-native-community/picker';
 import { pickerData } from '../static/pickerData';
-
+import Loader from './Loader.js';
 
 class EditAccount extends Component {
 
@@ -38,38 +38,52 @@ class EditAccount extends Component {
         everVr: '[ ]',
         canContact: '[ ]',
         reService: '[ ]',
+        user: this.props.user,
+        loading: true,
+    }
+
+    componentDidMount() {
+        this.setState({ loading: false })
+    }
+    loading(data) {
+        let loading = data || false;
+        this.setState({ loading: loading })
+        return true
     }
 
     everVrCheckBox = () => {
         if (this.state.everVr == '[ ]') {
-            this.updateInput({everVr:true})
+            this.updateInput({ everVr: true })
             this.setState({ everVr: '[X]' })
         } else {
-            this.updateInput({everVr:false})
+            this.updateInput({ everVr: false })
             this.setState({ everVr: '[ ]' })
         }
     }
     contactCheckBox = () => {
         if (this.state.canContact == '[ ]') {
-            this.updateInput({canContact:true})
+            this.updateInput({ canContact: true })
             this.setState({ canContact: '[X]' })
         } else {
-            this.updateInput({canContact:false})
+            this.updateInput({ canContact: false })
             this.setState({ canContact: '[ ]' })
         }
     }
     reCheckBox = () => {
         if (this.state.reService == '[ ]') {
-            this.updateInput({reService:true})
+            this.updateInput({ reService: true })
             this.setState({ reService: '[X]' })
         } else {
-            this.updateInput({reService:false})
+            this.updateInput({ reService: false })
             this.setState({ reService: '[ ]' })
         }
     }
 
     updateInput(data) {
-        this.props.actions(data)
+        let user = this.state.user
+        let key = Object.keys(data)[0]
+        user[key] = data[key]
+        this.setState(user)
         this.validateInput(data, false)
     }
 
@@ -84,18 +98,23 @@ class EditAccount extends Component {
     }
 
     clickNext() {
-        let { username, authToken } = this.props.user;
-        let isValid = this.validateInput(this.props.user)
+        this.loading(true)
+        let { username, authToken } = this.state.user;
+        let isValid = this.validateInput(this.state.user)
         if (isValid && username != authToken.username) {
-            DatabaseAPI.getUserByUserName(this.props.user.username, this.validateUsername);
+            DatabaseAPI.getUserByUserName(this.state.user.username, this.validateUsername);
         } else if (isValid) {
             this.validateUsername(null)
+        } else {
+            this.loading(false)
         }
 
     }
 
     validateUsername(data, error) {
+        let user = this.state.user;
         if (data && data.getUserByUserName) {
+            this.loading(false)
             Alert.alert('::error::', '\nusername already exists, looks like someone beat you to it :(')
         } else if (user.street || user.postalCode || user.state || user.city) {
             DatabaseAPI.addUserAddress(user, this.addPhoneNumber)
@@ -105,7 +124,7 @@ class EditAccount extends Component {
     }
 
     addPhoneNumber() {
-        let user = this.props.user
+        let user = this.state.user
         if (user.phoneNumber) {
             this.validateInput(user) && DatabaseAPI.addUserPhone(user, this.updateUser)
         } else {
@@ -114,16 +133,18 @@ class EditAccount extends Component {
     }
 
     updateUser() {
-        let user = this.props.user
+        let user = this.state.user
         DatabaseAPI.updateUser(user, this.statusMessage)
     }
 
     statusMessage(data, error) {
         if (data && data.updateUser) {
+            this.props.actions({fullUser: this.state.user}) 
             Alert.alert("::info::", "update complete")
         } else {
             Alert.alert('::error::', `\nhmmm... \nlooks like something went wrong. \n${error[0].messages}`)
         }
+        this.loading(false)
     }
 
     validateInput(data, isAlert = true) {
@@ -133,10 +154,10 @@ class EditAccount extends Component {
         if (postalCode != undefined && postalCode != '' && !validator.isPostalCode(postalCode, "US")) {
             msg = 'postal code is not valid'
             isValid = false;
-        } else if (age != undefined && age != '' && !validator.isNumeric(age)) {
+        } else if (age != undefined && age != '' && !validator.isNumeric(String(age))) {
             msg = 'age has to be a number'
             isValid = false;
-        } else if (weight != undefined && weight != '' && !validator.isNumeric(weight)) {
+        } else if (weight != undefined && weight != '' && !validator.isNumeric(String(weight))) {
             msg = 'age has to be a number'
             isValid = false;
         } else if (phoneNumber != undefined && phoneNumber != '' && !validator.isMobilePhone(phoneNumber, 'any')) {
@@ -161,10 +182,11 @@ class EditAccount extends Component {
     }
 
     render() {
-        let user = this.props.user
+        let user = this.state.user
         return (
-            <ScrollView keyboardDismissMode='on-drag'>
-                <UserDock />
+            <ScrollView keyboardDismissMode='on-drag' style={style.wrapper}>
+                <Loader loading={this.state.loading} />
+                <UserDock navigator={this.props.navigation} />
                 <Header />
                 <View style={style.body}>
                     <View style={style.spacer}></View>
@@ -175,23 +197,23 @@ class EditAccount extends Component {
                         <View style={style.colFirst}>
                             <Text style={style.h2}>::personal info::</Text>
                         </View>
-                            <View style={style.center}>
-                                <Text style={style.label}>{this.state.validatorMsg}</Text>
-                            </View>
+                        <View style={style.center}>
+                            <Text style={style.label}>{this.state.validatorMsg}</Text>
+                        </View>
                         <View style={style.col}>
                             <Text style={style.label}>first name:</Text>
                             <TextInput style={style.input} underlineColorAndroid="#9fff80" onChangeText={(firstName) =>
-                                this.updateInput({ "firstName": firstName })} value={this.props.user.firstName} />
+                                this.updateInput({ "firstName": firstName })} value={user.firstName} />
                         </View>
                         <View style={style.col}>
                             <Text style={style.label}>last name:</Text>
                             <TextInput style={style.input} underlineColorAndroid="#9fff80" onChangeText={(lastName) =>
-                                this.updateInput({ "lastName": lastName })} value={this.props.user.lastName} />
+                                this.updateInput({ "lastName": lastName })} value={user.lastName} />
                         </View>
                         <View style={style.col}>
                             <Text style={style.label}>email address:</Text>
                             <TextInput style={style.input} underlineColorAndroid="#9fff80" onChangeText={(emailAddress) =>
-                                this.updateInput({ "emailAddress": emailAddress })} value={this.props.user.emailAddress} />
+                                this.updateInput({ "emailAddress": emailAddress })} value={user.emailAddress} />
                         </View>
                         <View style={style.col}>
                             <Text style={style.label}>gender you identify:</Text>
@@ -210,7 +232,7 @@ class EditAccount extends Component {
                         <View style={style.col}>
                             <Text style={style.label}>age:</Text>
                             <TextInput style={style.input} underlineColorAndroid="#9fff80" onChangeText={(age) =>
-                                this.updateInput({ 'age': age })} value={user.age} />
+                                this.updateInput({ 'age': age })} value={String(user.age)} />
                         </View>
                         <View style={style.col}>
                             <Text style={style.label}>height:</Text>
@@ -245,7 +267,7 @@ class EditAccount extends Component {
                         <View style={style.col}>
                             <Text style={style.label}>weight:</Text>
                             <TextInput style={style.input} underlineColorAndroid="#9fff80" onChangeText={(weight) =>
-                                this.updateInput({ 'weight': weight })} value={user.weight} />
+                                this.updateInput({ 'weight': weight })} value={String(user.weight)} />
                         </View>
                         <View style={style.col}>
                             <Text style={style.label}>eye space:</Text>
@@ -334,7 +356,14 @@ class EditAccount extends Component {
                         <View style={style.col}>
                             <TouchableNativeFeedback onPress={() => this.clickNext()}>
                                 <View style={style.next}>
-                                    <Text style={style.label}>next</Text>
+                                    <Text style={style.label}>update</Text>
+                                </View>
+                            </TouchableNativeFeedback>
+                        </View>
+                        <View style={style.col}>
+                            <TouchableNativeFeedback onPress={() => this.props.navigation.navigate('Home') }>
+                                <View style={style.next}>
+                                    <Text style={style.label}>home</Text>
                                 </View>
                             </TouchableNativeFeedback>
                         </View>
@@ -363,11 +392,11 @@ export default connect(mapStateToProps, mapDispatchToProps)(EditAccount);
 const style = StyleSheet.create({
     wrapper: {
         flex: 1,
+        backgroundColor: '#001a00',
     },
     body: {
         flexDirection: 'row',
         flex: 0.75,
-        backgroundColor: '#001a00',
     },
     main: {
         flexDirection: 'column',
@@ -435,8 +464,8 @@ const style = StyleSheet.create({
         flex: 0.1,
     },
     next: {
-        marginTop: 20,
-        marginBottom: 20,
+        marginTop: 10,
+        marginBottom: 10,
         borderColor: '#9fff80',
         borderWidth: 2,
         flex: 1,

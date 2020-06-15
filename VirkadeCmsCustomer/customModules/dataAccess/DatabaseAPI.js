@@ -82,7 +82,7 @@ const AGREE = 'agree'
 const ACTIVE_DATE = 'activeDate'
 const EXPIRE_DATE = 'expireDate'
 const ENABLED = 'enabled'
-  
+
 let cmsGraphQLHost = `${PROTOCOL}://${HOST}:${PORT}${API_ADDRESS}`
 
 export const DatabaseAPI = {
@@ -96,15 +96,15 @@ export const DatabaseAPI = {
     },
     createNewUser: function (userObj, callBack) {
         let query = GraphQLParamStrings.createNewUser(userObj)
-        return dataFetch(query, userObj.username, authToken = '', callBack)
+        return dataFetch(query, userObj.username, userObj.authToken.token, callBack)
     },
-    getUserByUserName: function(username, callBack) {
-        let query = GraphQLParamStrings.getUserByUserName(username)
-        return dataFetch(query, username, authToken = '', callBack)
+    getUserByUserName: function (userObj, callBack) {
+        let query = GraphQLParamStrings.getUserByUserName(userObj.username)
+        return dataFetch(query, userObj.username, userObj.authToken.token, callBack)
     },
-    getAllFieldsUserByUserName: function(username, callBack) {
-        let query = GraphQLParamStrings.getAllFieldsUserByUserName(username)
-        return dataFetch(query, username, authToken = '', callBack)
+    getAllFieldsUserByUserName: function (userObj, callBack) {
+        let query = GraphQLParamStrings.getAllFieldsUserByUserName(userObj.username)
+        return dataFetch(query, userObj.username, userObj.authToken.token, callBack)
     },
     updateUser: function (userObj, callBack) {
         let query = GraphQLParamStrings.updateUser(userObj)
@@ -137,11 +137,11 @@ export const DatabaseAPI = {
     },
     checkSecurityA: function (userObj, callback) {
         let query = GraphQLParamStrings.checkSecurityA(userObj)
-        return dataFetch(query, userObj.username, authToken = '', callback)
+        return dataFetch(query, userObj.username, userObj.authToken.token, callback)
     },
     setNewPassword: function (userObj, callback) {
         let query = GraphQLParamStrings.setNewPassword(userObj)
-        return dataFetch(query, userObj.username, authToken = '', callback)
+        return dataFetch(query, userObj.username, userObj.authToken.token, callback)
     },
 }
 
@@ -170,8 +170,8 @@ const GraphQLParamStrings = {
                 ${AUTHDATA}:{
                     ${USERNAME}:\"${userObj.username}\",
                     ${PASSWORD}:\"${userObj.password}\",
-                    ${SECURITYQ}:\"${userObj.securityQ}\",
-                    ${SECURITYA}:\"${userObj.securityA}\"
+                    ${SECURITYQ}:\"${userObj.securityQuestion}\",
+                    ${SECURITYA}:\"${userObj.securityAnswer}\"
                 },
                 ${FIRST_NAME}:\"${userObj.firstName}\",
                 ${LAST_NAME}:\"${userObj.lastName}\"
@@ -183,17 +183,17 @@ const GraphQLParamStrings = {
 
     },
     updateUser: function (userObj) {
-     
+
         let feet = parseInt(userObj.heightFt);
         let inch = parseInt(userObj.heightIn);
         let height = (feet * 12) + inch;
         let age = userObj.age;
         let weight = userObj.weight;
 
-        if (age === '' || age == undefined){
+        if (age === '' || age == undefined) {
             age = 0;
         }
-        if (weight === '' || age == undefined){
+        if (weight === '' || age == undefined) {
             weight = 0;
         }
 
@@ -206,8 +206,8 @@ const GraphQLParamStrings = {
                     ${EMAILADDRESS}:\"${userObj.emailAddress}\",
                     ${USERNAME}:\"${userObj.username}\",
                     ${PASSWORD}:\"${userObj.password}\",
-                    ${SECURITYQ}:\"${userObj.securityQ}\",
-                    ${SECURITYA}:\"${userObj.securityA}\"
+                    ${SECURITYQ}:\"${userObj.securityQuestion}\",
+                    ${SECURITYA}:\"${userObj.securityAnswer}\"
                     ${FIRST_NAME}:\"${userObj.firstName}\",
                     ${LAST_NAME}:\"${userObj.lastName}\",
                     ${GENDER}:\"${userObj.gender}\",
@@ -307,22 +307,22 @@ const GraphQLParamStrings = {
         let state = userObj.state
         let postalCode = userObj.postalCode
 
-        if (unit == undefined){
+        if (unit == undefined) {
             unit = ''
         }
-        if (apt == undefined){
+        if (apt == undefined) {
             apt = ''
         }
-        if (street == undefined){
+        if (street == undefined) {
             street = ''
         }
-        if (city == undefined){
+        if (city == undefined) {
             city = ''
         }
-        if (state == undefined){
+        if (state == undefined) {
             state = ''
         }
-        if (postalCode == undefined){
+        if (postalCode == undefined) {
             postalCode = ''
         }
 
@@ -377,7 +377,7 @@ const GraphQLParamStrings = {
         let activeDate = new Date()
         let expYear = activeDate.getFullYear() + 1
         activeDate = `${activeDate.getFullYear()}-${activeDate.getMonth()}-${activeDate.getDay()} ${activeDate.getHours()}:${activeDate.getMinutes()}:${activeDate.getSeconds()}`
-       
+
         let expireDate = new Date();
         expireDate = `${expYear}-${expireDate.getMonth()}-${expireDate.getDate()} ${expireDate.getHours()}:${expireDate.getMinutes()}:${expireDate.getSeconds()}`
 
@@ -446,12 +446,11 @@ const dataFetch = function (queryString, username, authToken, callBack, retries 
             'Username': username
         }
     }).then(response => {
-        console.log(response);
         return response.json()
     }).then(results => {
         let data = results.data;
         let errors = results.errors
-        if (callBack){
+        if (callBack) {
             callBack(data, errors)
         } else {
             return results;
@@ -460,7 +459,7 @@ const dataFetch = function (queryString, username, authToken, callBack, retries 
         if (retries > 0) {
             dataFetch(queryString, username, authToken, callBack, --retries)
         } else {
-            if (callBack){
+            if (callBack) {
                 callBack(error)
             } else {
                 return error;

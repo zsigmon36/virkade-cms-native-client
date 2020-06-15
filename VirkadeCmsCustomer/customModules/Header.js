@@ -24,7 +24,7 @@ class Header extends Component {
     header: {
       flexDirection: 'row',
       flex: 0.25,
-      minHeight: 100,
+      minHeight: 200,
       backgroundColor: '#001a00',
     },
     logo:{

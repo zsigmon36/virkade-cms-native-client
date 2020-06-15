@@ -3,38 +3,49 @@ import {
     StyleSheet,
     Text,
     View,
-    TouchableNativeFeedback
+    TextInput,
+    TouchableNativeFeedback,
+    ScrollView
 } from 'react-native'
 import Header from './Header.js'
 import UserDock from './UserDock.js'
 import userAction from './reduxActions/UserAction'
 import { bindActionCreators } from 'redux';
 import { connect } from 'react-redux';
+import Loader from './Loader.js';
 
 class Home extends Component {
 
+    constructor(props) {
+        super(props)
+        this.nextPage = this.nextPage.bind(this)
+    }
+
+    nextPage(pageName) {
+        this.props.navigation.navigate(pageName)
+    }
+
     render() {
         return (
-            <View style={style.wrapper}>
-                 <UserDock props={this.props.navigation}/>
-                <Header/>
-               
+            <ScrollView keyboardDismissMode='on-drag' style={style.wrapper}>
+                <UserDock navigator={this.props.navigation} />
+                <View style={style.logo}>
+                    <Header />
+                </View>
                 <View style={style.col}>
                     <View style={style.rowFirst}>
                         <Text style={style.h1}>::choose one::</Text>
                     </View>
 
                     <View style={style.row}>
-                        <TouchableNativeFeedback onPress={() => this.props.navigation.navigate('EditLogin')}>
+                        <TouchableNativeFeedback onPress={() => this.nextPage('EditLogin')}>
                             <View style={style.next}>
                                 <Text style={style.label}>change login info</Text>
                             </View>
                         </TouchableNativeFeedback>
                     </View>
-
-
                     <View style={style.row}>
-                        <TouchableNativeFeedback onPress={() => this.props.navigation.navigate('EditAccount')}>
+                        <TouchableNativeFeedback onPress={() => this.nextPage('EditAccount')}>
                             <View style={style.next}>
                                 <Text style={style.label}>edit account</Text>
                             </View>
@@ -42,7 +53,7 @@ class Home extends Component {
                     </View>
 
                     <View style={style.row}>
-                        <TouchableNativeFeedback onPress={() => this.props.navigation.navigate('ScheduleSession')}>
+                        <TouchableNativeFeedback onPress={() => this.nextPage('Home')}>
                             <View style={style.next}>
                                 <Text style={style.label}>schedule session</Text>
                             </View>
@@ -50,7 +61,7 @@ class Home extends Component {
                     </View>
 
                     <View style={style.row}>
-                        <TouchableNativeFeedback onPress={() => this.props.navigation.navigate('Feedback')}>
+                        <TouchableNativeFeedback onPress={() => this.nextPage('Feedback')}>
                             <View style={style.next}>
                                 <Text style={style.label}>give feedback</Text>
                             </View>
@@ -58,7 +69,7 @@ class Home extends Component {
                     </View>
                 </View>
                 <View style={style.spacer}></View>
-            </View>
+            </ScrollView>
         );
     }
 }
@@ -82,13 +93,11 @@ const style = StyleSheet.create({
         flexDirection: 'column',
         flex: 1,
         backgroundColor: '#001a00',
-
-        
     },
     col: {
         flexDirection: 'column',
         backgroundColor: '#001a00',
-        flex:1,
+        flex: 1,
     },
     h1: {
         color: '#9fff80',
@@ -120,8 +129,12 @@ const style = StyleSheet.create({
         flex: 0.1,
         backgroundColor: '#001a00',
     },
+    logo: {
+        minHeight: 300,
+    },
     next: {
-        marginTop: 20,
+        marginTop: 10,
+        marginBottom: 10,
         borderColor: '#9fff80',
         borderWidth: 2,
         flex: 0.95,

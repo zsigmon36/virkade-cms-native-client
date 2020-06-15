@@ -9,7 +9,9 @@ import {
 import userAction from './reduxActions/UserAction'
 import { bindActionCreators } from 'redux';
 import { connect } from 'react-redux';
+import { defaultState } from '../static/reduxDefault'
 import { DatabaseAPI } from './dataAccess/DatabaseAPI.js'
+import Loader from './Loader.js';
 
 class UserDock extends Component {
 
@@ -18,24 +20,50 @@ class UserDock extends Component {
         this.gotoSplash = this.gotoSplash.bind(this);
     }
 
+    state = {
+        loading: true,
+    }
+
+    componentDidMount() {
+        this.setState({ loading: false })
+    }
+    loading(data) {
+        let loading = data || false;
+        this.setState({ loading: loading })
+        return true
+    }
+
     logout(){
-        DatabaseAPI.signOut(this.props.user.authToken, this.gotoSplash)
+        this.loading(true)
+        if (this.props.user.authToken && this.props.user.authToken.token !== ""){
+            DatabaseAPI.signOut(this.props.user.authToken, this.gotoSplash)
+        } else {
+            //already signed out
+            let data = {
+                signOut: true
+            }
+            this.gotoSplash(data)
+        }
     }
 
     gotoSplash(data, error){
         if (data && data.signOut){
-            this.props.navigate('Splash')
+            this.props.actions({resetDefaults :defaultState})
+            this.props.navigator.navigate('Splash')
         }else{
             Alert.alert('::error::',`\nhmmm... \nlooks like something went wrong.  \n${error[0].message}`)
         }
+        this.loading(false)
     }
     render() {
+        let user = this.props.user
         return (
                 <View style={style.body}>
+                    <Loader loading={this.state.loading} />
                     <View style={style.row}>
                         <View style={style.col}>
-                            <Text style={style.label}>welcome: {this.props.user.username}</Text>
-                            <Text style={style.label}>{this.props.user.lastName}, {this.props.user.firstName}</Text>
+                            <Text style={style.label}>welcome: {user.username}</Text>
+                            <Text style={style.label}>{user.lastName}, {user.firstName}</Text>
                         </View>
                         <View style={style.col}>
                             <TouchableNativeFeedback onPress={() => this.logout()}>
@@ -53,7 +81,6 @@ class UserDock extends Component {
 function mapStateToProps(state, ownProps) {
     return {
         user: state.user,
-        navigate: ownProps.props.navigate
     }
 }
 

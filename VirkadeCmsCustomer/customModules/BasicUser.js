@@ -14,6 +14,7 @@ import { bindActionCreators } from 'redux';
 import validator from 'validator';
 import userAction from './reduxActions/UserAction'
 import { DatabaseAPI } from './dataAccess/DatabaseAPI.js'
+import Loader from './Loader.js';
 
 class BasicUser extends Component {
 
@@ -24,7 +25,17 @@ class BasicUser extends Component {
     }
 
     state = {
-        validatorMsg: ''
+        validatorMsg: '',
+        loading: true,
+    }
+
+    componentDidMount() {
+        this.setState({ loading: false })
+    }
+    loading(data) {
+        let loading = data || false;
+        this.setState({ loading: loading })
+        return true
     }
 
     updateInput(data) {
@@ -33,41 +44,65 @@ class BasicUser extends Component {
     }
 
     clickNext() {
+        this.loading(true)
         let user = this.props.user;
-        if (this.validateInput(user)){
-            if (user.username == user.authToken.username){
-                data = {'signIn': {
-                    'userName': user.authToken.username, 
-                    'token': user.authToken.token, 
-                    'createdDate': user.authToken.createdDate
+        if (this.validateInput(user)) {
+            if (user.username == user.authToken.username) {
+                let data = {
+                    'signIn': {
+                        'userName': user.authToken.username,
+                        'token': user.authToken.token,
+                        'createdDate': user.authToken.createdDate
                     }
                 }
                 this.nextPage(data);
             } else {
                 DatabaseAPI.createNewUser(user, this.signIn)
-            } 
-        }         
-    }
-    nextPage(data, error){
-        if (data && data.signIn) {
-            let {username, token, createdDate} = data.signIn
-            this.updateInput({'authToken' : {
-                'token': token,
-                'createdDate': createdDate,
-                'username': username
-            }})
-            this.props.navigation.navigate('PersonalUser') 
+            }
         } else {
-            Alert.alert('::error::','\nLooks like something went wrong :(')
-
+            this.loading(false)
         }
+    }
+
+    signIn(data, error) {
+        if (data && data.createNewUser) {
+            let user = data.createNewUser;
+            let userIdValue = user.userId
+            this.updateInput({ "userId": userIdValue })
+            let username = this.props.user.username;
+            let password = this.props.user.password;
+            DatabaseAPI.signIn(username, password, this.nextPage)
+        } else {
+            this.loading(false)
+            Alert.alert('::error::', '\nUser already exists, Looks like someone beat you to it :(')
+        }
+    }
+
+    nextPage(data, error) {
+        if (data && data.signIn) {
+            let { username, token, createdDate } = data.signIn
+            this.updateInput({
+                'authToken': {
+                    'token': token,
+                    'createdDate': createdDate,
+                    'username': username
+                }
+            })
+            this.props.navigation.navigate('PersonalUser')
+            
+        } else if (error) {
+            Alert.alert('::error::', `\nhmmm... \nlooks like something went wrong.  \n${error[0].message}`)
+        } else {
+            Alert.alert('::error::', '\nLooks like something went wrong :(')
+        }
+        this.loading(false)
     }
 
     validateInput = (data, isAlert = true) => {
         let { firstName, lastName, emailAddress } = data;
         let msg = '';
         let isValid = true;
-        if (firstName != undefined && firstName == "" ) {
+        if (firstName != undefined && firstName == "") {
             msg = 'first name cannot be empty'
             isValid = false;
         } else if (lastName != undefined && lastName == "") {
@@ -85,59 +120,44 @@ class BasicUser extends Component {
         return isValid;
     }
 
-    signIn(data, error) {
-        if (data && data.createNewUser) {
-            let user = data.createNewUser;
-            let userIdValue = user.userId
-            this.updateInput({"userId" : userIdValue})
-            let username = this.props.user.username;
-            let password = this.props.user.password;
-            DatabaseAPI.signIn(username, password, this.nextPage)  
-        } else {
-            Alert.alert('::error::','\nUser already exists, Looks like someone beat you to it :(')
-        }
-    }
-
-
     render() {
         return (
-            <ScrollView keyboardDismissMode='on-drag'>
-                <View style={style.wrapper}>
-                    <Header />
-                    <View style={style.body}>
-                        <View style={style.spacer}></View>
-                        <View style={style.main}>
-                            <View style={style.h2}>
-                                <Text style={style.label}>{this.state.validatorMsg}</Text>
-                            </View>
-                            <View style={style.colFirst}>
-                                <Text style={style.h1}>::basic info::</Text>
-                            </View>
-                            <View style={style.col}>
-                                <Text style={style.label}>first name:</Text>
-                                <TextInput style={style.input} underlineColorAndroid="#9fff80" onChangeText={(firstName) =>
-                                    this.updateInput({ "firstName": firstName })} value={this.props.user.firstName} />
-                            </View>
-                            <View style={style.col}>
-                                <Text style={style.label}>last name:</Text>
-                                <TextInput style={style.input} underlineColorAndroid="#9fff80" onChangeText={(lastName) =>
-                                    this.updateInput({ "lastName": lastName })} value={this.props.user.lastName} />
-                            </View>
-                            <View style={style.col}>
-                                <Text style={style.label}>email address:</Text>
-                                <TextInput style={style.input} underlineColorAndroid="#9fff80" onChangeText={(emailAddress) =>
-                                    this.updateInput({ "emailAddress": emailAddress })} value={this.props.user.emailAddress} />
-                            </View>
-                            <View style={style.col}>
-                                <TouchableNativeFeedback onPress={() => this.clickNext()}>
-                                    <View style={style.next}>
-                                        <Text style={style.label}>create account</Text>
-                                    </View>
-                                </TouchableNativeFeedback>
-                            </View>
+            <ScrollView keyboardDismissMode='on-drag' style={style.wrapper}>
+                <Loader loading={this.state.loading}/>
+                <Header />
+                <View style={style.body}>
+                    <View style={style.spacer}></View>
+                    <View style={style.main}>
+                        <View style={style.h2}>
+                            <Text style={style.label}>{this.state.validatorMsg}</Text>
                         </View>
-                        <View style={style.spacer}></View>
+                        <View style={style.colFirst}>
+                            <Text style={style.h1}>::basic info::</Text>
+                        </View>
+                        <View style={style.col}>
+                            <Text style={style.label}>first name:</Text>
+                            <TextInput style={style.input} underlineColorAndroid="#9fff80" onChangeText={(firstName) =>
+                                this.updateInput({ "firstName": firstName })} value={this.props.user.firstName} />
+                        </View>
+                        <View style={style.col}>
+                            <Text style={style.label}>last name:</Text>
+                            <TextInput style={style.input} underlineColorAndroid="#9fff80" onChangeText={(lastName) =>
+                                this.updateInput({ "lastName": lastName })} value={this.props.user.lastName} />
+                        </View>
+                        <View style={style.col}>
+                            <Text style={style.label}>email address:</Text>
+                            <TextInput style={style.input} underlineColorAndroid="#9fff80" onChangeText={(emailAddress) =>
+                                this.updateInput({ "emailAddress": emailAddress })} value={this.props.user.emailAddress} />
+                        </View>
+                        <View style={style.col}>
+                            <TouchableNativeFeedback onPress={() => this.clickNext()}>
+                                <View style={style.next}>
+                                    <Text style={style.label}>create account</Text>
+                                </View>
+                            </TouchableNativeFeedback>
+                        </View>
                     </View>
+                    <View style={style.spacer}></View>
                 </View>
             </ScrollView>
         );
@@ -162,12 +182,11 @@ const style = StyleSheet.create({
 
     wrapper: {
         flex: 1,
-        minHeight: 900
+        backgroundColor: '#001a00',
     },
     body: {
         flexDirection: 'row',
         flex: 0.75,
-        backgroundColor: '#001a00',
     },
     main: {
         flexDirection: 'column',

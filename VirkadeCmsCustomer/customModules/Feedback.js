@@ -9,25 +9,23 @@ import {
     ScrollView,
 } from 'react-native';
 import Header from './Header.js'
+import UserDock from './UserDock.js'
 import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
 import userAction from './reduxActions/UserAction'
 import { DatabaseAPI } from './dataAccess/DatabaseAPI.js'
 import Loader from './Loader.js';
 
-class FinalDetails extends Component {
+class Feedback extends Component {
 
     constructor(props) {
         super(props)
-        this.nextPage = this.nextPage.bind(this);
-        this.updateUser = this.updateUser.bind(this);
+        this.addUserComment = this.addUserComment.bind(this);
+        this.nextPage = this.nextPage.bind(this)
 
     }
-
     state = {
-        playedBefore: '[ ]',
-        canContact: '[ ]',
-        reServices: '[ ]',
+        commentContent: '',
         loading: true,
     }
 
@@ -40,60 +38,27 @@ class FinalDetails extends Component {
         return true
     }
 
-    updateInput(data) {
-        this.props.actions(data)
-    }
-
-    everVrCheckBox = () => {
-        if (this.state.playedBefore == '[ ]') {
-            this.updateInput({ playedBefore: true })
-            this.setState({ playedBefore: '[X]' })
-        } else {
-            this.updateInput({ playedBefore: false })
-            this.setState({ playedBefore: '[ ]' })
-        }
-    }
-    contactCheckBox = () => {
-        if (this.state.canContact == '[ ]') {
-            this.updateInput({ canContact: true })
-            this.setState({ canContact: '[X]' })
-        } else {
-            this.updateInput({ canContact: false })
-            this.setState({ canContact: '[ ]' })
-        }
-    }
-    reCheckBox = () => {
-        if (this.state.reServices == '[ ]') {
-            this.updateInput({ reServices: true })
-            this.setState({ reServices: '[X]' })
-        } else {
-            this.updateInput({ reServices: false })
-            this.setState({ reServices: '[ ]' })
-        }
-    }
-
-    updateUser() {
-        let user = this.props.user
-        DatabaseAPI.updateUser(user, this.nextPage)
-    }
-
-    clickNext() {
+    addUserComment() {
         this.loading(true)
         let user = this.props.user
+        user.commentContent = this.state.commentContent;
+        user.commentType = 'GNRL_CMNT'
         if (user.commentContent && user.commentContent != '') {
-            DatabaseAPI.addUserComment(user, this.updateUser)
+            DatabaseAPI.addUserComment(user, this.nextPage)
         } else {
-            this.updateUser()
+            this.loading(false)
+            Alert.alert('::error::', `\ncomment cannot be empty`)
         }
     }
 
     nextPage(data, error) {
-        if (data && data.updateUser) {
-            this.props.navigation.navigate('TermsConditions')
+        if (data && data.addComment) {
+            Alert.alert('::info::', '\nthanks for your feedback \nwe review comments on a daily basis')
+            this.props.navigation.navigate('Home')
         } else if (error) {
             Alert.alert('::error::', `\nhmmm... \nlooks like something went wrong. \n${error[0].message}`)
         } else {
-            Alert.alert('::error::', `\nhmmm... \ncould not update the user.`)
+            Alert.alert('::error::', `\nhmmm... \ncould not add the comment.`)
         }
         this.loading(false)
     }
@@ -102,37 +67,32 @@ class FinalDetails extends Component {
         return (
             <ScrollView style={style.wrapper}>
                 <Loader loading={this.state.loading} />
+                <UserDock navigator={this.props.navigation}  />
                 <Header />
                 <View style={style.body}>
                     <View style={style.spacer}></View>
                     <View style={style.main}>
                         <View style={style.colFirst}>
-                            <Text style={style.h1}>::final info::</Text>
-                        </View>
-                        <View style={style.col}>
-                            <Text style={style.checkBox} onPress={this.everVrCheckBox}> {this.state.playedBefore} ever experienced VR?</Text>
-                        </View>
-                        <View style={style.col}>
-                            <Text style={style.checkBox} onPress={this.reCheckBox}> {this.state.reServices} interested in VR real estate services?</Text>
-                        </View>
-                        <View style={style.col}>
-                            <Text style={style.checkBox} onPress={this.contactCheckBox}> {this.state.canContact} can we contact you? </Text>
-                        </View>
-                        <View style={style.col}></View>
-                        <View>
-                            <Text style={style.h2}>:note any conditions:</Text>
+                            <Text style={style.h1}>::feedback::</Text>
                         </View>
                         <View>
-                            <Text style={style.h2}>:we should be aware:</Text>
+                            <Text style={style.h2}>::please provide your comments below::</Text>
                         </View>
                         <View style={style.col}>
                             <TextInput multiline={true} style={[style.input, style.textArea]} underlineColorAndroid='transparent' onChangeText={(commentContent) =>
-                                this.updateInput({ 'commentContent': commentContent })} />
+                                this.setState({ 'commentContent': commentContent })} />
                         </View>
                         <View style={style.col}>
-                            <TouchableNativeFeedback onPress={() => this.clickNext()}>
+                            <TouchableNativeFeedback onPress={() => this.addUserComment()}>
                                 <View style={style.next}>
-                                    <Text style={style.label}>legal stuff</Text>
+                                    <Text style={style.label}>submit feedback</Text>
+                                </View>
+                            </TouchableNativeFeedback>
+                        </View>
+                        <View style={style.col}>
+                            <TouchableNativeFeedback onPress={() => this.props.navigation.navigate('Home')}>
+                                <View style={style.next}>
+                                    <Text style={style.label}>home</Text>
                                 </View>
                             </TouchableNativeFeedback>
                         </View>
@@ -156,7 +116,7 @@ function mapDispatchToProps(dispatch) {
     }
 }
 
-export default connect(mapStateToProps, mapDispatchToProps)(FinalDetails);
+export default connect(mapStateToProps, mapDispatchToProps)(Feedback);
 
 const style = StyleSheet.create({
 
@@ -179,8 +139,7 @@ const style = StyleSheet.create({
         fontFamily: 'TerminusTTFWindows-Bold-4.46.0'
     },
     h2: {
-        color: '#9fff80',
-        fontSize: 22,
+        fontSize: 20,
         alignSelf: 'center',
         fontFamily: 'TerminusTTFWindows-Bold-4.46.0'
     },
@@ -198,7 +157,7 @@ const style = StyleSheet.create({
     },
     checkBox: {
         color: '#9fff80',
-        fontSize: 18,
+        fontSize: 14,
         fontFamily: 'TerminusTTFWindows-4.46.0'
     },
     input: {
@@ -208,16 +167,17 @@ const style = StyleSheet.create({
         fontFamily: 'TerminusTTFWindows-4.46.0'
     },
     textArea: {
-        height: 100,
+        height: 200,
         borderColor: '#9fff80',
         borderWidth: 2,
+        marginBottom: 10,
     },
     spacer: {
         flex: 0.1,
     },
     next: {
-        marginTop: 20,
-        marginBottom: 20,
+        marginTop: 10,
+        marginBottom: 10,
         borderColor: '#9fff80',
         borderWidth: 2,
         flex: 1,

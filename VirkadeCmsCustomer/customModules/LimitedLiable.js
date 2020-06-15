@@ -15,9 +15,10 @@ import { bindActionCreators } from 'redux';
 import userAction from './reduxActions/UserAction'
 import { defaultState } from '../static/reduxDefault'
 import { DatabaseAPI } from './dataAccess/DatabaseAPI.js'
+import Loader from './Loader.js';
 
 class LimitedLiable extends Component {
-    
+
     constructor(props) {
         super(props)
         this.nextPage = this.nextPage.bind(this);
@@ -25,70 +26,84 @@ class LimitedLiable extends Component {
 
     state = {
         agree: '[ ]',
+        loading: true,
     }
-        
+
+    componentDidMount() {
+        this.setState({ loading: false })
+    }
+    loading(data) {
+        let loading = data || false;
+        this.setState({ loading: loading })
+        return true
+    }
+
     updateInput(data) {
         this.props.actions(data)
     }
 
     agreeCheckBox = () => {
         if (this.state.agree == '[ ]') {
-            this.updateInput({liableAgree:true})
+            this.updateInput({ liableAgree: true })
             this.setState({ agree: '[X]' })
         } else {
-            this.updateInput({liableAgree:false})
+            this.updateInput({ liableAgree: false })
             this.setState({ agree: '[ ]' })
         }
     }
 
     clickNext() {
+        this.loading(true)
         let user = this.props.user
         if (user.liableAgree) {
             DatabaseAPI.addUserLegalDoc(user, user.liableTypeCode, true, this.nextPage)
         } else {
-            Alert.alert('::info::','\nyou must agree to the liability waiver to continue')
+            this.loading(false)
+            Alert.alert('::info::', '\nyou must agree to the liability waiver to continue')
         }
-        
+
     }
 
     nextPage(data, error) {
         if (data && data.addUserLegalDoc) {
-            this.updateInput({resetDefaults :defaultState})
-            Alert.alert('::info::','\nthanks for registering \nyou are all set, login and schedule your play time :)')
+            this.updateInput({ resetDefaults: defaultState })
+            Alert.alert('::info::', '\nthanks for registering \nyou are all set, login and schedule your play time :)')
             this.props.navigation.navigate('Splash')
+        } else if (error) {
+            Alert.alert('::error::', `\nhmmm... \nlooks like something went wrong.   \n${error[0].message}`)
         } else {
-            Alert.alert('::error::',`\nhmmm... \nlooks like something went wrong.   \n${error[0].message}`)
+            Alert.alert('::error::', `\nhmmm... \nlooks like something went wrong.`)
         }
+        this.loading(false)
     }
 
     render() {
         let waiver = liabilityWaiver.enUS
         return (
-            <ScrollView >
-                <View style={style.wrapper}>
-                    <Header />
-                    <View style={style.body}>
-                        <View style={style.spacer}></View>
-                        <View style={style.main}>
-                            <View style={style.colFirst}>
-                                <Text style={style.h1}>::liability waiver::</Text>
-                            </View>
-                            <View style={[style.col,style.border, style.padit]}>
-                                <Markdown style={mdStyle}>{waiver}</Markdown>
-                            </View>
-                            <View style={[style.col, style.edgeSpace]}>
-                                <Text style={style.checkBox} onPress={this.agreeCheckBox}> {this.state.agree} do you agree to waive liability?</Text>
-                            </View>
-                            <View style={[style.col, style.edgeSpace]}>
-                                <TouchableNativeFeedback onPress={() => this.clickNext()}>
-                                    <View style={style.next}>
-                                        <Text style={style.label}>finish</Text>
-                                    </View>
-                                </TouchableNativeFeedback>
-                            </View>
+            <ScrollView style={style.wrapper}>
+                <Loader loading={this.state.loading} />
+                <Header />
+                <View style={style.body}>
+                    <View style={style.spacer}></View>
+                    <View style={style.main}>
+                        <View style={style.colFirst}>
+                            <Text style={style.h1}>::liability waiver::</Text>
                         </View>
-                        <View style={style.spacer}></View>
+                        <View style={[style.col, style.border, style.padit]}>
+                            <Markdown style={mdStyle}>{waiver}</Markdown>
+                        </View>
+                        <View style={[style.col, style.edgeSpace]}>
+                            <Text style={style.checkBox} onPress={this.agreeCheckBox}> {this.state.agree} do you agree to waive liability?</Text>
+                        </View>
+                        <View style={[style.col, style.edgeSpace]}>
+                            <TouchableNativeFeedback onPress={() => this.clickNext()}>
+                                <View style={style.next}>
+                                    <Text style={style.label}>finish</Text>
+                                </View>
+                            </TouchableNativeFeedback>
+                        </View>
                     </View>
+                    <View style={style.spacer}></View>
                 </View>
             </ScrollView>
         );
@@ -126,18 +141,17 @@ const mdStyle = StyleSheet.create({
         marginRight: 10,
         lineHeight: 34,
     },
-  });
+});
 
 const style = StyleSheet.create({
 
     wrapper: {
         flex: 0,
-        minHeight: 725
+        backgroundColor: '#001a00',
     },
     body: {
         flexDirection: 'row',
         flex: 0,
-        backgroundColor: '#001a00',
     },
     main: {
         flexDirection: 'column',

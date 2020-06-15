@@ -16,7 +16,7 @@ import userAction from './reduxActions/UserAction'
 import { DatabaseAPI } from './dataAccess/DatabaseAPI.js'
 import { Picker } from '@react-native-community/picker';
 import { pickerData } from '../static/pickerData';
-
+import Loader from './Loader.js';
 
 class PersonalUser extends Component {
 
@@ -30,7 +30,17 @@ class PersonalUser extends Component {
 
     state = {
         validatorMsg: '',
-        pickerStates: <Picker.Item key="1" label="Arkansas" value="AR" />
+        pickerStates: <Picker.Item key="1" label="Arkansas" value="AR" />,
+        loading: true,
+    }
+
+    componentDidMount() {
+        this.setState({ loading: false })
+    }
+    loading(data) {
+        let loading = data || false;
+        this.setState({ loading: loading })
+        return true
     }
 
     updateInput(data) {
@@ -49,18 +59,22 @@ class PersonalUser extends Component {
     }
 
     clickNext() {
+        this.loading(true)
         let user = this.props.user
-        if (user.street || user.postalCode || user.state || user.city) {
-            this.validateInput(user) && DatabaseAPI.addUserAddress(user, this.addPhoneNumber)
-        } else {
+        let isValid = this.validateInput(user)
+        if ((user.street || user.postalCode || user.state || user.city) && isValid) {
+            DatabaseAPI.addUserAddress(user, this.addPhoneNumber)
+        } else if (isValid){
             this.addPhoneNumber();
+        } else {
+            this.loading(false)
         }
     }
 
     addPhoneNumber(){
         let user = this.props.user
         if (user.phoneNumber) {
-            this.validateInput(user) && DatabaseAPI.addUserPhone(user, this.nextPage)
+            DatabaseAPI.addUserPhone(user, this.nextPage)
         } else {
             this.nextPage();
         }
@@ -68,6 +82,7 @@ class PersonalUser extends Component {
 
     nextPage() {
         this.props.navigation.navigate('FinalDetails')
+        this.loading(false)
     }
 
     validateInput(data, isAlert = true) {
@@ -99,7 +114,8 @@ class PersonalUser extends Component {
     render() {
         let user = this.props.user
         return (
-            <ScrollView keyboardDismissMode='on-drag'>
+            <ScrollView keyboardDismissMode='on-drag' style={style.wrapper}>
+                <Loader loading={this.state.loading}/>
                 <Header />
                 <View style={style.body}>
                     <View style={style.spacer}></View>
@@ -134,7 +150,7 @@ class PersonalUser extends Component {
                         <View style={style.col}>
                             <Text style={style.label}>age:</Text>
                             <TextInput style={style.input} underlineColorAndroid="#9fff80" onChangeText={(age) =>
-                                    this.updateInput({ 'age': age })} value={user.age} />
+                                    this.updateInput({ 'age': age })} value={String(user.age)} />
                         </View>
                         <View style={style.col}>
                             <Text style={style.label}>height:</Text>
@@ -169,7 +185,7 @@ class PersonalUser extends Component {
                         <View style={style.col}>
                             <Text style={style.label}>weight:</Text>
                             <TextInput style={style.input} underlineColorAndroid="#9fff80" onChangeText={(weight) =>
-                                    this.updateInput({ 'weight': weight })} value={user.weight}/>
+                                    this.updateInput({ 'weight': weight })} value={String(user.weight)}/>
                         </View>
                         <View style={style.col}>
                             <Text style={style.label}>eye space:</Text>
@@ -287,11 +303,11 @@ export default connect(mapStateToProps, mapDispatchToProps)(PersonalUser);
 const style = StyleSheet.create({
     wrapper: {
         flex: 1,
+        backgroundColor: '#001a00',
     },
     body: {
         flexDirection: 'row',
         flex: 0.75,
-        backgroundColor: '#001a00',
     },
     main: {
         flexDirection: 'column',

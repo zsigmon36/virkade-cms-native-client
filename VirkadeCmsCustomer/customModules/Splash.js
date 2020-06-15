@@ -1,11 +1,8 @@
 import React, { Component } from 'react';
 import {
-    TextInput,
     StyleSheet,
     Text,
     View,
-    Button,
-    Alert,
     TouchableNativeFeedback
 } from 'react-native' 
 import Header from './Header.js'

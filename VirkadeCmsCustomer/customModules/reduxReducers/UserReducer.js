@@ -7,7 +7,7 @@ export default function userReducer(state = defaultState, action) {
             newState[Object.keys(action.user)[0]] = action.user[Object.keys(action.user)[0]];
             return newState;
         case 'SET_FULL_USER':
-            newState = covertUserData(action.user, state);
+            newState = covertUserData(action.user, newState);
             return newState;
         case 'RESET_USER':
             newState = defaultState;
