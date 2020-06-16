@@ -33,8 +33,8 @@ function covertUserData(data, state) {
         } else if (rawUser[key] && key == 'height') {
             let heightFt = Math.floor(value / 12)
             let heightIn = value % 12
-            convertedUser.heightFt = heightFt
-            convertedUser.heightIn = heightIn
+            convertedUser.heightFt = String(heightFt)
+            convertedUser.heightIn = String(heightIn)
         } else if (rawUser[key] && key == 'phoneNumbers') {
             let phones = value
             convertedUser.phoneCountryCode = phones.length > 0 ? phones[0].countryCode : '0'

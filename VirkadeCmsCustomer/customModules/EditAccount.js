@@ -153,11 +153,11 @@ class EditAccount extends Component {
         if (postalCode != undefined && postalCode != '' && !validator.isPostalCode(postalCode, "US")) {
             msg = 'postal code is not valid'
             isValid = false;
-        } else if (age != undefined && age != '' && !validator.isNumeric(String(age))) {
-            msg = 'age has to be a number'
+        } else if (age != undefined && age != '' && (!validator.isNumeric(String(age)) || age.length > 3)) {
+            msg = 'age has to be a number and less than 999'
             isValid = false;
-        } else if (weight != undefined && weight != '' && !validator.isNumeric(String(weight))) {
-            msg = 'weight has to be a number'
+        } else if (weight != undefined && weight != '' && (!validator.isNumeric(String(weight)) || weight.length > 3)) {
+            msg = 'weight has to be a number and less than 999'
             isValid = false;
         } else if (phoneNumber != undefined && phoneNumber != '' && !validator.isMobilePhone(phoneNumber, 'any')) {
             msg = 'mobile phone number is invalid'
@@ -211,7 +211,7 @@ class EditAccount extends Component {
                         <View style={style.col}>
                             <Text style={style.label}>email address:</Text>
                             <TextInput style={style.input} underlineColorAndroid="#9fff80" onChangeText={(emailAddress) =>
-                                this.updateInput({ "emailAddress": emailAddress })} value={this.state.user.emailAddress} />
+                                this.updateInput({ "emailAddress": emailAddress.trim() })} value={this.state.user.emailAddress} />
                         </View>
                         <View style={style.col}>
                             <Text style={style.label}>gender you identify:</Text>
@@ -230,7 +230,7 @@ class EditAccount extends Component {
                         <View style={style.col}>
                             <Text style={style.label}>age:</Text>
                             <TextInput style={style.input} underlineColorAndroid="#9fff80" onChangeText={(age) =>
-                                this.updateInput({ 'age': age })} value={String(this.state.user.age)} />
+                                this.updateInput({ 'age': age.trim() })} value={String(this.state.user.age)} />
                         </View>
                         <View style={style.col}>
                             <Text style={style.label}>height:</Text>
@@ -265,12 +265,12 @@ class EditAccount extends Component {
                         <View style={style.col}>
                             <Text style={style.label}>weight:</Text>
                             <TextInput style={style.input} underlineColorAndroid="#9fff80" onChangeText={(weight) =>
-                                this.updateInput({ 'weight': weight })} value={String(this.state.user.weight)} />
+                                this.updateInput({ 'weight': weight.trim() })} value={String(this.state.user.weight)} />
                         </View>
                         <View style={style.col}>
                             <Text style={style.label}>eye space:</Text>
                             <Picker
-                                selectedValue={this.state.user.idp}
+                                selectedValue={String(this.state.user.idp)}
                                 style={style.input}
                                 onValueChange={(itemValue) =>
                                     this.updateInput({ "idp": itemValue })

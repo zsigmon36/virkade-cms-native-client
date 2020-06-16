@@ -137,12 +137,12 @@ class BasicAccount extends Component {
                         <View style={style.col}>
                             <Text style={style.label}>username:</Text>
                             <TextInput style={style.input} underlineColorAndroid="#9fff80" onChangeText={(username) =>
-                                this.updateInput({ username: username })} value={this.props.user.username} />
+                                this.updateInput({ username: username.trim() })} value={this.props.user.username} />
                         </View>
                         <View style={style.col}>
                             <Text style={style.label}>password:</Text>
                             <TextInput style={style.input} secureTextEntry={this.state.isSecurityPw} underlineColorAndroid="#9fff80" onChangeText={(password) =>
-                                this.updateInput({ password: password })} value={this.props.user.password} />
+                                this.updateInput({ password: password.trim() })} value={this.props.user.password} />
                             <TouchableNativeFeedback onPress={() => this.toggleShowPw()}>
                                 <Text style={style.label}>{this.state.pwToggleMsg}</Text>
                             </TouchableNativeFeedback>
@@ -155,7 +155,7 @@ class BasicAccount extends Component {
                         <View style={style.col}>
                             <Text style={style.label}>security a:</Text>
                             <TextInput style={style.input} secureTextEntry={this.state.isSecuritySa} underlineColorAndroid="#9fff80" onChangeText={(securityAnswer) =>
-                                this.updateInput({ securityAnswer: securityAnswer })} value={this.props.user.securityAnswer} />
+                                this.updateInput({ securityAnswer: securityAnswer})} value={this.props.user.securityAnswer} />
                             <TouchableNativeFeedback onPress={() => this.toggleShowSa()}>
                                 <Text style={style.label}>{this.state.saToggleMsg}</Text>
                             </TouchableNativeFeedback>

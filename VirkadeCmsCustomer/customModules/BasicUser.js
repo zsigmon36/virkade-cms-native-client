@@ -147,7 +147,7 @@ class BasicUser extends Component {
                         <View style={style.col}>
                             <Text style={style.label}>email address:</Text>
                             <TextInput style={style.input} underlineColorAndroid="#9fff80" onChangeText={(emailAddress) =>
-                                this.updateInput({ "emailAddress": emailAddress })} value={this.props.user.emailAddress} />
+                                this.updateInput({ "emailAddress": emailAddress.trim()})} value={this.props.user.emailAddress} />
                         </View>
                         <View style={style.col}>
                             <TouchableNativeFeedback onPress={() => this.clickNext()}>

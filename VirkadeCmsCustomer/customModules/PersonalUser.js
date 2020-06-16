@@ -93,11 +93,11 @@ class PersonalUser extends Component {
         if (postalCode != undefined && postalCode != '' && !validator.isPostalCode(postalCode,"US") ) {
             msg = 'postal code is not valid'
             isValid = false;
-        } else if (age != undefined && age != '' && !validator.isNumeric(age) ) {
-            msg = 'age has to be a number'
+        } else if (age != undefined && age != '' && (!validator.isNumeric(age) || age.length > 3)) {
+            msg = 'age has to be a number and less than 999'
             isValid = false;
-        } else if (weight != undefined && weight != '' && !validator.isNumeric(weight) ) {
-            msg = 'weight has to be a number'
+        } else if (weight != undefined && weight != '' && (!validator.isNumeric(weight) || weight.length > 3)) {
+            msg = 'weight has to be a number and less than 999'
             isValid = false;
         } else if (phoneNumber != undefined && phoneNumber != '' && !validator.isMobilePhone(phoneNumber, 'any') ) {
             msg = 'mobile phone number is invalid'
@@ -150,7 +150,7 @@ class PersonalUser extends Component {
                         <View style={style.col}>
                             <Text style={style.label}>age:</Text>
                             <TextInput style={style.input} underlineColorAndroid="#9fff80" onChangeText={(age) =>
-                                    this.updateInput({ 'age': age })} value={String(user.age)} />
+                                    this.updateInput({ 'age': age.trim() })} value={String(user.age)} />
                         </View>
                         <View style={style.col}>
                             <Text style={style.label}>height:</Text>
@@ -185,7 +185,7 @@ class PersonalUser extends Component {
                         <View style={style.col}>
                             <Text style={style.label}>weight:</Text>
                             <TextInput style={style.input} underlineColorAndroid="#9fff80" onChangeText={(weight) =>
-                                    this.updateInput({ 'weight': weight })} value={String(user.weight)}/>
+                                    this.updateInput({ 'weight': weight.trim() })} value={String(user.weight)}/>
                         </View>
                         <View style={style.col}>
                             <Text style={style.label}>eye space:</Text>

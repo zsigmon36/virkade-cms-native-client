@@ -80,13 +80,13 @@ class EditLogin extends Component {
                 doUpdate = true
                 stagedUserData.username = this.state.username
             }
-            if (stagedUserData.password !== this.state.password) {
+            if (stagedUserData.password !== trim(this.state.password)) {
                 doUpdate = true
-                stagedUserData.password = this.state.password
+                stagedUserData.password = trim(this.state.password)
             }
-            if (stagedUserData.securityAnswer !== this.state.securityA) {
+            if (stagedUserData.securityAnswer !== trim(this.state.securityA)) {
                 doUpdate = true
-                stagedUserData.securityAnswer = this.state.securityA
+                stagedUserData.securityAnswer = trim(this.state.securityA)
             }
             if (stagedUserData.securityQuestion !== this.state.securityQ) {
                 doUpdate = true
@@ -160,13 +160,13 @@ class EditLogin extends Component {
                             <Text style={style.label}>username: {this.state.username}</Text>
                             {
                                 //<TextInput style={style.input} underlineColorAndroid="#9fff80" onChangeText={(username) =>
-                                //  this.setState({ username: username })} value={this.state.username} />
+                                //  this.setState({ username: username.trim() })} value={this.state.username} />
                             }
                         </View>
                         <View style={style.col}>
                             <Text style={style.label}>password:</Text>
                             <TextInput style={style.input} secureTextEntry={this.state.isSecurityPw} underlineColorAndroid="#9fff80" onChangeText={(password) =>
-                                this.setState({ password: password })} value={this.state.password} />
+                                this.setState({ password: password.trim()})} value={this.state.password} />
                             <TouchableNativeFeedback onPress={() => this.toggleShowPw()}>
                                 <Text style={style.label}>{this.state.pwToggleMsg}</Text>
                             </TouchableNativeFeedback>
