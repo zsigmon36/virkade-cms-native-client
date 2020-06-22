@@ -143,6 +143,10 @@ export const DatabaseAPI = {
         let query = GraphQLParamStrings.setNewPassword(userObj)
         return dataFetch(query, userObj.username, userObj.authToken.token, callback)
     },
+    getAvailableSession: function (userObj, callback) {
+        let query = GraphQLParamStrings.getAvailableSession()
+        return dataFetch(query, userObj.username, userObj.authToken.token, callback)
+    },
 }
 
 const GraphQLParamStrings = {

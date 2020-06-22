@@ -14,7 +14,7 @@ import Splash from './Splash.js'
 import Login from './Login.js'
 import EditLogin from './EditLogin.js'
 import Feedback from './Feedback.js'
-import UserDock from './UserDock.js'
+import ScheduleSession from './ScheduleSession.js'
 
 const Stack = createStackNavigator() 
 const VirkadePages = () => {
@@ -34,6 +34,7 @@ const VirkadePages = () => {
         <Stack.Screen name="Feedback" component={Feedback} />
         <Stack.Screen name="TermsConditions" component={TermsConditions} />
         <Stack.Screen name="LimitedLiable" component={LimitedLiable} />
+        <Stack.Screen name="ScheduleSession" component={ScheduleSession} />  
       </Stack.Navigator>
     </NavigationContainer>
   )

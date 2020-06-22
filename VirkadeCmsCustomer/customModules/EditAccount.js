@@ -29,12 +29,13 @@ class EditAccount extends Component {
         this.updateUser = this.updateUser.bind(this);
         this.statusMessage = this.statusMessage.bind(this);
         this.validateUsername = this.validateUsername.bind(this);
+        this.getUser = this.getUser.bind(this);
+        
         DatabaseAPI.getAllStates(this.props.user, this.setPickerSates)
     }
     state = {
         validatorMsg: '',
         pickerStates: <Picker.Item key="1" label="Arkansas" value="AR" />,
-        everVr: '[ ]',
         canContact: '[ ]',
         reService: '[ ]',
         user: Object.assign({}, this.props.user),
@@ -50,15 +51,6 @@ class EditAccount extends Component {
         return true
     }
 
-    everVrCheckBox = () => {
-        if (this.state.everVr == '[ ]') {
-            this.updateInput({ everVr: true })
-            this.setState({ everVr: '[X]' })
-        } else {
-            this.updateInput({ everVr: false })
-            this.setState({ everVr: '[ ]' })
-        }
-    }
     contactCheckBox = () => {
         if (this.state.canContact == '[ ]') {
             this.updateInput({ canContact: true })
@@ -95,9 +87,17 @@ class EditAccount extends Component {
         }
         this.setState({ 'pickerStates': pickerItems })
     }
-
     clickNext() {
         this.loading(true)
+        let user = this.state.user
+        if (user.commentContent && user.commentContent != '') {
+            DatabaseAPI.addUserComment(user, this.getUser)
+        } else {
+            this.getUser()
+        }
+    }
+
+    getUser() {
         let { username, authToken } = this.state.user;
         let isValid = this.validateInput(this.state.user)
         if (isValid && username != authToken.username) {
@@ -351,6 +351,26 @@ class EditAccount extends Component {
                             <TextInput style={style.input} underlineColorAndroid="#9fff80" onChangeText={(phoneNumber) =>
                                 this.updateInput({ 'phoneNumber': phoneNumber })} value={this.state.user.phoneNumber} />
                         </View>
+                        <View style={style.colFirst}>
+                            <Text style={style.h1}>::contact preference::</Text>
+                        </View>
+                        <View style={style.col}>
+                            <Text style={style.checkBox} onPress={this.reCheckBox}> {this.state.reServices} interested in VR real estate services?</Text>
+                        </View>
+                        <View style={style.col}>
+                            <Text style={style.checkBox} onPress={this.contactCheckBox}> {this.state.canContact} can we contact you? </Text>
+                        </View>
+                        <View style={style.col}></View>
+                        <View>
+                            <Text style={style.h2}>:note any conditions:</Text>
+                        </View>
+                        <View>
+                            <Text style={style.h2}>:we should be aware:</Text>
+                        </View>
+                        <View style={style.col}>
+                            <TextInput multiline={true} style={[style.input, style.textArea]} underlineColorAndroid='transparent' onChangeText={(commentContent) =>
+                                this.updateInput({ 'commentContent': commentContent })} />
+                        </View>
                         <View style={style.col}>
                             <TouchableNativeFeedback onPress={() => this.clickNext()}>
                                 <View style={style.next}>
@@ -419,8 +439,7 @@ const style = StyleSheet.create({
         fontFamily: 'TerminusTTFWindows-Bold-4.46.0'
     },
     checkBox: {
-        color: '#9fff80',
-        fontSize: 14,
+        fontSize: 18,
         fontFamily: 'TerminusTTFWindows-4.46.0'
     },
     center: {

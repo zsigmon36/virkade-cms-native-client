@@ -21,8 +21,23 @@ class Home extends Component {
         this.nextPage = this.nextPage.bind(this)
     }
 
+    state = {
+        loading: true,
+    }
+
+    componentDidMount() {
+        this.setState({ loading: false })
+    }
+    loading(data) {
+        let loading = data || false;
+        this.setState({ loading: loading })
+        return true
+    }
+
     nextPage(pageName) {
+        this.loading(true)
         this.props.navigation.navigate(pageName)
+        this.loading(false)
     }
 
     render() {
@@ -53,7 +68,7 @@ class Home extends Component {
                     </View>
 
                     <View style={style.row}>
-                        <TouchableNativeFeedback onPress={() => this.nextPage('Home')}>
+                        <TouchableNativeFeedback onPress={() => this.nextPage('ScheduleSession')}>
                             <View style={style.next}>
                                 <Text style={style.label}>schedule session</Text>
                             </View>
