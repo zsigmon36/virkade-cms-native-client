@@ -9,6 +9,7 @@ const PROTOCOL = 'http'
 const QUERY = 'query'
 const GET_ALL_STATES = 'getAllStates'
 const GET_USER_BY_USERNAME = 'getUserByUsername'
+const GET_AVAIL_PLAY_SESSIONS = 'getAvailableSessions'
 
 //mutations
 const MUTATION = 'mutation'
@@ -22,6 +23,7 @@ const ADD_COMMENT = 'addComment'
 const ADD_USER_LEGAL_DOC = 'addUserLegalDoc'
 const RECOVERY_SIGN_IN = 'recoverySignIn'
 const SET_NEW_PASSWORD = 'setNewPassword'
+const ADD_USER_SESSION = 'addUserSession'
 
 //params & fields
 const TYPE = 'type'
@@ -83,6 +85,13 @@ const ACTIVE_DATE = 'activeDate'
 const EXPIRE_DATE = 'expireDate'
 const ENABLED = 'enabled'
 
+const ACTIVITY_NAME = 'activityName'
+const ACTIVITY = 'activity'
+const LOCATION_NAME= 'locationName'
+const LOCATION = 'location'
+const START_DATE= 'startDate'
+const END_DATE = 'endDate'
+
 let cmsGraphQLHost = `${PROTOCOL}://${HOST}:${PORT}${API_ADDRESS}`
 
 export const DatabaseAPI = {
@@ -143,8 +152,13 @@ export const DatabaseAPI = {
         let query = GraphQLParamStrings.setNewPassword(userObj)
         return dataFetch(query, userObj.username, userObj.authToken.token, callback)
     },
-    getAvailableSession: function (userObj, callback) {
-        let query = GraphQLParamStrings.getAvailableSession()
+    //play session creation
+    getAvailableSession: function (userObj, activity, location, callback) {
+        let query = GraphQLParamStrings.getAvailableSession(activity, location)
+        return dataFetch(query, userObj.username, userObj.authToken.token, callback)
+    },
+    addUserSession: function (userObj, session, callback) {
+        let query = GraphQLParamStrings.addUserSession(userObj, session)
         return dataFetch(query, userObj.username, userObj.authToken.token, callback)
     },
 }
@@ -429,6 +443,54 @@ const GraphQLParamStrings = {
                 ${PASSCODE}:\"${userObj.passcode}\",
                 ${PASSWORD}:\"${userObj.password}\"
             )
+        }`
+        return query; //.replace(/\s/g, '');
+    },
+    getAvailableSession: function (activity, location) {
+        paramString = ""
+        if (activity || location){
+            paramString += "("
+        }
+        if (activity){
+            paramString += `${ACTIVITY_NAME}:\"${activity}\",`
+        }
+        if (location){
+            paramString += `${LOCATION_NAME}:\"${location}\"`
+        }
+        if (activity || location){
+            paramString += ")"
+        }
+        let query = `${QUERY} { ${GET_AVAIL_PLAY_SESSIONS}
+                ${paramString}
+            {
+                ${START_DATE}
+                ${END_DATE}
+                ${LOCATION}{
+                    ${NAME}
+                }
+                ${ACTIVITY}{
+                    ${NAME}
+                }
+            }
+        }`
+        return query; //.replace(/\s/g, '');
+    },
+    addUserSession: function (userObj, session) {
+        
+        let query = `${MUTATION} { ${ADD_USER_SESSION}
+            (
+                ${INPUT_PLAY_SESSION}: {
+                    ${START_DATE}:\"${session.startDate}\",
+                    ${END_DATE}:\"${session.endDate}\",
+                    ${LOCATION_NAME}:\"${session.location.name}\",
+                    ${ACTIVITY_NAME}:\"${session.activity.name}\",
+                    ${PAYED}:false,
+                    ${USERNAME}:\"${userObj.username}\",
+                }
+            )
+            {
+                ${SESSIONID}
+            }
         }`
         return query; //.replace(/\s/g, '');
     },

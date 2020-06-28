@@ -21,12 +21,14 @@ class ScheduleSession extends Component {
     constructor(props) {
         super(props)
         this.setSessionOptions = this.setSessionOptions.bind(this)
-        DatabaseAPI.getAvailableSession(this.props.user, this.setSessionOptions)
+        this.scheduleResponse = this.scheduleResponse.bind(this)
+        DatabaseAPI.getAvailableSession(this.props.user, undefined, undefined, this.setSessionOptions)
     }
 
     state = {
-        availableSessions: <Picker.Item key="1" label="select" value="" />,
-        sessionTime: "",
+        availableSessionsPicker: <Picker.Item key="" label="select" value="" />,
+        availableSessions: {},
+        sessionId: "",
         loading: true,
         mySessions: {},
     }
@@ -44,14 +46,52 @@ class ScheduleSession extends Component {
         let pickerItems = [];
         if (data.getAvailableSession) {
             (data.getAvailableSession).map(item => {
-                pickerItems.push(<Picker.Item key={item.key} label={`${item.startTime} - ${item.endTime}`} value={item.startTime} />)
+                pickerItems.push(<Picker.Item key={item.key} label={`${item.startTime} - ${item.endTime}`} value={item.key} />)
             })
+            this.setState({ 'availableSessions': data.getAvailableSession })
         }
-        this.setState({ 'availableSessions': pickerItems })
+        this.setState({ 'availableSessionsPicker': pickerItems })
+        this.loading(false)
     }
 
     scheduleSession() {
-        Alert.alert("::info::", "method not implemented yet")
+        let session = this.state.availableSessions[this.state.sessionId]
+        if (sessionId && sessionId != "") {
+
+            Alert.alert("::warn::", "\nare you sure you want to schedule this session:\n ",
+                [
+                    {
+                        text:"OK",
+                        onPress: this.loading(true) && DatabaseAPI.addUserSession(this.props.user, session, this.scheduleResponse),
+                        style:"default"
+                    }
+                ]
+            );
+
+
+        } else {
+            Alert.alert("::error::", "\nno valid session seletion detected")
+            this.loading(false)
+        }
+
+    }
+
+    scheduleResponse(data, error) {
+        if (data && data.addUserSession) {
+            //set real session id
+            this.state.setState({ sessionId: data.addUserSession.sessionId })
+            Alert.alert("::info::", "session has been scheduled")
+            this.loading(false)
+        } else if (error) {
+            Alert.alert('::error::', `\nhmmm... \nlooks like something went wrong. \n${error[0].messages}`)
+            this.loading(true)
+            DatabaseAPI.getAvailableSession(this.props.user, undefined, undefined, this.setSessionOptions)
+        } else {
+            Alert.alert('::error::', `\nhmmm... \nlooks like something went wrong.`)
+            this.loading(true)
+            DatabaseAPI.getAvailableSession(this.props.user, undefined, undefined, this.setSessionOptions)
+        }
+        
     }
 
     render() {
@@ -69,10 +109,11 @@ class ScheduleSession extends Component {
                         <View style={style.col}>
                             <Text style={style.label}>pick one:</Text>
                             <Picker
-                                selectedValue={this.state.sessionTime}
+                                selectedValue={this.state.mySessions}
                                 style={style.input}
                                 onValueChange={(itemValue) =>
-                                    this.updateInput({ "sessionTime": itemValue })
+                                    //use array key for now
+                                    this.updateInput({ "mySessions": itemValue })
                                 }>
                                 <Picker.Item label="select" value="" />
                                 {this.state.availableSessions}

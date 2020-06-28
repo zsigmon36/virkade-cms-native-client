@@ -53,19 +53,19 @@ class EditAccount extends Component {
 
     contactCheckBox = () => {
         if (this.state.canContact == '[ ]') {
-            this.updateInput({ canContact: true })
+            this.setState({ user : {canContact: true}})
             this.setState({ canContact: '[X]' })
         } else {
-            this.updateInput({ canContact: false })
+            this.setState({ user : {canContact: false}})
             this.setState({ canContact: '[ ]' })
         }
     }
     reCheckBox = () => {
         if (this.state.reService == '[ ]') {
-            this.updateInput({ reService: true })
+            this.setState({ user : {reService: true}})
             this.setState({ reService: '[X]' })
         } else {
-            this.updateInput({ reService: false })
+            this.setState({ user : {reService: false}})
             this.setState({ reService: '[ ]' })
         }
     }
@@ -355,7 +355,7 @@ class EditAccount extends Component {
                             <Text style={style.h1}>::contact preference::</Text>
                         </View>
                         <View style={style.col}>
-                            <Text style={style.checkBox} onPress={this.reCheckBox}> {this.state.reServices} interested in VR real estate services?</Text>
+                            <Text style={style.checkBox} onPress={this.reCheckBox}> {this.state.reService} interested in VR real estate services?</Text>
                         </View>
                         <View style={style.col}>
                             <Text style={style.checkBox} onPress={this.contactCheckBox}> {this.state.canContact} can we contact you? </Text>
@@ -439,8 +439,14 @@ const style = StyleSheet.create({
         fontFamily: 'TerminusTTFWindows-Bold-4.46.0'
     },
     checkBox: {
+        color: '#9fff80',
         fontSize: 18,
         fontFamily: 'TerminusTTFWindows-4.46.0'
+    },
+    textArea: {
+        height: 100,
+        borderColor: '#9fff80',
+        borderWidth: 2,
     },
     center: {
         alignSelf: 'center',
