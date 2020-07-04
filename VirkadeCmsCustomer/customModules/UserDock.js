@@ -49,9 +49,13 @@ class UserDock extends Component {
     gotoSplash(data, error){
         if (data && data.signOut){
             this.props.actions({resetDefaults :defaultState})
+            this.props.navigator.navigate('Splash')      
+        }else if (error){
+            Alert.alert('::error::',`\nhmmm... \nlooks like something went wrong.  \n${error[0].message} \n\nplease sign in again`)
+            this.props.actions({resetDefaults :defaultState})
             this.props.navigator.navigate('Splash')
-        }else{
-            Alert.alert('::error::',`\nhmmm... \nlooks like something went wrong.  \n${error[0].message}`)
+        } else {
+            Alert.alert('::error::',`\nhmmm... \nlooks like something went wrong.`)
         }
         this.loading(false)
     }

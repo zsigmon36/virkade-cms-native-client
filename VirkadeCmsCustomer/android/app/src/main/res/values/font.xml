@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <font-family xmlns:android="http://schemas.android.com/apk/res/android"  xmlns:app="http://schemas.android.com/apk/res-auto">
-    <font name = "terminus-normal"
+    <font name = "terminusNormal"
         android:fontStyle="normal"
         android:fontWeight="400"
         android:font="@fonts/TerminusTTFWindows-4.46.0"

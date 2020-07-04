@@ -8,7 +8,7 @@ import {
     ScrollView,
 } from 'react-native';
 import Header from './Header.js'
-import Markdown from 'react-native-markdown-renderer';
+import Markdown from 'react-native-markdown-display';
 import { liabilityWaiver } from '../static/liabilityWaiver'
 import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
@@ -16,6 +16,7 @@ import userAction from './reduxActions/UserAction'
 import { defaultState } from '../static/reduxDefault'
 import { DatabaseAPI } from './dataAccess/DatabaseAPI.js'
 import Loader from './Loader.js';
+import style from '../static/styles.js'
 
 class LimitedLiable extends Component {
 
@@ -142,78 +143,3 @@ const mdStyle = StyleSheet.create({
         lineHeight: 34,
     },
 });
-
-const style = StyleSheet.create({
-
-    wrapper: {
-        flex: 0,
-        backgroundColor: '#001a00',
-    },
-    body: {
-        flexDirection: 'row',
-        flex: 0,
-    },
-    main: {
-        flexDirection: 'column',
-        flex: 0
-    },
-    h1: {
-        color: '#9fff80',
-        fontSize: 24,
-        alignSelf: 'center',
-        fontFamily: 'TerminusTTFWindows-Bold-4.46.0'
-    },
-    colFirst: {
-        marginTop: 10,
-    },
-    col: {
-        marginTop: 15,
-        flexDirection: 'row',
-        alignItems: 'center'
-    },
-    edgeSpace: {
-        marginLeft: 20,
-        marginRight: 20
-    },
-    label: {
-        color: '#9fff80',
-        fontSize: 18,
-        fontFamily: 'TerminusTTFWindows-4.46.0'
-    },
-    checkBox: {
-        color: '#9fff80',
-        fontSize: 18,
-        fontFamily: 'TerminusTTFWindows-4.46.0'
-    },
-    input: {
-        flex: 1,
-        color: '#9fff80',
-        fontSize: 18,
-        fontFamily: 'TerminusTTFWindows-4.46.0'
-    },
-    textArea: {
-        height: 100,
-        borderColor: '#9fff80',
-        borderWidth: 2,
-    },
-    spacer: {
-        flex: 0.1,
-    },
-    padit: {
-        padding: 10,
-    },
-    border: {
-        borderWidth: 2,
-        borderColor: '#9fff80',
-    },
-    next: {
-        marginTop: 20,
-        marginBottom: 20,
-        borderColor: '#9fff80',
-        borderWidth: 2,
-        flex: 1,
-        height: 50,
-        alignItems: 'center',
-        justifyContent: 'center',
-    }
-})

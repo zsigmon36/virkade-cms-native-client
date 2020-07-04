@@ -1,9 +1,8 @@
 import React, { Component } from 'react';
 import {
-    StyleSheet,
     Text,
     View,
-    TextInput,
+    StyleSheet,
     TouchableNativeFeedback,
     ScrollView
 } from 'react-native'
@@ -43,6 +42,7 @@ class Home extends Component {
     render() {
         return (
             <ScrollView keyboardDismissMode='on-drag' style={style.wrapper}>
+                <Loader loading={this.state.loading} />
                 <UserDock navigator={this.props.navigation} />
                 <View style={style.logo}>
                     <Header />

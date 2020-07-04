@@ -10,6 +10,7 @@ const QUERY = 'query'
 const GET_ALL_STATES = 'getAllStates'
 const GET_USER_BY_USERNAME = 'getUserByUsername'
 const GET_AVAIL_PLAY_SESSIONS = 'getAvailableSessions'
+const GET_PENDING_PLAY_SESSIONS = 'getPendingSessions'
 
 //mutations
 const MUTATION = 'mutation'
@@ -70,7 +71,8 @@ const POSTAL_CODE = 'postalCode'
 const INPUT_PHONE = 'inputPhone'
 const PHONEID = 'phoneId'
 const PHONE_COUNTRY_CODE = 'countryCode'
-const PHONE_NUMBER = 'number'
+const NUMBER = 'number'
+const PHONE_NUMBER = 'phoneNum'
 const PHONE_NUMBERS = 'phoneNumbers'
 
 const INPUT_COMMENT = 'inputComment'
@@ -91,6 +93,13 @@ const LOCATION_NAME= 'locationName'
 const LOCATION = 'location'
 const START_DATE= 'startDate'
 const END_DATE = 'endDate'
+const INPUT_PLAY_SESSION = 'inputPlaySession'
+const PAYED = 'payed'
+const SESSIONID = 'sessionId'
+const COST_PER_MIN =  "costpm"
+const SETUP_MINUTES = "setupMin"
+const TAX_RATE = "taxRate"
+const MANAGER = 'manager'
 
 let cmsGraphQLHost = `${PROTOCOL}://${HOST}:${PORT}${API_ADDRESS}`
 
@@ -153,8 +162,12 @@ export const DatabaseAPI = {
         return dataFetch(query, userObj.username, userObj.authToken.token, callback)
     },
     //play session creation
-    getAvailableSession: function (userObj, activity, location, callback) {
-        let query = GraphQLParamStrings.getAvailableSession(activity, location)
+    getAvailableSessions: function (userObj, activity, location, callback) {
+        let query = GraphQLParamStrings.getAvailableSessions(activity, location)
+        return dataFetch(query, userObj.username, userObj.authToken.token, callback)
+    },
+    getPendingSessions: function (userObj, activity, location, callback) {
+        let query = GraphQLParamStrings.getPendingSessions(activity, location)
         return dataFetch(query, userObj.username, userObj.authToken.token, callback)
     },
     addUserSession: function (userObj, session, callback) {
@@ -284,7 +297,7 @@ const GraphQLParamStrings = {
                 }
                 ${EMAILADDRESS}
                 ${PHONE_NUMBERS} {
-                    ${PHONE_NUMBER}
+                    ${NUMBER}
                     ${PHONE_COUNTRY_CODE}
                     ${TYPE} {
                         ${CODE}
@@ -367,7 +380,7 @@ const GraphQLParamStrings = {
                     ${USERNAME}:\"${userObj.username}\",
                     ${TYPE_CODE}:\"${userObj.phoneType}\",
                     ${PHONE_COUNTRY_CODE}:${userObj.phoneCountryCode},
-                    ${PHONE_NUMBER}:\"${userObj.phoneNumber}\",
+                    ${NUMBER}:\"${userObj.phoneNumber}\",
                 }
             ){
                     ${PHONEID} 
@@ -392,12 +405,10 @@ const GraphQLParamStrings = {
     },
     addUserLegalDoc: function (username, legalTypeCode, agree) {
         //2020-05-30 02:30:57.311
-        let activeDate = new Date()
-        let expYear = activeDate.getFullYear() + 1
-        activeDate = `${activeDate.getFullYear()}-${activeDate.getMonth()}-${activeDate.getDay()} ${activeDate.getHours()}:${activeDate.getMinutes()}:${activeDate.getSeconds()}`
-
-        let expireDate = new Date();
-        expireDate = `${expYear}-${expireDate.getMonth()}-${expireDate.getDate()} ${expireDate.getHours()}:${expireDate.getMinutes()}:${expireDate.getSeconds()}`
+        let curDate = new Date()
+        let expYear = curDate.getFullYear() + 1
+        let activeDate = `${curDate.getFullYear()}-${curDate.getMonth()+1}-${curDate.getDate()} ${curDate.getHours()}:${curDate.getMinutes()}:${curDate.getSeconds()}.0`
+        let expireDate = `${expYear}-${curDate.getMonth()+1}-${curDate.getDate()} ${curDate.getHours()}:${curDate.getMinutes()}:${curDate.getSeconds()}.0`
 
         let query = `${MUTATION}{${ADD_USER_LEGAL_DOC}
             (   
@@ -446,7 +457,7 @@ const GraphQLParamStrings = {
         }`
         return query; //.replace(/\s/g, '');
     },
-    getAvailableSession: function (activity, location) {
+    getAvailableSessions: function (activity, location) {
         paramString = ""
         if (activity || location){
             paramString += "("
@@ -467,9 +478,46 @@ const GraphQLParamStrings = {
                 ${END_DATE}
                 ${LOCATION}{
                     ${NAME}
+                    ${TAX_RATE}
                 }
                 ${ACTIVITY}{
                     ${NAME}
+                    ${COST_PER_MIN}
+                    ${SETUP_MINUTES}
+                }
+            }
+        }`
+        return query; //.replace(/\s/g, '');
+    },
+    getPendingSessions: function (activity, location) {
+        paramString = ""
+        if (activity || location){
+            paramString += "("
+        }
+        if (activity){
+            paramString += `${ACTIVITY_NAME}:\"${activity}\",`
+        }
+        if (location){
+            paramString += `${LOCATION_NAME}:\"${location}\"`
+        }
+        if (activity || location){
+            paramString += ")"
+        }
+        let query = `${QUERY} { ${GET_PENDING_PLAY_SESSIONS}
+                ${paramString}
+            {
+                ${START_DATE}
+                ${END_DATE}
+                ${USERNAME}
+                ${FIRST_NAME}
+                ${ACTIVITY}{
+                    ${NAME}
+                    ${COST_PER_MIN}
+                    ${SETUP_MINUTES}
+                }${LOCATION}{
+                    ${NAME}
+                    ${PHONE_NUMBER}
+                    ${MANAGER}
                 }
             }
         }`

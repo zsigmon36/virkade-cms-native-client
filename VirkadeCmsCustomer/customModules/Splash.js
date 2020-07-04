@@ -1,11 +1,11 @@
 import React, { Component } from 'react';
 import {
-    StyleSheet,
     Text,
     View,
     TouchableNativeFeedback
 } from 'react-native' 
 import Header from './Header.js'
+import style from '../static/styles.js'
 
 class Splash extends Component {
     
@@ -45,49 +45,3 @@ class Splash extends Component {
 }
 
 export default Splash;
-const style = StyleSheet.create({
-    wrapper:{
-        display: 'flex',
-        flex: 1
-    },
-    body: {
-        flexDirection: 'row',
-        flex: 0.75,
-        backgroundColor: '#001a00',
-    },
-    main: {
-        flexDirection: 'column',
-        flex: 1
-    },
-    h1: {
-        color: '#9fff80',
-        fontSize: 26,
-        alignSelf: 'center',
-        fontFamily: 'TerminusTTFWindows-Bold-4.46.0'
-    },
-    colFirst: {
-        marginTop: 10,
-    },
-    col: {
-        marginTop: 15,
-        flexDirection: 'row',
-        justifyContent: 'space-between'
-    },
-    label: {
-        color: '#9fff80',
-        fontSize: 18,
-        fontFamily: 'TerminusTTFWindows-4.46.0'
-    },
-    spacer: {
-        flex: 0.1,
-    },
-    next: {
-        marginTop: 20,
-        borderColor: '#9fff80',
-        borderWidth: 2,
-        flex: 1,
-        height: 50,
-        alignItems: 'center',
-        justifyContent: 'center',
-    }
-})

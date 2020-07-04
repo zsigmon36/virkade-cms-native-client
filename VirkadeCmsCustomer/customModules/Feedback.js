@@ -1,7 +1,6 @@
 import React, { Component } from 'react';
 import {
     TextInput,
-    StyleSheet,
     Text,
     View,
     Alert,
@@ -15,6 +14,7 @@ import { bindActionCreators } from 'redux';
 import userAction from './reduxActions/UserAction'
 import { DatabaseAPI } from './dataAccess/DatabaseAPI.js'
 import Loader from './Loader.js';
+import style from '../static/styles.js'
 
 class Feedback extends Component {
 
@@ -76,7 +76,7 @@ class Feedback extends Component {
                             <Text style={style.h1}>::feedback::</Text>
                         </View>
                         <View>
-                            <Text style={style.h2}>::please provide your comments below::</Text>
+                            <Text style={style.h3}>::provide your comments below::</Text>
                         </View>
                         <View style={style.col}>
                             <TextInput multiline={true} style={[style.input, style.textArea]} underlineColorAndroid='transparent' onChangeText={(commentContent) =>
@@ -117,72 +117,3 @@ function mapDispatchToProps(dispatch) {
 }
 
 export default connect(mapStateToProps, mapDispatchToProps)(Feedback);
-
-const style = StyleSheet.create({
-
-    wrapper: {
-        flex: 1,
-        backgroundColor: '#001a00',
-    },
-    body: {
-        flexDirection: 'row',
-        flex: 0.75,
-    },
-    main: {
-        flexDirection: 'column',
-        flex: 1
-    },
-    h1: {
-        color: '#9fff80',
-        fontSize: 26,
-        alignSelf: 'center',
-        fontFamily: 'TerminusTTFWindows-Bold-4.46.0'
-    },
-    h2: {
-        fontSize: 20,
-        alignSelf: 'center',
-        fontFamily: 'TerminusTTFWindows-Bold-4.46.0'
-    },
-    colFirst: {
-        marginTop: 10,
-    },
-    col: {
-        marginTop: 15,
-        flexDirection: 'row',
-        alignItems: 'center'
-    },
-    label: {
-        fontSize: 18,
-        fontFamily: 'TerminusTTFWindows-4.46.0'
-    },
-    checkBox: {
-        color: '#9fff80',
-        fontSize: 14,
-        fontFamily: 'TerminusTTFWindows-4.46.0'
-    },
-    input: {
-        flex: 1,
-        color: '#9fff80',
-        fontSize: 18,
-        fontFamily: 'TerminusTTFWindows-4.46.0'
-    },
-    textArea: {
-        height: 200,
-        borderColor: '#9fff80',
-        borderWidth: 2,
-        marginBottom: 10,
-    },
-    spacer: {
-        flex: 0.1,
-    },
-    next: {
-        marginTop: 10,
-        marginBottom: 10,
-        borderColor: '#9fff80',
-        borderWidth: 2,
-        flex: 1,
-        height: 50,
-        alignItems: 'center',
-        justifyContent: 'center',
-    }
-})

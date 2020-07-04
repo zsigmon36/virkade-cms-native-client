@@ -1,7 +1,6 @@
 import React, { Component } from 'react';
 import {
     TextInput,
-    StyleSheet,
     Text,
     View,
     Alert,
@@ -17,6 +16,7 @@ import { DatabaseAPI } from './dataAccess/DatabaseAPI.js'
 import { Picker } from '@react-native-community/picker';
 import { pickerData } from '../static/pickerData';
 import Loader from './Loader.js';
+import style from '../static/styles.js'
 
 class PersonalUser extends Component {
 
@@ -299,84 +299,3 @@ function mapDispatchToProps(dispatch) {
 }
 
 export default connect(mapStateToProps, mapDispatchToProps)(PersonalUser);
-
-const style = StyleSheet.create({
-    wrapper: {
-        flex: 1,
-        backgroundColor: '#001a00',
-    },
-    body: {
-        flexDirection: 'row',
-        flex: 0.75,
-    },
-    main: {
-        flexDirection: 'column',
-        flex: 1
-    },
-    h1: {
-        color: '#9fff80',
-        fontSize: 26,
-        alignSelf: 'center',
-        fontFamily: 'TerminusTTFWindows-Bold-4.46.0'
-    },
-    h2: {
-        fontSize: 22,
-        color: '#9fff80',
-        alignSelf: 'center',
-        fontFamily: 'TerminusTTFWindows-Bold-4.46.0'
-    },
-    h3: {
-        fontSize: 18,
-        color: '#9fff80',
-        alignSelf: 'center',
-        fontFamily: 'TerminusTTFWindows-Bold-4.46.0'
-    },
-    center: {
-        alignSelf: 'center',
-        alignItems: 'center'
-    },
-    colFirst: {
-        marginTop: 10,
-    },
-    col: {
-        marginTop: 15,
-        flexDirection: 'row',
-        alignItems: 'center'
-    },
-    label: {
-        color: '#9fff80',
-        fontSize: 18,
-        fontFamily: 'TerminusTTFWindows-4.46.0'
-    },
-    input: {
-        flex: 1,
-        color: '#9fff80',
-        fontSize: 18,
-        fontFamily: 'TerminusTTFWindows-4.46.0'
-    },
-    picker: {
-        fontFamily: 'TerminusTTFWindows-4.46.0',
-        flex: 1,
-        textDecorationLine: 'underline',
-        color: '#9fff80',
-    },
-    pickerItem: {
-        fontFamily: 'TerminusTTFWindows-4.46.0',
-        flex: 1,
-        textDecorationLine: 'underline',
-        color: '#9fff80',
-    },
-    spacer: {
-        flex: 0.1,
-    },
-    next: {
-        marginTop: 20,
-        marginBottom: 20,
-        borderColor: '#9fff80',
-        borderWidth: 2,
-        flex: 1,
-        height: 50,
-        alignItems: 'center',
-        justifyContent: 'center',
-    }
-})

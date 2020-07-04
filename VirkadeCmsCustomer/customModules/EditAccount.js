@@ -1,7 +1,6 @@
 import React, { Component } from 'react';
 import {
     TextInput,
-    StyleSheet,
     Text,
     View,
     Alert,
@@ -17,6 +16,7 @@ import userAction from './reduxActions/UserAction'
 import { DatabaseAPI } from './dataAccess/DatabaseAPI.js'
 import { Picker } from '@react-native-community/picker';
 import { pickerData } from '../static/pickerData';
+import style from '../static/styles.js'
 import Loader from './Loader.js';
 
 class EditAccount extends Component {
@@ -30,15 +30,16 @@ class EditAccount extends Component {
         this.statusMessage = this.statusMessage.bind(this);
         this.validateUsername = this.validateUsername.bind(this);
         this.getUser = this.getUser.bind(this);
+        this.commentResp = this.commentResp.bind(this);
         
         DatabaseAPI.getAllStates(this.props.user, this.setPickerSates)
     }
     state = {
         validatorMsg: '',
         pickerStates: <Picker.Item key="1" label="Arkansas" value="AR" />,
-        canContact: '[ ]',
-        reService: '[ ]',
         user: Object.assign({}, this.props.user),
+        canContactLcl: this.props.user.canContact?'[X]':'[ ]',
+        reServicesLcl: this.props.user.reServices?'[X]':'[ ]',
         loading: true,
     }
 
@@ -52,21 +53,21 @@ class EditAccount extends Component {
     }
 
     contactCheckBox = () => {
-        if (this.state.canContact == '[ ]') {
-            this.setState({ user : {canContact: true}})
-            this.setState({ canContact: '[X]' })
+        if (this.state.canContactLcl == '[ ]') {
+            this.updateInput({'canContact': true})
+            this.setState({ 'canContactLcl': '[X]' })
         } else {
-            this.setState({ user : {canContact: false}})
-            this.setState({ canContact: '[ ]' })
+            this.updateInput({'canContact': false})
+            this.setState({ 'canContactLcl': '[ ]' })
         }
     }
     reCheckBox = () => {
-        if (this.state.reService == '[ ]') {
-            this.setState({ user : {reService: true}})
-            this.setState({ reService: '[X]' })
+        if (this.state.reServicesLcl == '[ ]') {
+            this.updateInput({'reServices': true})
+            this.setState({ 'reServicesLcl': '[X]' })
         } else {
-            this.setState({ user : {reService: false}})
-            this.setState({ reService: '[ ]' })
+            this.updateInput({'reServices': false})
+            this.setState({ 'reServicesLcl': '[ ]' })
         }
     }
 
@@ -87,17 +88,30 @@ class EditAccount extends Component {
         }
         this.setState({ 'pickerStates': pickerItems })
     }
-    clickNext() {
+    comment() {
         this.loading(true)
         let user = this.state.user
         if (user.commentContent && user.commentContent != '') {
-            DatabaseAPI.addUserComment(user, this.getUser)
+            DatabaseAPI.addUserComment(user, this.commentResp)
         } else {
-            this.getUser()
+            Alert.alert("::error::", "\ncomment cannot be empty")
+            this.loading(false)
         }
     }
 
+    commentResp(data, error) {
+        if (data && data.addComment){
+            Alert.alert("::info::", "\nthanks, comment added")
+        } else if (error){
+            Alert.alert('::error::', `\nhmmm... \nlooks like something went wrong. \n${error[0].messages}`)
+        } else {
+            Alert.alert("::error::", "\nhmmm... \nlooks like something went wrong. ")
+        }
+        this.loading(false)
+    }
+
     getUser() {
+        this.loading(true)
         let { username, authToken } = this.state.user;
         let isValid = this.validateInput(this.state.user)
         if (isValid && username != authToken.username) {
@@ -140,8 +154,10 @@ class EditAccount extends Component {
         if (data && data.updateUser) {
             this.props.actions({ fullUser: this.state.user })
             Alert.alert("::info::", "update complete")
-        } else {
+        } else if (error) {
             Alert.alert('::error::', `\nhmmm... \nlooks like something went wrong. \n${error[0].messages}`)
+        } else {
+
         }
         this.loading(false)
     }
@@ -355,10 +371,10 @@ class EditAccount extends Component {
                             <Text style={style.h1}>::contact preference::</Text>
                         </View>
                         <View style={style.col}>
-                            <Text style={style.checkBox} onPress={this.reCheckBox}> {this.state.reService} interested in VR real estate services?</Text>
+                            <Text style={style.checkBox} onPress={this.reCheckBox}> {this.state.reServicesLcl} interested in VR real estate services?</Text>
                         </View>
                         <View style={style.col}>
-                            <Text style={style.checkBox} onPress={this.contactCheckBox}> {this.state.canContact} can we contact you? </Text>
+                            <Text style={style.checkBox} onPress={this.contactCheckBox}> {this.state.canContactLcl} can we contact you? </Text>
                         </View>
                         <View style={style.col}></View>
                         <View>
@@ -372,7 +388,14 @@ class EditAccount extends Component {
                                 this.updateInput({ 'commentContent': commentContent })} />
                         </View>
                         <View style={style.col}>
-                            <TouchableNativeFeedback onPress={() => this.clickNext()}>
+                            <TouchableNativeFeedback onPress={() => this.comment()}>
+                                <View style={style.next}>
+                                    <Text style={style.label}>add comment</Text>
+                                </View>
+                            </TouchableNativeFeedback>
+                        </View>
+                        <View style={style.col}>
+                            <TouchableNativeFeedback onPress={() => this.getUser()}>
                                 <View style={style.next}>
                                     <Text style={style.label}>update</Text>
                                 </View>
@@ -406,94 +429,3 @@ function mapDispatchToProps(dispatch) {
 }
 
 export default connect(mapStateToProps, mapDispatchToProps)(EditAccount);
-
-const style = StyleSheet.create({
-    wrapper: {
-        flex: 1,
-        backgroundColor: '#001a00',
-    },
-    body: {
-        flexDirection: 'row',
-        flex: 0.75,
-    },
-    main: {
-        flexDirection: 'column',
-        flex: 1
-    },
-    h1: {
-        color: '#9fff80',
-        fontSize: 26,
-        alignSelf: 'center',
-        fontFamily: 'TerminusTTFWindows-Bold-4.46.0'
-    },
-    h2: {
-        fontSize: 22,
-        color: '#9fff80',
-        alignSelf: 'center',
-        fontFamily: 'TerminusTTFWindows-Bold-4.46.0'
-    },
-    h3: {
-        fontSize: 18,
-        color: '#9fff80',
-        alignSelf: 'center',
-        fontFamily: 'TerminusTTFWindows-Bold-4.46.0'
-    },
-    checkBox: {
-        color: '#9fff80',
-        fontSize: 18,
-        fontFamily: 'TerminusTTFWindows-4.46.0'
-    },
-    textArea: {
-        height: 100,
-        borderColor: '#9fff80',
-        borderWidth: 2,
-    },
-    center: {
-        alignSelf: 'center',
-        alignItems: 'center'
-    },
-    colFirst: {
-        marginTop: 10,
-    },
-    col: {
-        marginTop: 15,
-        flexDirection: 'row',
-        alignItems: 'center'
-    },
-    label: {
-        color: '#9fff80',
-        fontSize: 18,
-        fontFamily: 'TerminusTTFWindows-4.46.0'
-    },
-    input: {
-        flex: 1,
-        color: '#9fff80',
-        fontSize: 18,
-        fontFamily: 'TerminusTTFWindows-4.46.0'
-    },
-    picker: {
-        fontFamily: 'TerminusTTFWindows-4.46.0',
-        flex: 1,
-        textDecorationLine: 'underline',
-        color: '#9fff80',
-    },
-    pickerItem: {
-        fontFamily: 'TerminusTTFWindows-4.46.0',
-        flex: 1,
-        textDecorationLine: 'underline',
-        color: '#9fff80',
-    },
-    spacer: {
-        flex: 0.1,
-    },
-    next: {
-        marginTop: 10,
-        marginBottom: 10,
-        borderColor: '#9fff80',
-        borderWidth: 2,
-        flex: 1,
-        height: 50,
-        alignItems: 'center',
-        justifyContent: 'center',
-    }
-})
