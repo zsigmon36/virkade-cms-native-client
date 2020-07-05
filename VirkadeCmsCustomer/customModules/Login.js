@@ -101,7 +101,13 @@ class Login extends Component {
         if (data && data.getUserByUsername) {
             let userDetails = data.getUserByUsername
             this.updateInput({ 'fullUser': userDetails })
-            this.props.navigation.navigate('Home');
+            if (!this.props.user.tcAgree){
+                this.props.navigation.navigate('TermsConditions');
+            }else if (!this.props.user.liableAgree){
+                this.props.navigation.navigate('LimitedLiable');
+            } else {
+                this.props.navigation.navigate('Home');
+            }
         } else {
             this.loading(false)
             Alert.alert('::error::', `\nLooks like something went wrong :( \n${error[0].message}`)

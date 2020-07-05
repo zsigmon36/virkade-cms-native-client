@@ -51,6 +51,8 @@ const IDP = 'idp'
 const EMAIL_VERIFIED = 'emailVerified'
 const PLAYED_BEFORE = 'playedBefore'
 const REAL_ESTATE_SERVICE = 'reServices'
+const LIABLE_AGREE = 'liableAgree'
+const TC_AGREE = 'tcAgree'
 const CAN_CONTACT = 'canContact'
 const TOKEN = 'token'
 const PASSCODE = 'passCode'
@@ -315,6 +317,8 @@ const GraphQLParamStrings = {
                 ${PLAYED_BEFORE}
                 ${REAL_ESTATE_SERVICE}
                 ${CAN_CONTACT}
+                ${LIABLE_AGREE}
+                ${TC_AGREE}
             }
         }`
         return query; //.replace(/\s/g, '');
