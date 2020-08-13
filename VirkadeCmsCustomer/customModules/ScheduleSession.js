@@ -36,7 +36,7 @@ class ScheduleSession extends Component {
 
     componentDidMount() {
         DatabaseAPI.getAvailableSessions(this.props.user, undefined, undefined, this.setSessionOptions)
-        DatabaseAPI.getPendingSessions(this.props.user, undefined, undefined, this.setPendingSessions)
+        DatabaseAPI.getPendingSessions(this.props.user, undefined, this.setPendingSessions)
         this.setState({ loading: false })
     }
     loading(data) {

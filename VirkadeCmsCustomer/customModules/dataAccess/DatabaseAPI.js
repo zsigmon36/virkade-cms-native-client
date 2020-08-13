@@ -89,8 +89,11 @@ const ACTIVE_DATE = 'activeDate'
 const EXPIRE_DATE = 'expireDate'
 const ENABLED = 'enabled'
 
+const ACTIVITY_ID = 'activityId'
 const ACTIVITY_NAME = 'activityName'
 const ACTIVITY = 'activity'
+
+const LOCATION_ID = 'locationId'
 const LOCATION_NAME= 'locationName'
 const LOCATION = 'location'
 const START_DATE= 'startDate'
@@ -168,8 +171,8 @@ export const DatabaseAPI = {
         let query = GraphQLParamStrings.getAvailableSessions(activity, location)
         return dataFetch(query, userObj.username, userObj.authToken.token, callback)
     },
-    getPendingSessions: function (userObj, activity, location, callback) {
-        let query = GraphQLParamStrings.getPendingSessions(activity, location)
+    getPendingSessions: function (userObj, filter, callback) {
+        let query = GraphQLParamStrings.getPendingSessions(filter)
         return dataFetch(query, userObj.username, userObj.authToken.token, callback)
     },
     addUserSession: function (userObj, session, callback) {
@@ -461,18 +464,21 @@ const GraphQLParamStrings = {
         }`
         return query; //.replace(/\s/g, '');
     },
-    getAvailableSessions: function (activity, location) {
-        paramString = ""
-        if (activity || location){
+    getAvailableSessions: function (filter) {
+        let paramString = ""
+        if (filter && (filter.selActivityFilter || filter.selLocationFilter)){
             paramString += "("
         }
-        if (activity){
-            paramString += `${ACTIVITY_NAME}:\"${activity}\",`
+        if (filter && filter.selActivityFilter){
+            paramString += `${ACTIVITY_ID}:${filter.selActivityFilter}`
         }
-        if (location){
-            paramString += `${LOCATION_NAME}:\"${location}\"`
+        if (filter && filter.selLocationFilter){
+            if (paramString.length > 1){
+                paramString += ","
+            }
+            paramString += `${LOCATION_ID}:${filter.selLocationFilter}`
         }
-        if (activity || location){
+        if (filter && (filter.selActivityFilter || filter.selLocationFilter)){
             paramString += ")"
         }
         let query = `${QUERY} { ${GET_AVAIL_PLAY_SESSIONS}
@@ -493,35 +499,49 @@ const GraphQLParamStrings = {
         }`
         return query; //.replace(/\s/g, '');
     },
-    getPendingSessions: function (activity, location) {
-        paramString = ""
-        if (activity || location){
+    getPendingSessions: function (filter) {
+        let paramString = ""
+        if (filter && (filter.selActivityFilter || filter.selLocationFilter || filter.selPayedFilter)){
             paramString += "("
         }
-        if (activity){
-            paramString += `${ACTIVITY_NAME}:\"${activity}\",`
+        if (filter && filter.selActivityFilter){
+            paramString += `${ACTIVITY_ID}:${filter.selActivityFilter}`
         }
-        if (location){
-            paramString += `${LOCATION_NAME}:\"${location}\"`
+        if (filter && filter.selLocationFilter){
+            if (paramString.length > 1){
+                paramString += ","
+            }
+            paramString += `${LOCATION_ID}:${filter.selLocationFilter}`
         }
-        if (activity || location){
+        if (filter && filter.selPayedFilter && filter.selPayedFilter !== ''){
+            if (paramString.length > 1){
+                paramString += ","
+            }
+            paramString += `${PAYED}:${filter.selPayedFilter === PAYED}`
+        }
+        if (filter && (filter.selActivityFilter || filter.selLocationFilter || filter.selPayedFilter)){
             paramString += ")"
         }
         let query = `${QUERY} { ${GET_PENDING_PLAY_SESSIONS}
                 ${paramString}
             {
+                ${SESSIONID}
                 ${START_DATE}
                 ${END_DATE}
+                ${USERID}
                 ${USERNAME}
                 ${FIRST_NAME}
+                ${LAST_NAME}
                 ${ACTIVITY}{
                     ${NAME}
                     ${COST_PER_MIN}
                     ${SETUP_MINUTES}
+                    ${ACTIVITY_ID}
                 }${LOCATION}{
                     ${NAME}
                     ${PHONE_NUMBER}
                     ${MANAGER}
+                    ${LOCATION_ID}
                 }
             }
         }`
