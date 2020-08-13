@@ -35,7 +35,7 @@ class ScheduleSession extends Component {
     }
 
     componentDidMount() {
-        DatabaseAPI.getAvailableSessions(this.props.user, undefined, undefined, this.setSessionOptions)
+        DatabaseAPI.getAvailableSessions(this.props.user, undefined, this.setSessionOptions)
         DatabaseAPI.getPendingSessions(this.props.user, undefined, this.setPendingSessions)
         this.setState({ loading: false })
     }
@@ -132,13 +132,13 @@ class ScheduleSession extends Component {
             Alert.alert("::info::", "session has been scheduled \n\nthank you, please pay at the counter")
             let sessionId = data.addUserSession.sessionId
             this.setState({sessionId})
-            DatabaseAPI.getAvailableSessions(this.props.user, undefined, undefined, this.setSessionOptions)
+            DatabaseAPI.getAvailableSessions(this.props.user, undefined, this.setSessionOptions)
         } else if (error) {
             Alert.alert('::error::', `\nhmmm... \nlooks like something went wrong. \n${error[0].message}`)
-            DatabaseAPI.getAvailableSessions(this.props.user, undefined, undefined, this.setSessionOptions)
+            DatabaseAPI.getAvailableSessions(this.props.user, undefined, this.setSessionOptions)
         } else {
             Alert.alert('::error::', `\nhmmm... \nlooks like something went wrong.`)
-            DatabaseAPI.getAvailableSessions(this.props.user, undefined, undefined, this.setSessionOptions)
+            DatabaseAPI.getAvailableSessions(this.props.user, undefined, this.setSessionOptions)
         }
         
     }

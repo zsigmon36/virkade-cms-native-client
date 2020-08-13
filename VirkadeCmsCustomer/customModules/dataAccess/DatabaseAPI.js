@@ -167,8 +167,8 @@ export const DatabaseAPI = {
         return dataFetch(query, userObj.username, userObj.authToken.token, callback)
     },
     //play session creation
-    getAvailableSessions: function (userObj, activity, location, callback) {
-        let query = GraphQLParamStrings.getAvailableSessions(activity, location)
+    getAvailableSessions: function (userObj, filter, callback) {
+        let query = GraphQLParamStrings.getAvailableSessions(filter)
         return dataFetch(query, userObj.username, userObj.authToken.token, callback)
     },
     getPendingSessions: function (userObj, filter, callback) {
