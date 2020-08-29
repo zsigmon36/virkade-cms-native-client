@@ -341,7 +341,7 @@ const GraphQLParamStrings = {
         let unit = userObj.unit;
         let apt = userObj.apt;
         let street = userObj.street;
-        let city = userObj.street;
+        let city = userObj.city;
         let state = userObj.state
         let postalCode = userObj.postalCode
 
