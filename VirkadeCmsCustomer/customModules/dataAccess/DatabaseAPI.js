@@ -576,6 +576,7 @@ const dataFetch = function (queryString, username, authToken, callBack, retries 
 
     fetch(qs, {
         method: 'POST',
+        mode: 'cors',
         body: body,
         headers: {
             Accept: 'application/json',
