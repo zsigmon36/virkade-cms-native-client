@@ -92,6 +92,7 @@ class EditAccount extends Component {
         this.loading(true)
         let user = this.state.user
         if (user.commentContent && user.commentContent != '') {
+            user.commentType = "CNDTN_CMNT"
             DatabaseAPI.addUserComment(user, this.commentResp)
         } else {
             Alert.alert("::error::", "\ncomment cannot be empty")

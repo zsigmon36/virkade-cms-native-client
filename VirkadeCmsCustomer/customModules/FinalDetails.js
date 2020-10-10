@@ -81,6 +81,7 @@ class FinalDetails extends Component {
         this.loading(true)
         let user = this.props.user
         if (user.commentContent && user.commentContent != '') {
+            user.commentType = "CNDTN_CMNT"
             DatabaseAPI.addUserComment(user, this.updateUser)
         } else {
             this.updateUser()

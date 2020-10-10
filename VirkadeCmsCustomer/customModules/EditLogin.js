@@ -120,10 +120,10 @@ class EditLogin extends Component {
         let msg = '';
         valid = true
         if (username != undefined && (username == "" || username.length < 6)) {
-            msg = 'username is too short'
+            msg = 'username must be at least 6 characters'
             valid = false;
         } else if (password != undefined && (password == "" || password.length < 8)) {
-            msg = 'password is too short'
+            msg = 'password must be at least 8 characters'
             valid = false;
         } else if (securityQ != undefined && securityQ == "") {
             msg = 'security question cannot be empty'
