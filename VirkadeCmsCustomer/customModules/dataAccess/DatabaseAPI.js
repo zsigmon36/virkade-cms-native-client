@@ -1,7 +1,8 @@
 //connection details - probs move to config file
 //const HOST = '192.168.1.240'
-const HOST = '192.168.1.7' //move property
-const PORT = '136' //move to property
+//const HOST = '192.168.1.7' //move property
+const HOST = '192.168.1.24' //move property
+const PORT = '80' //move to property
 const API_ADDRESS = '/service'
 const PROTOCOL = 'http'
 
