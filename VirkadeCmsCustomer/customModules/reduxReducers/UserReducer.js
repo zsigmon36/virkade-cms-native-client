@@ -27,9 +27,9 @@ function covertUserData(data, state) {
             convertedUser.apt = address.apt
             convertedUser.unit = address.unit
             convertedUser.city = address.city
-            convertedUser.state = address.state.stateCode
+            convertedUser.state = address.state && address.state.stateCode
             convertedUser.postalCode = address.postalCode
-            convertedUser.addressTypeCode = address.type.code
+            convertedUser.addressTypeCode = address.type && address.type.code
         } else if (rawUser[key] && key == 'height') {
             let heightFt = Math.floor(value / 12)
             let heightIn = value % 12
