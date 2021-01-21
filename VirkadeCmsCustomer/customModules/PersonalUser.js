@@ -278,6 +278,13 @@ class PersonalUser extends Component {
                                 </View>
                             </TouchableNativeFeedback>
                         </View>
+                        <View style={style.col}>
+                            <TouchableNativeFeedback onPress={() => this.props.navigation.goBack()}>
+                                <View style={style.next}>
+                                    <Text style={style.label}>back</Text>
+                                </View>
+                            </TouchableNativeFeedback>
+                        </View>
                     </View>
                     <View style={style.spacer}></View>
                 </View>
