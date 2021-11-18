@@ -8,7 +8,7 @@ import {
     ScrollView,
 } from 'react-native';
 import Header from './Header.js'
-import Markdown from 'react-native-markdown-display';
+import { MarkdownView } from 'react-native-markdown-view';
 import { tandc } from '../static/tandc'
 import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
@@ -88,7 +88,7 @@ class TermsConditions extends Component {
                             <Text style={style.h1}>::terms & conditions::</Text>
                         </View>
                         <View style={[style.col, style.border, style.padit]}>
-                            <Markdown style={mdStyle}>{termsAndConds}</Markdown>
+                            <MarkdownView style={mdStyle}>{termsAndConds}</MarkdownView>
                         </View>
                         <View style={[style.col, style.edgeSpace]}>
                             <Text style={style.checkBox} onPress={this.agreeCheckBox}> {this.state.agree} do you agree to the terms and conditions?</Text>

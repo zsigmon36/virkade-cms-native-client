@@ -12,7 +12,7 @@ import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
 import userAction from './reduxActions/UserAction'
 import { DatabaseAPI } from './dataAccess/DatabaseAPI.js'
-import { Picker } from '@react-native-community/picker';
+import { Picker } from '@react-native-picker/picker';
 import Loader from './Loader.js';
 import style from '../static/styles.js'
 import moment from "moment";

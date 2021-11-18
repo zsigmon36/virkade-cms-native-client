@@ -8,7 +8,7 @@ import {
     ScrollView,
 } from 'react-native';
 import Header from './Header.js'
-import Markdown from 'react-native-markdown-display';
+import {MarkdownView} from 'react-native-markdown-view';
 import { liabilityWaiver } from '../static/liabilityWaiver'
 import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
@@ -91,7 +91,7 @@ class LimitedLiable extends Component {
                             <Text style={style.h1}>::liability waiver::</Text>
                         </View>
                         <View style={[style.col, style.border, style.padit]}>
-                            <Markdown style={mdStyle}>{waiver}</Markdown>
+                            <MarkdownView style={mdStyle}>{waiver}</MarkdownView>
                         </View>
                         <View style={[style.col, style.edgeSpace]}>
                             <Text style={style.checkBox} onPress={this.agreeCheckBox}> {this.state.agree} do you agree to waive liability?</Text>

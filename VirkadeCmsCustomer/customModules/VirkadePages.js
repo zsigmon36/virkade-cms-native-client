@@ -20,21 +20,23 @@ const Stack = createStackNavigator()
 const VirkadePages = () => {
   return (
     <NavigationContainer>
-      <Stack.Navigator initialRouteName="Splash" headerMode='none' >
-        <Stack.Screen name="Splash" component={Splash} />
-        <Stack.Screen name="Home" component={Home} />
-        <Stack.Screen name="Login" component={Login} />
-        <Stack.Screen name="EditLogin" component={EditLogin} />
-        <Stack.Screen name="EditAccount" component={EditAccount} />
-        <Stack.Screen name="ForgotPassword" component={ForgotPassword} />
-        <Stack.Screen name="BasicAccount" component={BasicAccount} />
-        <Stack.Screen name="BasicUser" component={BasicUser} />
-        <Stack.Screen name="PersonalUser" component={PersonalUser} />
-        <Stack.Screen name="FinalDetails" component={FinalDetails} />
-        <Stack.Screen name="Feedback" component={Feedback} />
-        <Stack.Screen name="TermsConditions" component={TermsConditions} />
-        <Stack.Screen name="LimitedLiable" component={LimitedLiable} />
-        <Stack.Screen name="ScheduleSession" component={ScheduleSession} />  
+      <Stack.Navigator initialRouteName="Splash">
+        <Stack.Group screenOptions={{ headerShown: false }}>
+          <Stack.Screen name="Splash" component={Splash} />
+          <Stack.Screen name="Home" component={Home} />
+          <Stack.Screen name="Login" component={Login} />
+          <Stack.Screen name="EditLogin" component={EditLogin} />
+          <Stack.Screen name="EditAccount" component={EditAccount} />
+          <Stack.Screen name="ForgotPassword" component={ForgotPassword} />
+          <Stack.Screen name="BasicAccount" component={BasicAccount} />
+          <Stack.Screen name="BasicUser" component={BasicUser} />
+          <Stack.Screen name="PersonalUser" component={PersonalUser} />
+          <Stack.Screen name="FinalDetails" component={FinalDetails} />
+          <Stack.Screen name="Feedback" component={Feedback} />
+          <Stack.Screen name="TermsConditions" component={TermsConditions} />
+          <Stack.Screen name="LimitedLiable" component={LimitedLiable} />
+          <Stack.Screen name="ScheduleSession" component={ScheduleSession} />  
+        </Stack.Group>
       </Stack.Navigator>
     </NavigationContainer>
   )
