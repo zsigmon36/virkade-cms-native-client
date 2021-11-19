@@ -1,9 +1,6 @@
-import React, { Component } from 'react';
-import {
-  View,
-  StatusBar,
-} from 'react-native';
-import VirkadePages from './VirkadePages.js'
+import React, {Component} from 'react';
+import {View, StatusBar} from 'react-native';
+import VirkadePages from './VirkadePages.js';
 class VirkadeCMS extends Component {
   render() {
     return (
@@ -20,6 +17,6 @@ export default VirkadeCMS;
 const style = {
   topContainer: {
     flex: 1,
-    fontFamily: 'TerminusTTFWindows-4.46.0'
-  }
-}
+    fontFamily: 'TerminusTTFWindows-4.46.0',
+  },
+};
