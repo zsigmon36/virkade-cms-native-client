@@ -77,6 +77,15 @@ class Home extends Component {
           </View>
 
           <View style={style.row}>
+            <TouchableNativeFeedback
+              onPress={() => this.nextPage('TermsConditions')}>
+              <View style={style.next}>
+                <Text style={style.label}>legal agreement</Text>
+              </View>
+            </TouchableNativeFeedback>
+          </View>
+
+          <View style={style.row}>
             <TouchableNativeFeedback onPress={() => this.nextPage('Feedback')}>
               <View style={style.next}>
                 <Text style={style.label}>give feedback</Text>

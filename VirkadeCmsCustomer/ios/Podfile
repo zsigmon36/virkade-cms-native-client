@@ -12,6 +12,8 @@ target 'VirkadeCmsCustomer' do
     :hermes_enabled => false
   )
 
+  pod 'react-native-signature-capture', :path => '../node_modules/react-native-signature-capture'
+
   target 'VirkadeCmsCustomerTests' do
     inherit! :complete
     # Pods for testing

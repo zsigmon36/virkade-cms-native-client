@@ -1,10 +1,4 @@
-//connection details - probs move to config file
-//const HOST = '192.168.1.240'
-//const HOST = '192.168.1.7' //move property
-const HOST = '192.168.1.24'; //move property
-const PORT = '80'; //move to property
-const API_ADDRESS = '/service';
-const PROTOCOL = 'http';
+import {connection} from '../../static/props.js';
 
 //queries
 const QUERY = 'query';
@@ -12,6 +6,7 @@ const GET_ALL_STATES = 'getAllStates';
 const GET_USER_BY_USERNAME = 'getUserByUsername';
 const GET_AVAIL_PLAY_SESSIONS = 'getAvailableSessions';
 const GET_PENDING_PLAY_SESSIONS = 'getPendingSessions';
+const GET_LATEST_DOCUMENT_BY_TYPE = 'getLatestDocumentByType';
 
 //mutations
 const MUTATION = 'mutation';
@@ -39,6 +34,7 @@ const ADDRESSID = 'addressId';
 const STATUSID = 'statusId';
 const STATUS = 'status';
 const USERNAME = 'username';
+const VALIDATED = 'validated';
 const PASSWORD = 'password';
 const SECURITYQ = 'securityQuestion';
 const SECURITYA = 'securityAnswer';
@@ -49,11 +45,13 @@ const AGE = 'age';
 const HEIGHT = 'height';
 const WEIGHT = 'weight';
 const IDP = 'idp';
-const EMAIL_VERIFIED = 'emailVerified';
+const ACCOUNT_VERIFIED = 'accountVerified';
 const PLAYED_BEFORE = 'playedBefore';
 const REAL_ESTATE_SERVICE = 'reServices';
 const LIABLE_AGREE = 'liableAgree';
 const TC_AGREE = 'tcAgree';
+const ACTIVE_TC_LEGAL = 'ActiveTCLegal';
+const ACTIVE_LIAB_LEGAL = 'ActiveLiabLegal';
 const CAN_CONTACT = 'canContact';
 const TOKEN = 'token';
 const PASSCODE = 'passCode';
@@ -89,6 +87,10 @@ const AGREE = 'agree';
 const ACTIVE_DATE = 'activeDate';
 const EXPIRE_DATE = 'expireDate';
 const ENABLED = 'enabled';
+const IS_MINOR = 'minor';
+
+const G_SIG = 'gSig';
+const P_SIG = 'pSig';
 
 const ACTIVITY_ID = 'activityId';
 const ACTIVITY_NAME = 'activityName';
@@ -107,11 +109,21 @@ const SETUP_MINUTES = 'setupMin';
 const TAX_RATE = 'taxRate';
 const MANAGER = 'manager';
 
-let cmsGraphQLHost = `${PROTOCOL}://${HOST}:${PORT}${API_ADDRESS}`;
+const DOC_ID = 'docId';
+const TITLE = 'title';
+const CONTENT = 'content';
+const VERSION = 'version';
+
+let cmsGraphQLHost = `${connection.PROTOCOL}://${connection.HOST}:${connection.PORT}${connection.API_ADDRESS}`;
 
 export const DatabaseAPI = {
-  signIn: function (username, password, callBack = undefined) {
-    let query = GraphQLParamStrings.signIn(username, password);
+  signIn: function (
+    username,
+    password,
+    callBack = undefined,
+    validated = true,
+  ) {
+    let query = GraphQLParamStrings.signIn(username, password, validated);
     let authToken = '';
     return dataFetch(query, username, authToken, callBack);
   },
@@ -166,6 +178,15 @@ export const DatabaseAPI = {
       callback,
     );
   },
+  getLatestDocumentByType: function (userObj, docTypeCode, callback) {
+    let query = GraphQLParamStrings.getLatestDocumentByType(docTypeCode);
+    return dataFetch(
+      query,
+      userObj.username,
+      userObj.authToken.token,
+      callback,
+    );
+  },
   addUserAddress: function (userObj, callback) {
     let query = GraphQLParamStrings.addUserAddress(userObj);
     return dataFetch(
@@ -193,10 +214,23 @@ export const DatabaseAPI = {
       callback,
     );
   },
-  addUserLegalDoc: function (userObj, legalTypeCode, agree = true, callback) {
+  addUserLegalDoc: function (
+    userObj,
+    legalTypeCode,
+    docId,
+    pSig,
+    gSig,
+    isMinor = false,
+    agree = true,
+    callback,
+  ) {
     let query = GraphQLParamStrings.addUserLegalDoc(
       userObj.username,
       legalTypeCode,
+      docId,
+      pSig,
+      gSig,
+      isMinor,
       agree,
     );
     return dataFetch(
@@ -261,13 +295,14 @@ export const DatabaseAPI = {
 };
 
 const GraphQLParamStrings = {
-  signIn: function (username, password) {
+  signIn: function (username, password, validated) {
     return `${MUTATION} { ${SIGN_IN}
             (
                 ${AUTHDATA}:{
-                    ${USERNAME}:\"${username}\",
-                    ${PASSWORD}:\"${password}\"
-                }
+                    ${USERNAME}:"${username}",
+                    ${PASSWORD}:"${password}"
+                },
+                ${VALIDATED}:${validated}
             ){
                 ${USERNAME},
                 ${TOKEN},
@@ -328,7 +363,7 @@ const GraphQLParamStrings = {
                     ${HEIGHT}:${height},
                     ${WEIGHT}:${parseInt(weight, 10)},      
                     ${IDP}:${parseFloat(userObj.idp)},
-                    ${EMAIL_VERIFIED}:${userObj.emailVerified},
+                    ${ACCOUNT_VERIFIED}:${userObj.accountVerified},
                     ${PLAYED_BEFORE}:${userObj.playedBefore},
                     ${REAL_ESTATE_SERVICE}:${userObj.reServices},
                     ${CAN_CONTACT}:${userObj.canContact},
@@ -391,12 +426,23 @@ const GraphQLParamStrings = {
                 ${HEIGHT}
                 ${WEIGHT}
                 ${IDP}
-                ${EMAIL_VERIFIED}
+                ${ACCOUNT_VERIFIED}
                 ${PLAYED_BEFORE}
                 ${REAL_ESTATE_SERVICE}
                 ${CAN_CONTACT}
                 ${LIABLE_AGREE}
                 ${TC_AGREE}
+                ${IS_MINOR}
+                ${ACTIVE_TC_LEGAL} {
+                  ${LEGAL_DOC_ID}
+                  ${P_SIG}
+                  ${G_SIG}
+                }
+                ${ACTIVE_LIAB_LEGAL} {
+                  ${LEGAL_DOC_ID}
+                  ${P_SIG}
+                  ${G_SIG}
+                }
             }
         }`;
     return query; //.replace(/\s/g, '');
@@ -407,6 +453,18 @@ const GraphQLParamStrings = {
                 ${NAME} 
                 ${STATE_CODE}
                 ${STATE_ID}
+            }}`;
+    return query;
+  },
+  getLatestDocumentByType: function (docTypeCode) {
+    let query = `${QUERY} { ${GET_LATEST_DOCUMENT_BY_TYPE}
+            (
+               ${TYPE_CODE}:\"${docTypeCode}\",
+            ){
+                ${DOC_ID} 
+                ${TITLE}
+                ${CONTENT}
+                ${VERSION}
             }}`;
     return query;
   },
@@ -483,7 +541,15 @@ const GraphQLParamStrings = {
         }}`;
     return query;
   },
-  addUserLegalDoc: function (username, legalTypeCode, agree) {
+  addUserLegalDoc: function (
+    username,
+    legalTypeCode,
+    docId,
+    pSig,
+    gSig,
+    isMinor,
+    agree,
+  ) {
     //2020-05-30 02:30:57.311
     let curDate = new Date();
     let expYear = curDate.getFullYear() + 1;
@@ -493,15 +559,21 @@ const GraphQLParamStrings = {
     let expireDate = `${expYear}-${
       curDate.getMonth() + 1
     }-${curDate.getDate()} ${curDate.getHours()}:${curDate.getMinutes()}:${curDate.getSeconds()}.0`;
-
+    if (!gSig) {
+      gSig = '';
+    }
     let query = `${MUTATION}{${ADD_USER_LEGAL_DOC}
             (   
                 ${INPUT_LEGAL}:{
-                    ${USERNAME}:\"${username}\",
-                    ${TYPE_CODE}:\"${legalTypeCode}\",
+                    ${USERNAME}:"${username}",
+                    ${TYPE_CODE}:"${legalTypeCode}",
                     ${AGREE}:${agree},
-                    ${ACTIVE_DATE}:\"${activeDate}\",
-                    ${EXPIRE_DATE}:\"${expireDate}\",
+                    ${DOC_ID}:${docId},
+                    ${P_SIG}:"${pSig}",
+                    ${G_SIG}:"${gSig}",
+                    ${IS_MINOR}:${isMinor},
+                    ${ACTIVE_DATE}:"${activeDate}",
+                    ${EXPIRE_DATE}:"${expireDate}",
                     ${ENABLED}:true
                 }
             ){

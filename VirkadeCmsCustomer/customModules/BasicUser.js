@@ -70,7 +70,7 @@ class BasicUser extends Component {
       this.updateInput({userId: userIdValue});
       let username = this.props.user.username;
       let password = this.props.user.password;
-      DatabaseAPI.signIn(username, password, this.nextPage);
+      DatabaseAPI.signIn(username, password, this.nextPage, false);
     } else {
       this.loading(false);
       Alert.alert(

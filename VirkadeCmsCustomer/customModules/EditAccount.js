@@ -111,7 +111,7 @@ class EditAccount extends Component {
     } else if (error) {
       Alert.alert(
         '::error::',
-        `\nhmmm... \nlooks like something went wrong. \n${error[0].messages}`,
+        `\nhmmm... \nlooks like something went wrong. \n${error[0].message}`,
       );
     } else {
       Alert.alert('::error::', '\nhmmm... \nlooks like something went wrong. ');
@@ -172,7 +172,7 @@ class EditAccount extends Component {
     } else if (error) {
       Alert.alert(
         '::error::',
-        `\nhmmm... \nlooks like something went wrong. \n${error[0].messages}`,
+        `\nhmmm... \nlooks like something went wrong. \n${error[0].message}`,
       );
     } else {
     }

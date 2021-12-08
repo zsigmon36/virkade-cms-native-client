@@ -81,7 +81,7 @@ class Login extends Component {
     return valid;
   }
 
-  signInCallBack(data) {
+  signInCallBack(data, error) {
     if (data && data.signIn) {
       let {username, token, createdDate} = data.signIn;
       this.updateInput({
@@ -95,13 +95,18 @@ class Login extends Component {
         this.props.user,
         this.populateStore,
       );
+    } else if (error) {
+      Alert.alert(
+        '::error::',
+        `\nhmmm... \nlogin failed. \n${error[0].message}`,
+      );
     } else {
-      this.loading(false);
       Alert.alert(
         '::error::',
         '\nlogin failed, make sure you provided the correct credentials or select forgot password',
       );
     }
+    this.loading(false);
   }
 
   populateStore(data, error) {
