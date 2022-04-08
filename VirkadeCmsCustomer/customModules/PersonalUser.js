@@ -18,6 +18,8 @@ import {pickerData} from '../static/pickerData';
 import Loader from './Loader.js';
 import style from '../static/styles.js';
 
+const infoMsg =
+  ':all of the following are optional. However, mobile the phone number will be used to send scheduled session reminders and we appreciate appreciate personal details as these answers are used to improve services and offerings. We do not share the information with any 3rd party partners or organizations:';
 class PersonalUser extends Component {
   constructor(props) {
     super(props);
@@ -34,7 +36,7 @@ class PersonalUser extends Component {
   };
 
   componentDidMount() {
-    this.setState({loading: false});
+    Alert.alert('::info::', `\n${infoMsg}`);
   }
   loading(data) {
     let loading = data || false;
@@ -61,6 +63,7 @@ class PersonalUser extends Component {
       });
     }
     this.setState({pickerStates: pickerItems});
+    this.setState({loading: false});
   }
 
   clickNext() {
@@ -148,12 +151,7 @@ class PersonalUser extends Component {
               <Text style={style.h1}>::personal info::</Text>
             </View>
             <View style={style.col}>
-              <Text style={style.h3}>
-                :all of the following are optional. However, we appreciate any
-                personal details as these answers are used to improve our
-                services and offerings. We do not share the information with any
-                3rd party partners or organizations:
-              </Text>
+              <Text style={style.h3}>{infoMsg}</Text>
             </View>
             <View style={style.col}>
               <Text style={style.label}>gender you identify:</Text>

@@ -26,11 +26,10 @@ class ScheduleSession extends Component {
   }
 
   state = {
-    availableSessionsPicker: (
-      <Picker.Item key={-1} label="no sessions available" value={-1} />
-    ),
+    availableSessionsPicker: [],
     availableSessions: [],
     pendingSessions: [],
+    lengthOptions: [],
     loading: true,
     selectedSession: 0,
   };
@@ -86,35 +85,40 @@ class ScheduleSession extends Component {
 
   setSessionOptions(data) {
     let pickerItems = [];
+    let lengthOptions = new Set();
     if (data.getAvailableSessions) {
       data.getAvailableSessions.map((item, index) => {
         let startDate = moment(item.startDate, 'yyyy-MM-DD hh:mm:ss.S');
         let endDate = moment(item.endDate, 'yyyy-MM-DD hh:mm:ss.S');
         startDate = startDate.format('ddd hh:mm a');
         endDate = endDate.format('ddd hh:mm a');
-        pickerItems.push(
-          <Picker.Item
-            style={style.pickerItem}
-            key={index}
-            label={`${startDate} - ${endDate}`}
-            value={index}
-          />,
-        );
+        pickerItems.push({
+          length: item.length,
+          key: index,
+          label: `${startDate} - ${endDate}`,
+          value: index,
+        });
       });
       if (data.getAvailableSessions.length > 0) {
         this.setState({availableSessions: data.getAvailableSessions});
         this.setState({availableSessionsPicker: pickerItems});
+        this.setState({lengthOptions: Array.from(lengthOptions)});
       }
     }
     this.loading(false);
   }
 
-  scheduleSession(firstAvail = false) {
-    let index = this.state.selectedSession;
-    if (firstAvail) {
-      index = 0;
+  scheduleSession(sessionTime, length) {
+    if (!sessionTime) {
+      this.state.availableSessions.some((session, index) => {
+        if (session.length === length) {
+          sessionTime = index;
+          return true;
+        }
+        return false;
+      });
     }
-    let session = this.state.availableSessions[index];
+    let session = this.state.availableSessions[sessionTime];
     if (session && session.startDate && session.endDate) {
       let confMsg = this.getSessionSummary(session);
       Alert.alert(
@@ -224,41 +228,66 @@ class ScheduleSession extends Component {
             <View style={style.colFirst}>
               <Text style={style.h1}>::schedule session::</Text>
             </View>
+            <View style={style.colFirst}>
+              <Text style={style.h3}>
+                {this.state.lengthOptions.length > 0
+                  ? ':: pick a time below ::'
+                  : ':: no time available ::'}
+              </Text>
+            </View>
+            {this.state.lengthOptions.map(length => {
+              return (
+                <View>
+                  <View style={style.col}>
+                    <TouchableNativeFeedback
+                      onPress={() => this.scheduleSession(undefined, length)}>
+                      <View style={[style.next, style.bigBorder]}>
+                        <Text style={style.boldLabel}>first available</Text>
+                      </View>
+                    </TouchableNativeFeedback>
+                  </View>
+                  <View style={style.colFirst}>
+                    <Text style={style.h3}>-- or --</Text>
+                  </View>
+                  <View style={style.separator} />
+                  <View style={style.col}>
+                    <Picker
+                      selectedValue={this.state.selectedSession}
+                      style={style.pickerItem}
+                      onValueChange={itemValue =>
+                        //use array key for now
+                        this.setState({selectedSession: itemValue})
+                      }>
+                      <Picker.Item
+                        style={style.pickerItem}
+                        key={-2}
+                        label="select"
+                        value={-2}
+                      />
+                      {this.state.availableSessionsPicker.map(item => {
+                        if (item.length === length) {
+                          return (
+                            <Picker.Item
+                              key={item.key}
+                              value={item.value}
+                              label={item.label}
+                            />
+                          );
+                        } else {
+                          return false;
+                        }
+                      })}
+                    </Picker>
+                  </View>
+                </View>
+              );
+            })}
+            <View style={style.separator} />
             <View style={style.col}>
               <TouchableNativeFeedback
-                onPress={() => this.scheduleSession(true)}>
-                <View style={[style.next, style.bigBorder]}>
-                  <Text style={style.boldLabel}>first available</Text>
-                </View>
-              </TouchableNativeFeedback>
-            </View>
-            <View style={style.colFirst}>
-              <Text style={style.h3}>-- or --</Text>
-            </View>
-            <View style={style.colFirst}>
-              <Text style={style.h3}>::pick a time below::</Text>
-            </View>
-            <View style={style.separator} />
-            <View style={style.col}>
-              <Picker
-                selectedValue={this.state.selectedSession}
-                style={style.pickerItem}
-                onValueChange={itemValue =>
-                  //use array key for now
-                  this.setState({selectedSession: itemValue})
+                onPress={() =>
+                  this.scheduleSession(this.state.selectedSession)
                 }>
-                <Picker.Item
-                  style={style.pickerItem}
-                  key={-2}
-                  label="select"
-                  value={-2}
-                />
-                {this.state.availableSessionsPicker}
-              </Picker>
-            </View>
-            <View style={style.separator} />
-            <View style={style.col}>
-              <TouchableNativeFeedback onPress={() => this.scheduleSession()}>
                 <View style={style.next}>
                   <Text style={style.label}>schedule</Text>
                 </View>

@@ -101,6 +101,7 @@ const LOCATION_NAME = 'locationName';
 const LOCATION = 'location';
 const START_DATE = 'startDate';
 const END_DATE = 'endDate';
+const LENGTH = 'length';
 const INPUT_PLAY_SESSION = 'inputPlaySession';
 const PAYED = 'payed';
 const SESSIONID = 'sessionId';
@@ -709,12 +710,13 @@ const GraphQLParamStrings = {
     let query = `${MUTATION} { ${ADD_USER_SESSION}
             (
                 ${INPUT_PLAY_SESSION}: {
-                    ${START_DATE}:\"${session.startDate}\",
-                    ${END_DATE}:\"${session.endDate}\",
-                    ${LOCATION_NAME}:\"${session.location.name}\",
-                    ${ACTIVITY_NAME}:\"${session.activity.name}\",
+                    ${START_DATE}:"${session.startDate}",
+                    ${END_DATE}:"${session.endDate}",
+                    ${LENGTH}:${session.length},
+                    ${LOCATION_NAME}:"${session.location.name}",
+                    ${ACTIVITY_NAME}:"${session.activity.name}",
                     ${PAYED}:false,
-                    ${USERNAME}:\"${userObj.username}\",
+                    ${USERNAME}:"${userObj.username}",
                 }
             )
             {
