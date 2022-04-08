@@ -9,6 +9,10 @@ export default style = StyleSheet.create({
     flexDirection: 'row',
     flex: 0.75,
   },
+  wideBody: {
+    flexDirection: 'row',
+    flex: 1,
+  },
   main: {
     flexDirection: 'column',
     flex: 1,
@@ -158,6 +162,12 @@ export default style = StyleSheet.create({
     borderColor: '#9fff80',
     borderTopWidth: 1,
   },
+  smallSeparator: {
+    marginTop: 5,
+    marginBottom: 5,
+    borderColor: '#9fff80',
+    borderTopWidth: 1,
+  },
   bigger: {
     fontSize: 22,
   },
@@ -168,5 +178,10 @@ export default style = StyleSheet.create({
   bigBorder: {
     borderColor: '#9fff80',
     borderWidth: 3,
+  },
+  sessionSelectorWrapper: {
+    borderColor: '#9fff80',
+    borderWidth: 1,
+    padding: 15,
   },
 });

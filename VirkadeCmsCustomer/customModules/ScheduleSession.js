@@ -88,6 +88,7 @@ class ScheduleSession extends Component {
     let lengthOptions = new Set();
     if (data.getAvailableSessions) {
       data.getAvailableSessions.map((item, index) => {
+        lengthOptions.add(item.length);
         let startDate = moment(item.startDate, 'yyyy-MM-DD hh:mm:ss.S');
         let endDate = moment(item.endDate, 'yyyy-MM-DD hh:mm:ss.S');
         startDate = startDate.format('ddd hh:mm a');
@@ -229,7 +230,7 @@ class ScheduleSession extends Component {
               <Text style={style.h1}>::schedule session::</Text>
             </View>
             <View style={style.colFirst}>
-              <Text style={style.h3}>
+              <Text style={style.h2}>
                 {this.state.lengthOptions.length > 0
                   ? ':: pick a time below ::'
                   : ':: no time available ::'}
@@ -237,7 +238,12 @@ class ScheduleSession extends Component {
             </View>
             {this.state.lengthOptions.map(length => {
               return (
-                <View>
+                <View style={style.sessionSelectorWrapper}>
+                  <View style={style.colFirst}>
+                    <Text style={style.h4}>
+                      session length: {length} minute
+                    </Text>
+                  </View>
                   <View style={style.col}>
                     <TouchableNativeFeedback
                       onPress={() => this.scheduleSession(undefined, length)}>
@@ -249,8 +255,8 @@ class ScheduleSession extends Component {
                   <View style={style.colFirst}>
                     <Text style={style.h3}>-- or --</Text>
                   </View>
-                  <View style={style.separator} />
-                  <View style={style.col}>
+                  <View style={style.smallSeparator} />
+                  <View style={style.colSimple}>
                     <Picker
                       selectedValue={this.state.selectedSession}
                       style={style.pickerItem}
@@ -258,12 +264,7 @@ class ScheduleSession extends Component {
                         //use array key for now
                         this.setState({selectedSession: itemValue})
                       }>
-                      <Picker.Item
-                        style={style.pickerItem}
-                        key={-2}
-                        label="select"
-                        value={-2}
-                      />
+                      <Picker.Item key={-2} label="select" value={-2} />
                       {this.state.availableSessionsPicker.map(item => {
                         if (item.length === length) {
                           return (
@@ -279,10 +280,10 @@ class ScheduleSession extends Component {
                       })}
                     </Picker>
                   </View>
+                  <View style={style.smallSeparator} />
                 </View>
               );
             })}
-            <View style={style.separator} />
             <View style={style.col}>
               <TouchableNativeFeedback
                 onPress={() =>

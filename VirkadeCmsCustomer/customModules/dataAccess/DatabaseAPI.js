@@ -635,6 +635,7 @@ const GraphQLParamStrings = {
             {
                 ${START_DATE}
                 ${END_DATE}
+                ${LENGTH}
                 ${LOCATION}{
                     ${NAME}
                     ${TAX_RATE}
