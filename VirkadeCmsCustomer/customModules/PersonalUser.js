@@ -19,7 +19,7 @@ import Loader from './Loader.js';
 import style from '../static/styles.js';
 
 const infoMsg =
-  ':all of the following are optional. However, mobile the phone number will be used to send scheduled session reminders and we appreciate appreciate personal details as these answers are used to improve services and offerings. We do not share the information with any 3rd party partners or organizations:';
+  ':all of the following are optional. However, the mobile phone number will be used to send scheduled session reminders and we appreciate personal details as these answers are used to improve services and offerings. We do not share the information with any 3rd party partners or organizations:';
 class PersonalUser extends Component {
   constructor(props) {
     super(props);
