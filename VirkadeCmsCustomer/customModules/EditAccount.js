@@ -450,7 +450,7 @@ class EditAccount extends Component {
               <Text style={style.h2}>::mobile phone number::</Text>
             </View>
             <View style={style.col}>
-              <Text style={style.label}>cc:</Text>
+              <Text style={style.label}>cntry:</Text>
               <Picker
                 selectedValue={this.state.user.phoneCountryCode}
                 style={style.input}
@@ -468,7 +468,7 @@ class EditAccount extends Component {
                   );
                 })}
               </Picker>
-              <Text style={style.label}>number:</Text>
+              <Text style={style.label}>nmbr:</Text>
               <TextInput
                 style={style.input}
                 underlineColorAndroid="#9fff80"

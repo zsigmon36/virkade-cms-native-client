@@ -236,7 +236,7 @@ class ScheduleSession extends Component {
                   : ':: no time available ::'}
               </Text>
             </View>
-            {this.state.lengthOptions.map(length => {
+            {this.state.lengthOptions.map((length, index) => {
               return (
                 <View style={style.sessionSelectorWrapper}>
                   <View style={style.colFirst}>
@@ -264,7 +264,11 @@ class ScheduleSession extends Component {
                         //use array key for now
                         this.setState({selectedSession: itemValue})
                       }>
-                      <Picker.Item key={-2} label="select" value={-2} />
+                      <Picker.Item
+                        key={index - 10}
+                        label="select"
+                        value={index - 2}
+                      />
                       {this.state.availableSessionsPicker.map(item => {
                         if (item.length === length) {
                           return (

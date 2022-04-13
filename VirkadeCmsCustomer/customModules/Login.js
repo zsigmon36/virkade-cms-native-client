@@ -26,11 +26,9 @@ class Login extends Component {
     isSecurity: true,
     pwToggleMsg: '[show]',
     validatorMsg: '',
-    loading: true,
+    loading: false,
   };
-  componentDidMount() {
-    this.setState({loading: false});
-  }
+  componentDidMount() {}
   loading(data) {
     let loading = data || false;
     this.setState({loading: loading});
@@ -94,6 +92,11 @@ class Login extends Component {
       DatabaseAPI.getAllFieldsUserByUserName(
         this.props.user,
         this.populateStore,
+      );
+    } else if (error && error[0].message.includes('CODE:ACCV')) {
+      Alert.alert(
+        '::info::',
+        '\nyour account needs to be verified before you can sign in',
       );
     } else if (error) {
       Alert.alert(
