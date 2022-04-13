@@ -1,1 +1,1 @@
-C:\Users\SIGMON-MAIN\AppData\Local\Android\Sdk\platform-tools\adb reverse tcp:8081 tcp:8081
+C:\Users\sigmo\AppData\Local\Android\Sdk\platform-tools\adb reverse tcp:8081 tcp:8081

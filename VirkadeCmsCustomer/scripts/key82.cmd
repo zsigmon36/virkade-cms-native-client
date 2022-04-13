@@ -1,1 +1,1 @@
-C:\Users\SIGMON-MAIN\AppData\Local\Android\Sdk\platform-tools\adb shell input keyevent 82
+C:\Users\sigmo\AppData\Local\Android\Sdk\platform-tools\adb shell input keyevent 82

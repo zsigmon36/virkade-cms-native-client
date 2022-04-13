@@ -1,0 +1,6 @@
+<resources>
+  <!-- We'll use 'background' name to reference this color -->
+  <!-- Replace #HEX_VALUE with Your color -->
+  <color name="background">#001a00</color>
+  <color name="text">#9fff80</color>
+</resources>
